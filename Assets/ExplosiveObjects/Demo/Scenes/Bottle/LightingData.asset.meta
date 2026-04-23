@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6cd6b4ae850d4a64d9bc32515ec5badf
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 112000000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 255996
+  packageName: Exploding Objects
+  packageVersion: 1.1
+  assetPath: Assets/ExplosiveObjects/Demo/Scenes/Bottle/LightingData.asset
+  uploadId: 850400

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 45addbdd92296ab4f8cb235f2ee61d83
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 255996
+  packageName: Exploding Objects
+  packageVersion: 1.1
+  assetPath: Assets/ExplosiveObjects/Scripts/BrokenObject.cs
+  uploadId: 850400

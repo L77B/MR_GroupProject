@@ -1,0 +1,1 @@
+To upgrade this asset to URP or HDRP, click on the packages URP or HDRP in the folder "Pipelines".

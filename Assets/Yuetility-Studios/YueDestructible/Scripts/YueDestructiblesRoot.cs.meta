@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 2ea9afe1ec9947948bef3c44c0a52fd5
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: e13f4281a295b08448d3004bd4d0e006, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 242653
+  packageName: Yue Destructible Objects Package Glass
+  packageVersion: 1.0
+  assetPath: Assets/Yuetility-Studios/YueDestructible/Scripts/YueDestructiblesRoot.cs
+  uploadId: 551719

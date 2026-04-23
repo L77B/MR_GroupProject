@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: e1b08032bec16ba4eb1ae23cbd572664
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 255996
+  packageName: Exploding Objects
+  packageVersion: 1.1
+  assetPath: Assets/ExplosiveObjects/Particles/BigExplosion.prefab
+  uploadId: 850400

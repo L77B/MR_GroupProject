@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: efa0d72b46130f142805a91b60a05b06
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 255996
+  packageName: Exploding Objects
+  packageVersion: 1.1
+  assetPath: Assets/ExplosiveObjects/Prefabs/Bottle.prefab
+  uploadId: 850400

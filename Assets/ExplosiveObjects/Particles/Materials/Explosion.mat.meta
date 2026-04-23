@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6421a5a06ae9f7a47a57b67f35c73b5a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 255996
+  packageName: Exploding Objects
+  packageVersion: 1.1
+  assetPath: Assets/ExplosiveObjects/Particles/Materials/Explosion.mat
+  uploadId: 850400

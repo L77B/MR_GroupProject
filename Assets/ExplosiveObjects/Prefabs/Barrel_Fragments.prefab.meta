@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 683d4f83b05e8934795ffa22fa4aa932
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 255996
+  packageName: Exploding Objects
+  packageVersion: 1.1
+  assetPath: Assets/ExplosiveObjects/Prefabs/Barrel_Fragments.prefab
+  uploadId: 850400

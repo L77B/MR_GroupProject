@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 19f09897c304b2240a13e14003326af8
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 255996
+  packageName: Exploding Objects
+  packageVersion: 1.1
+  assetPath: Assets/ExplosiveObjects/Prefabs/BottleFragments.prefab
+  uploadId: 850400

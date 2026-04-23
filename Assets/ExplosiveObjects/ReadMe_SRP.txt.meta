@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 7ec4ff3ae6437764fa823a7a63bd0e96
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 255996
+  packageName: Exploding Objects
+  packageVersion: 1.1
+  assetPath: Assets/ExplosiveObjects/ReadMe_SRP.txt
+  uploadId: 850400

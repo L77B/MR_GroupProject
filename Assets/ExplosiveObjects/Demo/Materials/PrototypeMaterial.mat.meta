@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9e77e079ecb817747a7f84151f7afb0f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 255996
+  packageName: Exploding Objects
+  packageVersion: 1.1
+  assetPath: Assets/ExplosiveObjects/Demo/Materials/PrototypeMaterial.mat
+  uploadId: 850400

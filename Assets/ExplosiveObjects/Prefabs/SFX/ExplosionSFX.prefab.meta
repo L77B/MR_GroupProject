@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 72031a7690caee747ad0908ec07967f3
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 255996
+  packageName: Exploding Objects
+  packageVersion: 1.1
+  assetPath: Assets/ExplosiveObjects/Prefabs/SFX/ExplosionSFX.prefab
+  uploadId: 850400
