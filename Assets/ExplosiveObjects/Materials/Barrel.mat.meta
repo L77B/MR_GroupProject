@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6fecce24996f7a74a896052fd529029c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 255996
+  packageName: Exploding Objects
+  packageVersion: 1.1
+  assetPath: Assets/ExplosiveObjects/Materials/Barrel.mat
+  uploadId: 850400

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 606a8c21594190f43a68a593a6ae0217
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 242653
+  packageName: Yue Destructible Objects Package Glass
+  packageVersion: 1.0
+  assetPath: Assets/Yuetility-Studios/YueDestructible/Scripts/YueDestructableAudioSourceTemplate.cs
+  uploadId: 551719

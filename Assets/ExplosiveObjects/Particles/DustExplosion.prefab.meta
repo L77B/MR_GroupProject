@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d8f0099df63275647a8bcf646df1ca00
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 255996
+  packageName: Exploding Objects
+  packageVersion: 1.1
+  assetPath: Assets/ExplosiveObjects/Particles/DustExplosion.prefab
+  uploadId: 850400
