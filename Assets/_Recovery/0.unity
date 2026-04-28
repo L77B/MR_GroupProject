@@ -263,7 +263,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &29407888
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1894,10 +1894,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 7479799134899489201, guid: 5cfe0349a30ca5141921861f169683c2, type: 3}
-      propertyPath: m_UseGravity
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8612775238128284381, guid: 5cfe0349a30ca5141921861f169683c2, type: 3}
       propertyPath: m_LocalScale.x
       value: 3.0543
@@ -1912,7 +1908,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8612775238128284381, guid: 5cfe0349a30ca5141921861f169683c2, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.2707448
+      value: -2.1
       objectReference: {fileID: 0}
     - target: {fileID: 8612775238128284381, guid: 5cfe0349a30ca5141921861f169683c2, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1920,7 +1916,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8612775238128284381, guid: 5cfe0349a30ca5141921861f169683c2, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.1809461
+      value: -1.656
       objectReference: {fileID: 0}
     - target: {fileID: 8612775238128284381, guid: 5cfe0349a30ca5141921861f169683c2, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3032,13 +3028,9 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bottle
       objectReference: {fileID: 0}
-    - target: {fileID: 596483068795847945, guid: a534c66d8a385834c99b46e1c8b19897, type: 3}
-      propertyPath: m_UseGravity
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 1138737038638572257, guid: a534c66d8a385834c99b46e1c8b19897, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.4476087
+      value: -0.923136
       objectReference: {fileID: 0}
     - target: {fileID: 1138737038638572257, guid: a534c66d8a385834c99b46e1c8b19897, type: 3}
       propertyPath: m_LocalPosition.y
@@ -3046,7 +3038,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1138737038638572257, guid: a534c66d8a385834c99b46e1c8b19897, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.41799587
+      value: -0.8930497
       objectReference: {fileID: 0}
     - target: {fileID: 1138737038638572257, guid: a534c66d8a385834c99b46e1c8b19897, type: 3}
       propertyPath: m_LocalRotation.w
@@ -5349,79 +5341,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 453313759}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &454537521 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2716415725864998416, guid: 4d5b4465b0d6b9e42baff27d66b0412f, type: 3}
-  m_PrefabInstance: {fileID: 1758374907}
-  m_PrefabAsset: {fileID: 0}
---- !u!54 &454537525
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 454537521}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
---- !u!114 &454537526
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 454537521}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9a7676b01585ce43908639a27765dfc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Oculus.Interaction::Oculus.Interaction.HandGrab.HandGrabInteractable
-  _interactorFilters: []
-  _maxInteractors: -1
-  _maxSelectingInteractors: -1
-  _data: {fileID: 0}
-  _pointableElement: {fileID: 0}
-  _rigidbody: {fileID: 454537525}
-  _physicsGrabbable: {fileID: 0}
-  _resetGrabOnGrabsUpdated: 1
-  _scoringModifier:
-    _positionRotationWeight: 0.8
-  _slippiness: 0
-  _supportedGrabTypes: 3
-  _pinchGrabRules:
-    _thumbRequirement: 1
-    _indexRequirement: 1
-    _middleRequirement: 1
-    _ringRequirement: 0
-    _pinkyRequirement: 0
-    _unselectMode: 0
-  _palmGrabRules:
-    _thumbRequirement: 1
-    _indexRequirement: 2
-    _middleRequirement: 2
-    _ringRequirement: 2
-    _pinkyRequirement: 1
-    _unselectMode: 0
-  _movementProvider: {fileID: 0}
-  _handAligment: 1
-  _handGrabPoses: []
 --- !u!1 &455545613
 GameObject:
   m_ObjectHideFlags: 0
@@ -5588,7 +5507,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5330708856820663510, guid: 9dffff5a27c3f6d469687917958ffbe3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.291374
+      value: -1.0793707
       objectReference: {fileID: 0}
     - target: {fileID: 5330708856820663510, guid: 9dffff5a27c3f6d469687917958ffbe3, type: 3}
       propertyPath: m_LocalPosition.y
@@ -5596,7 +5515,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5330708856820663510, guid: 9dffff5a27c3f6d469687917958ffbe3, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.28643823
+      value: -0.18861564
       objectReference: {fileID: 0}
     - target: {fileID: 5330708856820663510, guid: 9dffff5a27c3f6d469687917958ffbe3, type: 3}
       propertyPath: m_LocalRotation.w
@@ -5624,10 +5543,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5330708856820663510, guid: 9dffff5a27c3f6d469687917958ffbe3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9103359118715652977, guid: 9dffff5a27c3f6d469687917958ffbe3, type: 3}
-      propertyPath: m_UseGravity
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -16064,13 +15979,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 6272239923707056836, guid: b4e1cabd43824c740a2c77b5d6c6b6ed, type: 3}
-      propertyPath: m_UseGravity
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 6963870624458087783, guid: b4e1cabd43824c740a2c77b5d6c6b6ed, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.578
+      value: -1.7927449
       objectReference: {fileID: 0}
     - target: {fileID: 6963870624458087783, guid: b4e1cabd43824c740a2c77b5d6c6b6ed, type: 3}
       propertyPath: m_LocalPosition.y
@@ -16078,7 +15989,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6963870624458087783, guid: b4e1cabd43824c740a2c77b5d6c6b6ed, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.239
+      value: -0.23605384
       objectReference: {fileID: 0}
     - target: {fileID: 6963870624458087783, guid: b4e1cabd43824c740a2c77b5d6c6b6ed, type: 3}
       propertyPath: m_LocalRotation.w
@@ -19789,11 +19700,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7139694420246865086, guid: 4d5b4465b0d6b9e42baff27d66b0412f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.167
+      value: -0.485
       objectReference: {fileID: 0}
     - target: {fileID: 7139694420246865086, guid: 4d5b4465b0d6b9e42baff27d66b0412f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.000000009455498
+      value: 0.825
       objectReference: {fileID: 0}
     - target: {fileID: 7139694420246865086, guid: 4d5b4465b0d6b9e42baff27d66b0412f, type: 3}
       propertyPath: m_LocalPosition.z
@@ -19832,11 +19743,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2716415725864998416, guid: 4d5b4465b0d6b9e42baff27d66b0412f, type: 3}
-      insertIndex: 1
-      addedObject: {fileID: 454537525}
+      insertIndex: 2
+      addedObject: {fileID: 2138805436}
     - targetCorrespondingSourceObject: {fileID: 2716415725864998416, guid: 4d5b4465b0d6b9e42baff27d66b0412f, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 454537526}
+      addedObject: {fileID: 2138805435}
   m_SourcePrefab: {fileID: 100100000, guid: 4d5b4465b0d6b9e42baff27d66b0412f, type: 3}
 --- !u!1 &1764886516
 GameObject:
@@ -25114,7 +25025,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1420198550169211760, guid: 7b263552a35e1f54880aa060bafa14e9, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.1676981
+      value: -1.2030466
       objectReference: {fileID: 0}
     - target: {fileID: 1420198550169211760, guid: 7b263552a35e1f54880aa060bafa14e9, type: 3}
       propertyPath: m_LocalPosition.y
@@ -25122,7 +25033,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1420198550169211760, guid: 7b263552a35e1f54880aa060bafa14e9, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.8926066
+      value: 0.4175528
       objectReference: {fileID: 0}
     - target: {fileID: 1420198550169211760, guid: 7b263552a35e1f54880aa060bafa14e9, type: 3}
       propertyPath: m_LocalRotation.w
@@ -25155,10 +25066,6 @@ PrefabInstance:
     - target: {fileID: 1800982050785462730, guid: 7b263552a35e1f54880aa060bafa14e9, type: 3}
       propertyPath: m_Name
       value: Plate
-      objectReference: {fileID: 0}
-    - target: {fileID: 7219116661138751661, guid: 7b263552a35e1f54880aa060bafa14e9, type: 3}
-      propertyPath: m_UseGravity
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -25203,6 +25110,61 @@ Transform:
   - {fileID: 856971016}
   m_Father: {fileID: 391387987}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2138805431 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2716415725864998416, guid: 4d5b4465b0d6b9e42baff27d66b0412f, type: 3}
+  m_PrefabInstance: {fileID: 1758374907}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2138805435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2138805431}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a1bc992571301d4a9602ac95ef4c71a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Oculus.Interaction::Oculus.Interaction.GrabInteractable
+  _interactorFilters: []
+  _maxInteractors: -1
+  _maxSelectingInteractors: -1
+  _data: {fileID: 0}
+  _pointableElement: {fileID: 0}
+  _rigidbody: {fileID: 2138805436}
+  _grabSource: {fileID: 0}
+  _useClosestPointAsGrabSource: 1
+  _releaseDistance: 0
+  _resetGrabOnGrabsUpdated: 1
+  _physicsGrabbable: {fileID: 0}
+--- !u!54 &2138805436
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2138805431}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &2145558969
 GameObject:
   m_ObjectHideFlags: 0
