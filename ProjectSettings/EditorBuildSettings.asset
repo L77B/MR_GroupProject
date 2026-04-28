@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Krish.unity
     guid: 39658c6d4e91b47b1b67e940d1e732ed
+  - enabled: 0
+    path: Assets/Scenes/weapon testing scene.unity
+    guid: 56d12014e74204b089e466c262187807
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 34b8ee693a6187346b81cf5f4ecbe28a, type: 2}
