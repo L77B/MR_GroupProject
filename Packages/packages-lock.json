@@ -441,6 +441,13 @@
       },
       "url": "https://packages.unity.com"
     },
+    "se.su.dsv.extralitylab.unity": {
+      "version": "https://gitea.dsv.su.se/ExtralityLab/se.su.dsv.extralitylab.unity.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "ea731a6d7ab6d8867344266a97dfcad36c162633"
+    },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
       "depth": 0,
