@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.endel.nativewebsocket": {
+      "version": "https://github.com/endel/NativeWebSocket.git#upm",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "ea014c9ae534d56111962d96f89f8a046e302dc9"
+    },
     "com.meta.xr.mrutilitykit": {
       "version": "85.0.0",
       "depth": 1,
@@ -387,6 +394,13 @@
         "com.unity.xr.legacyinputhelpers": "2.1.2"
       },
       "url": "https://packages.unity.com"
+    },
+    "se.su.dsv.extralitylab.unity": {
+      "version": "https://gitea.dsv.su.se/ExtralityLab/se.su.dsv.extralitylab.unity.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "ea731a6d7ab6d8867344266a97dfcad36c162633"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
