@@ -4,36 +4,63 @@ using Meta.XR.MRUtilityKit;
 public class SpawnManager : MonoBehaviour
 {
     public FindSpawnPositions spawner;
-
     public GameObject[] spawnPrefabs;
 
-    private int currentIndex = 0;
+    private int currentIndex = -1;
 
     public void SpawnNext()
     {
-        if (spawnPrefabs.Length == 0) return;
+        if (!IsReady()) return;
 
-        // Cycle index
         currentIndex = (currentIndex + 1) % spawnPrefabs.Length;
-
-        // Remove old objects
-        spawner.ClearSpawnedPrefabs();
-
-        // Assign new prefab
-        spawner.SpawnObject = spawnPrefabs[currentIndex];
-
-        // Spawn again
-        spawner.StartSpawn();
+        SpawnByIndex(currentIndex);
     }
 
     public void SpawnByIndex(int index)
     {
-        if (index < 0 || index >= spawnPrefabs.Length) return;
+        if (!IsReady()) return;
+
+        if (index < 0 || index >= spawnPrefabs.Length)
+        {
+            Debug.LogWarning("Invalid prefab index.");
+            return;
+        }
+
+        MRUKRoom room = MRUK.Instance.GetCurrentRoom();
+
+        if (room == null)
+        {
+            Debug.LogWarning("No MRUK room found yet. Wait until scene data is loaded.");
+            return;
+        }
 
         spawner.ClearSpawnedPrefabs();
         spawner.SpawnObject = spawnPrefabs[index];
-        spawner.StartSpawn();
+        spawner.StartSpawn(room);
 
         currentIndex = index;
+    }
+
+    private bool IsReady()
+    {
+        if (spawner == null)
+        {
+            Debug.LogWarning("Spawner is not assigned.");
+            return false;
+        }
+
+        if (spawnPrefabs == null || spawnPrefabs.Length == 0)
+        {
+            Debug.LogWarning("No spawn prefabs assigned.");
+            return false;
+        }
+
+        if (MRUK.Instance == null)
+        {
+            Debug.LogWarning("MRUK instance not found.");
+            return false;
+        }
+
+        return true;
     }
 }
