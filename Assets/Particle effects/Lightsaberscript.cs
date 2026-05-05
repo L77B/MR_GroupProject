@@ -13,6 +13,9 @@ public class Lightsaberscript : MonoBehaviour
     // Start is called once before the first execution of Upd   ate after the MonoBehaviour is created
     void Start()
     {
+        saberCollider.SetActive(!saberCollider.activeSelf);
+        saberEffect.SetActive(!saberEffect.activeSelf);
+        StartCoroutine(ToggleLightsSequentially());
     }
 
     // Update is called once per frame
