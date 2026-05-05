@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ab9016dbede1b6740b2ce67f021e663f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 255996
+  packageName: Exploding Objects
+  packageVersion: 1.1
+  assetPath: Assets/ExplosiveObjects/Demo/Scenes/Bottle_Settings.lighting
+  uploadId: 850400

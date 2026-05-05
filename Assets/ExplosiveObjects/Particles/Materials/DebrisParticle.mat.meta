@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 72815344e9e9c7446895e130936932d7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 255996
+  packageName: Exploding Objects
+  packageVersion: 1.1
+  assetPath: Assets/ExplosiveObjects/Particles/Materials/DebrisParticle.mat
+  uploadId: 850400

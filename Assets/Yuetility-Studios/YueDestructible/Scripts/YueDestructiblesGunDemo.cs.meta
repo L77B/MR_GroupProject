@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 9b18cc6fafe6f9548a4d30a9634df21e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 242653
+  packageName: Yue Destructible Objects Package Glass
+  packageVersion: 1.0
+  assetPath: Assets/Yuetility-Studios/YueDestructible/Scripts/YueDestructiblesGunDemo.cs
+  uploadId: 551719

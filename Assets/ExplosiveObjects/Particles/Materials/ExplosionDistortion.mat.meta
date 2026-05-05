@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fafa06e8ef8c7fb4eac7a74c65cf3a06
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 255996
+  packageName: Exploding Objects
+  packageVersion: 1.1
+  assetPath: Assets/ExplosiveObjects/Particles/Materials/ExplosionDistortion.mat
+  uploadId: 850400

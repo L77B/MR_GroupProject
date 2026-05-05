@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 53a63d52a4c231f4c8ef0f2bfc170425
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 255996
+  packageName: Exploding Objects
+  packageVersion: 1.1
+  assetPath: Assets/ExplosiveObjects/Particles/Materials/Dust.mat
+  uploadId: 850400

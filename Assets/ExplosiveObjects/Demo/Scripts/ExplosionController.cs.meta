@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 4c9f69b85736efb4e826e124a170a072
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 255996
+  packageName: Exploding Objects
+  packageVersion: 1.1
+  assetPath: Assets/ExplosiveObjects/Demo/Scripts/ExplosionController.cs
+  uploadId: 850400
