@@ -11,9 +11,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Elin.unity
     guid: 0f69d1a7c8881457ba635d11af287802
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Krish.unity
     guid: 39658c6d4e91b47b1b67e940d1e732ed
+  - enabled: 1
+    path: Assets/Scenes/Linnea.unity
+    guid: b2e4cbe4d4f934ef2bd4b4b973185817
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: b56a0b06050ebc7419d1d482969b4bf6, type: 2}
