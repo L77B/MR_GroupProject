@@ -13,16 +13,14 @@ public class WebSocketClientExample : MonoBehaviour
     private WebSocket websocket;
     public string serverIP = "XXX.XXX.XXX.XXX"; // Replace with your server's IP address
     public int serverPort = 8081; // Replace with your server's port number (8081 is the default)
-    public SceneLoader sceneLoader; // assign in Inspector
-
 
     [Range(0, 255)]
     public int ledIntensity = 0;
-
+    public SpawnManager spawnManager;
     async void Start()
     {
         websocket = new WebSocket("ws://" + serverIP + ":" + serverPort);
-
+        spawnManager = FindAnyObjectByType<SpawnManager>();
         //Runs when connected to the server
         websocket.OnOpen += async () =>
         {
@@ -128,11 +126,8 @@ public class WebSocketClientExample : MonoBehaviour
             {
                 //do something if button pressed
                 Debug.Log("ESP32 Button Pressed");
-                
-                // Load scene 
-                sceneLoader.RestartGame();
-                // or: sceneLoader.LoadSceneByName("MySceneName");
-        
+                spawnManager.SpawnNext();
+
             }
             if(valueParsed == "0") 
             {
