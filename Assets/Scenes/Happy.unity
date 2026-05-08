@@ -1114,6 +1114,17 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.034548517, y: 0.00051147584, z: 0.000073043164}
     m_Extent: {x: 0.0009967126, y: 0.0020704698, z: 0.0044533596}
   m_DirtyAABB: 0
+--- !u!114 &196500338 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5381322022706010847, guid: 0a7d2469f24041c4284c66706f84c45e, type: 3}
+  m_PrefabInstance: {fileID: 404588250}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a379f34d4f4f2e408d34f14bfb753ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &200084739
 GameObject:
   m_ObjectHideFlags: 0
@@ -2360,6 +2371,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 756bc95a5f51ffe42afe98fa60333aac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  levelConfig: {fileID: 11400000, guid: 760c5e247f7b03541abbad0f565cd0a6, type: 2}
+  maxRage: 100
+  rageDecayPerSecond: 4
+  forceMultiplier: 1.5
+  speedMultiplier: 4
+  breakBonus: 20
+  comboWindow: 2
+  comboMultiplierStep: 0.15
+  maxComboMultiplier: 3
+  rageSlider: {fileID: 0}
+  rageText: {fileID: 0}
+  levelNameText: {fileID: 0}
+  rageBarFillImage: {fileID: 0}
 --- !u!1 &402250023
 GameObject:
   m_ObjectHideFlags: 0
@@ -3170,6 +3194,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 483afe39fef56534e87dbe60ab12316f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  objectsPerWave: 5
+  wavePauseDelay: 1.5
+  breakablePrefabs: []
+  minSpawnDistance: 0.8
+  maxSpawnDistance: 3
+  spawnHeightOffset: 1
+  maxSpawnAttempts: 30
+  rageMeter: {fileID: 0}
+  audioSource: {fileID: 0}
+  waveStartClip: {fileID: 0}
+  waveCompleteClip: {fileID: 0}
 --- !u!1 &452712826
 GameObject:
   m_ObjectHideFlags: 0
@@ -3955,6 +3990,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: deafabaae3339564792357bcdde76889, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  maxHealth: 100
+  lightHitThreshold: 5
+  heavyHitThreshold: 15
+  breakThreshold: 25
+  fracturedPieces: []
+  explosionForce: 300
+  explosionRadius: 1
+  cleanupDelay: 4
+  hitParticles: {fileID: 0}
+  breakParticles: {fileID: 0}
+  audioSource: {fileID: 0}
+  lightHitSound: {fileID: 0}
+  heavyHitSound: {fileID: 0}
+  breakSound: {fileID: 0}
+  rageMeter: {fileID: 0}
+  knockbackMultiplier: 1
 --- !u!1 &634111996
 GameObject:
   m_ObjectHideFlags: 0
@@ -10994,7 +11045,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1623131762}
   - component: {fileID: 1623131763}
-  - component: {fileID: 1623131764}
   m_Layer: 0
   m_Name: WeaponRack
   m_TagString: Untagged
@@ -11029,18 +11079,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d960722ef25dba4880b21ead339468d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
---- !u!114 &1623131764
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1623131761}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fb8221f5b86e544a84dbea6b9aa3046, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
+  rageMeter: {fileID: 0}
+  levelConfig: {fileID: 11400000, guid: 760c5e247f7b03541abbad0f565cd0a6, type: 2}
+  slotAnchors: []
+  autoReturnDistance: 3
+  autoReturnDelay: 3
+  audioSource: {fileID: 0}
+  unlockClip: {fileID: 0}
+  unlockParticles: {fileID: 0}
 --- !u!1 &1643449139
 GameObject:
   m_ObjectHideFlags: 0
@@ -13439,6 +13485,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e23b448bbb3431b4bb934403f5063d5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  rackTriggerTag: WeaponRackSlot
 --- !u!114 &1993722202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13451,6 +13498,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a359c41f1ab03ac4c9b6dc1076a550e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  controllerHand: 2
+  minSwingSpeed: 1
+  forceMultiplier: 1.2
+  maxForce: 50
+  hitCooldown: 0.15
 --- !u!114 &1993722203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13463,7 +13515,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae43f25c06eb2d9408a201216b4c3ed7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Oculus.Interaction::Oculus.Interaction.GrabAPI.HandGrabAPI
-  _hand: {fileID: 0}
+  _hand: {fileID: 196500338}
   _hmd: {fileID: 0}
 --- !u!114 &1993722204
 MonoBehaviour:
