@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Meta.XR.MRUtilityKit;
 using UnityEngine;
 
 /// <summary>
@@ -50,12 +51,24 @@ public class WeaponRack : MonoBehaviour
 
     [Header("Auto-Return Settings")]
     [Tooltip("If an ungripped weapon travels further than this (metres) from its slot, " +
-             "it is immediately recalled to the rack.")]
-    [SerializeField] private float autoReturnDistance = 3f;
+             "it is immediately recalled to the rack. " +
+             "Set this large (e.g. 10) if the weapon sits on floor/table and the player " +
+             "walks to pick it up — prevents premature recall before grab.")]
+    [SerializeField] private float autoReturnDistance = 10f;
 
-    [Tooltip("Seconds after a weapon is released before it automatically returns to the rack. " +
-             "Gives the player a chance to pick it up again before it flies back.")]
-    [SerializeField] private float autoReturnDelay = 3f;
+    [Tooltip("Seconds after a weapon is released before it automatically returns to its slot. " +
+             "Increase this to give the player more time to re-grab a dropped weapon " +
+             "before it flies back.")]
+    [SerializeField] private float autoReturnDelay = 8f;
+
+    [Tooltip("If true, auto-return is completely disabled. " +
+             "The weapon stays wherever it lands when dropped. " +
+             "Useful when weapons are placed on floor or table for the player to walk to.")]
+    [SerializeField] private bool disableAutoReturn = false;
+
+    [Header("Default Weapon")]
+    [Tooltip("Drag the Baseball Bat GameObject here. The bat sits at scene root so cannot be found automatically via GetComponentInChildren. This explicit reference ensures it is registered with Slot_0 on Start.")]
+    [SerializeField] private GameObject defaultBat;
 
     [Header("Unlock FX")]
     [Tooltip("AudioSource used to play the weapon unlock sound.")]
@@ -100,13 +113,33 @@ public class WeaponRack : MonoBehaviour
             returnCoroutines.Add(null);
         }
 
-        // Register the default bat that is already placed in the scene under Slot 0.
-        // WeaponPickup on the bat needs to know which rack and slot it belongs to.
+        // ── Register the default bat in Slot 0 ───────────────────────────────
+        // The bat sits at the scene root so GetComponentInChildren on Slot_0
+        // cannot find it. We use the explicit defaultBat reference instead.
+        // If defaultBat is not assigned, fall back to searching Slot_0 children.
         if (slotAnchors.Length > 0)
         {
-            var existingBat = slotAnchors[0].GetComponentInChildren<WeaponPickup>();
-            if (existingBat != null)
-                RegisterWeaponInSlot(existingBat.gameObject, 0);
+            if (defaultBat != null)
+            {
+                // Explicit reference — bat is at scene root, not under Slot_0
+                RegisterWeaponInSlot(defaultBat, 0);
+                Debug.Log("[WeaponRack] Default bat registered in Slot_0.");
+            }
+            else
+            {
+                // Fallback — search Slot_0 children (bat parented under rack)
+                var existingBat = slotAnchors[0].GetComponentInChildren<WeaponPickup>();
+                if (existingBat != null)
+                {
+                    RegisterWeaponInSlot(existingBat.gameObject, 0);
+                    Debug.Log("[WeaponRack] Default bat found via GetComponentInChildren.");
+                }
+                else
+                {
+                    Debug.LogWarning("[WeaponRack] No bat found for Slot_0. " +
+                                     "Assign the bat to the 'Default Bat' field in the Inspector.");
+                }
+            }
         }
     }
 
@@ -148,12 +181,17 @@ public class WeaponRack : MonoBehaviour
     }
 
     /// <summary>
-    /// Called by WeaponPickup when the player grabs a weapon off the rack.
-    /// Starts the auto-return countdown — if the player does not return the weapon
-    /// within autoReturnDelay seconds, it will fly back on its own.
+    /// Called by WeaponPickup when the player grabs a weapon.
+    /// Starts the auto-return countdown unless disableAutoReturn is true.
+    /// When the player picks up from the floor or table, auto-return is
+    /// disabled so the weapon does not fly back to a distant rack position.
     /// </summary>
     public void WeaponPickedUp(WeaponPickup weapon, int slotIndex)
     {
+        // Auto-return disabled — no timer needed
+        // Weapon will stay wherever the player drops it after use
+        if (disableAutoReturn) return;
+
         // Cancel any previously running return coroutine for this slot
         if (returnCoroutines[slotIndex] != null)
             StopCoroutine(returnCoroutines[slotIndex]);
@@ -231,10 +269,17 @@ public class WeaponRack : MonoBehaviour
     /// <summary>
     /// Runs every Update to catch weapons that have drifted out of range.
     /// Only acts on weapons that are not currently held by the player.
-    /// Recalls immediately (no delay) because the object has left the play area.
+    /// Skipped entirely when disableAutoReturn is true — weapons stay wherever
+    /// they land, which is the correct behaviour when weapons are placed on the
+    /// floor or table for the player to walk to and pick up naturally.
     /// </summary>
     private void CheckWeaponDistances()
     {
+        // Auto-return is disabled — weapons sit wherever they are placed.
+        // This is the correct setting when the player walks to pick up weapons
+        // from the floor or table rather than from a distant rack.
+        if (disableAutoReturn) return;
+
         for (int i = 0; i < slotWeapons.Count; i++)
         {
             if (slotWeapons[i] == null) continue;
@@ -248,6 +293,9 @@ public class WeaponRack : MonoBehaviour
                 slotWeapons[i].transform.position,
                 slotAnchors[i].position);
 
+            // Only recall if the weapon has gone significantly further than
+            // autoReturnDistance — prevents weapons being pulled back while
+            // the player is still reaching for them
             if (dist > autoReturnDistance)
             {
                 // Stop any existing timer and start an immediate recall
@@ -260,9 +308,13 @@ public class WeaponRack : MonoBehaviour
     /// <summary>
     /// Waits for autoReturnDelay seconds, then recalls the weapon if it is still
     /// not being held. The delay gives the player a window to pick it back up.
+    /// Skipped entirely when disableAutoReturn is true.
     /// </summary>
     private IEnumerator AutoReturnAfterDelay(int slotIndex)
     {
+        // Auto-return disabled — weapon stays wherever it was dropped
+        if (disableAutoReturn) yield break;
+
         yield return new WaitForSeconds(autoReturnDelay);
 
         var weapon = slotWeapons[slotIndex];
@@ -332,5 +384,89 @@ public class WeaponRack : MonoBehaviour
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
         }
+    }
+
+    /// <summary>
+    /// Places the bat at a reachable position near the player on the floor or table.
+    /// Call this from GameManager.Start() after MRUK scene is loaded so the bat
+    /// appears within the player's reach regardless of room size.
+    ///
+    /// HOW IT WORKS
+    /// ─────────────
+    /// 1. Tries to find a TABLE surface near the player and places the bat on it.
+    /// 2. Falls back to a floor position 0.8m in front of the player if no table found.
+    /// 3. Updates Slot_0 anchor to match so auto-return (if enabled) brings it
+    ///    back to the same reachable position.
+    /// </summary>
+    public void PlaceBatNearPlayer()
+    {
+        if (defaultBat == null || slotAnchors.Length == 0)
+        {
+            Debug.LogWarning("[WeaponRack] Cannot place bat — defaultBat or slotAnchors not assigned.");
+            return;
+        }
+
+        Vector3 targetPosition = Vector3.zero;
+        Quaternion targetRotation = Quaternion.identity;
+        bool positionFound = false;
+
+        // ── Try to find a table surface near the player ───────────────────────
+        MRUKRoom room = MRUK.Instance != null ? MRUK.Instance.GetCurrentRoom() : null;
+        if (room != null)
+        {
+            // Try to generate a position on a TABLE surface
+            if (room.GenerateRandomPositionOnSurface(
+                MRUK.SurfaceType.FACING_UP,
+                0.1f,
+                new LabelFilter(MRUKAnchor.SceneLabels.TABLE),
+                out Vector3 tablePos,
+                out Vector3 tableNormal))
+            {
+                // Place bat flat on table surface
+                // Raise slightly above table to avoid z-fighting
+                targetPosition = tablePos + tableNormal * 0.05f;
+                targetRotation = Quaternion.FromToRotation(Vector3.up, tableNormal);
+                positionFound = true;
+                Debug.Log("[WeaponRack] Bat placed on table surface.");
+            }
+        }
+
+        // ── Fallback: place on floor 0.8m in front of player ─────────────────
+        if (!positionFound && Camera.main != null)
+        {
+            // Calculate a position 0.8m in front of the player at floor level
+            Vector3 forward = Camera.main.transform.forward;
+            forward.y = 0f;          // Keep direction horizontal
+            forward = forward.normalized;
+            Vector3 floorPos = Camera.main.transform.position + forward * 0.8f;
+            floorPos.y = 0f;          // Snap to floor level (y=0)
+
+            // Raise by half the bat's height so it sits ON the floor not in it
+            Collider batCol = defaultBat.GetComponent<Collider>();
+            float halfHeight = batCol != null ? batCol.bounds.extents.y : 0.1f;
+            floorPos.y += halfHeight;
+
+            targetPosition = floorPos;
+            targetRotation = Quaternion.Euler(0f, Camera.main.transform.eulerAngles.y, 0f);
+            positionFound = true;
+            Debug.Log("[WeaponRack] No table found. Bat placed on floor in front of player.");
+        }
+
+        if (!positionFound)
+        {
+            Debug.LogWarning("[WeaponRack] Could not find a position for the bat.");
+            return;
+        }
+
+        // ── Move Slot_0 anchor to the target position ─────────────────────────
+        // This keeps auto-return consistent — if re-enabled later, the bat
+        // returns to this reachable position not the original rack location.
+        slotAnchors[0].position = targetPosition;
+        slotAnchors[0].rotation = targetRotation;
+
+        // ── Snap bat to the new position ──────────────────────────────────────
+        SnapToSlot(defaultBat, 0);
+
+        Debug.Log($"[WeaponRack] Bat placed at {targetPosition}");
     }
 }
