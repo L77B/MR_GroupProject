@@ -20992,6 +20992,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2716415725864998416, guid: 4d5b4465b0d6b9e42baff27d66b0412f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1758374921}
+    - targetCorrespondingSourceObject: {fileID: 2716415725864998416, guid: 4d5b4465b0d6b9e42baff27d66b0412f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1758374923}
   m_SourcePrefab: {fileID: 100100000, guid: 4d5b4465b0d6b9e42baff27d66b0412f, type: 3}
 --- !u!4 &1758374908 stripped
 Transform:
@@ -21134,6 +21137,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BatSwingTracker
   currentSwingSpeed: 0
   peakSwingSpeed: 0
+--- !u!114 &1758374923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 454537521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69b1b3fc7ad614b53842e32a5a95725d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ZXingVersionTest
 --- !u!1 &1764886516
 GameObject:
   m_ObjectHideFlags: 0
