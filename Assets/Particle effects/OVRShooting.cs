@@ -1,31 +1,35 @@
-
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class OVRShoot : MonoBehaviour
+public class OVRShooting : MonoBehaviour
 {
     public Shooting shootingScript;
-    public string triggerShot = "TriggerShot";
+    public InputActionReference triggerShot;
+
     private bool wasPressedLastFrame = false;
     public float triggerThreshold = 0.5f;
 
+    void OnEnable()
+    {
+        triggerShot.action.Enable();
+    }
+
+    void OnDisable()
+    {
+        triggerShot.action.Disable();
+    }
+
     void Update()
     {
-        float triggerValue = 0f;
+        float triggerValue = triggerShot.action.ReadValue<float>();
 
-        if (OVRPlugin.GetActionStateFloat(triggerShot, out triggerValue))
+        bool isPressed = triggerValue > triggerThreshold;
+
+        if (isPressed && !wasPressedLastFrame)
         {
-            bool isPressed = triggerValue > triggerThreshold;
-
-            if (isPressed && !wasPressedLastFrame)
-            {
-                shootingScript.TriggerShot();
-            }
-
-            wasPressedLastFrame = isPressed;
+            shootingScript.TriggerShot();
         }
-        else
-        {
-            Debug.LogWarning("Trigger action not found or failed");
-        }
+
+        wasPressedLastFrame = isPressed;
     }
 }
