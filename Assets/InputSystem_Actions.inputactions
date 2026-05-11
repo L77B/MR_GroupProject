@@ -95,6 +95,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "TriggerShoot",
+                    "type": "Button",
+                    "id": "7cf94072-a860-43ff-a9c3-8620a5542f38",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -485,12 +494,20 @@
                 },
                 {
                     "name": "",
+<<<<<<< Updated upstream
                     "id": "7c37e45a-1341-4ac9-9cba-df4155758df5",
+=======
+                    "id": "a0967d8f-2a65-481e-b970-420fd8fbb7be",
+>>>>>>> Stashed changes
                     "path": "<XRController>{RightHand}/{TriggerButton}",
                     "interactions": "",
                     "processors": "",
                     "groups": ";XR",
+<<<<<<< Updated upstream
                     "action": "TriggerShot",
+=======
+                    "action": "TriggerShoot",
+>>>>>>> Stashed changes
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
