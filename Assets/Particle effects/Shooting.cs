@@ -4,9 +4,6 @@ public class Shooting : MonoBehaviour
     public GameObject shot;
     public GameObject hit;
 
-    public GameObject bulletPrefab;
-    public Transform bulletSpawnPoint;
-
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -33,10 +30,6 @@ public class Shooting : MonoBehaviour
 
         Invoke(nameof(DeactivateShot), 0.5f);
         Invoke(nameof(HitShot), 0.5f);
-
-        GameObject bullet = Instantiate(bulletPrefab, bulletSpawnPoint.position, Quaternion.identity);
-        Rigidbody bulletRigidbody = bullet.GetComponent<Rigidbody>();
-        bulletRigidbody.AddForce(bulletSpawnPoint.right * 20f, ForceMode.Impulse);
     }
 
 
