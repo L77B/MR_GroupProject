@@ -49,12 +49,20 @@ public class SpawnManager : MonoBehaviour
         // Validate setup before attempting to register the MRUK callback
         if (!IsReady()) return;
 
-        // Wait for MRUK to finish scanning the room before spawning.
-        // RegisterSceneLoadedCallback fires immediately if the scene is
-        // already loaded, or fires once loading completes otherwise.
-        // This prevents SpawnByIndex(0) being called before room data exists.
-        MRUK.Instance.RegisterSceneLoadedCallback(SpawnDefault);
+        // If GameFlowManager is present it controls all spawning order.
+        // SpawnManager should NOT auto-spawn — GameFlowManager calls
+        // SpawnByIndex(0) after the player confirms their position.
+        // Only auto-spawn if GameFlowManager is absent.
+        GameFlowManager flowManager = FindAnyObjectByType<GameFlowManager>();
+        if (flowManager != null)
+        {
+            Debug.Log("[SpawnManager] GameFlowManager detected. " +
+                      "Waiting for manual spawn trigger.");
+            return; // GameFlowManager calls SpawnByIndex(0) directly
+        }
 
+        // No GameFlowManager — fall back to automatic MRUK callback behaviour
+        MRUK.Instance.RegisterSceneLoadedCallback(SpawnDefault);
         Debug.Log("[SpawnManager] Waiting for MRUK scene to load " +
                   "before spawning default weapon (index 0).");
     }
@@ -99,6 +107,23 @@ public class SpawnManager : MonoBehaviour
             Debug.LogWarning("[SpawnManager] No MRUK room found. " +
                              "Wait until scene data is fully loaded.");
             return;
+        }
+
+        // ── Check if any current weapon is being held ────────────────────────
+        // If the player is holding the current weapon, warn and abort the swap
+        // to avoid destroying a weapon mid-grab which is jarring in VR.
+        // Comment this block out if you want forced swapping regardless.
+        foreach (var spawnedObj in spawner.SpawnedObjects)
+        {
+            if (spawnedObj == null) continue;
+            var pickup = spawnedObj.GetComponent<WeaponPickup>();
+            if (pickup != null && pickup.IsHeld)
+            {
+                Debug.LogWarning("[SpawnManager] Cannot swap weapon — " +
+                                 "player is currently holding the active weapon. " +
+                                 "Release the weapon before pressing the button.");
+                return;
+            }
         }
 
         // Clear previous spawn before placing the new one
