@@ -1,4 +1,5 @@
 ﻿using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -76,10 +77,10 @@ public class RageMeter : MonoBehaviour
     [SerializeField] private Slider rageSlider;
 
     [Tooltip("Text element showing the numeric rage value and current combo multiplier.")]
-    [SerializeField] private Text rageText;
+    [SerializeField] private TextMeshProUGUI rageText;
 
     [Tooltip("Large text element showing the current rage level name e.g. 'FURIOUS'.")]
-    [SerializeField] private Text levelNameText;
+    [SerializeField] private TextMeshProUGUI levelNameText;
 
     [Tooltip("The Fill Image child of the slider. Its colour updates to match the current level colour.")]
     [SerializeField] private Image rageBarFillImage;
