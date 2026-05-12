@@ -2061,8 +2061,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 160, y: 20}
+  m_AnchoredPosition: {x: 0, y: 153}
+  m_SizeDelta: {x: 2000, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &319215274
 MonoBehaviour:
@@ -2576,6 +2576,8 @@ GameObject:
   - component: {fileID: 395558647}
   - component: {fileID: 395558648}
   - component: {fileID: 395558649}
+  - component: {fileID: 395558650}
+  - component: {fileID: 395558651}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -2610,9 +2612,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a83c7bba9071f9048bdc9ce73ebc5864, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  rageMeter: {fileID: 0}
-  weaponRack: {fileID: 0}
-  waveManager: {fileID: 0}
+  rageMeter: {fileID: 395558649}
+  weaponRack: {fileID: 1623131763}
+  waveManager: {fileID: 448824625}
   spawnManager: {fileID: 448824623}
 --- !u!114 &395558649
 MonoBehaviour:
@@ -2636,9 +2638,41 @@ MonoBehaviour:
   comboMultiplierStep: 0.15
   maxComboMultiplier: 3
   rageSlider: {fileID: 319215274}
-  rageText: {fileID: 0}
-  levelNameText: {fileID: 0}
+  rageText: {fileID: 1460582902}
+  levelNameText: {fileID: 353876802}
   rageBarFillImage: {fileID: 1401577146}
+--- !u!114 &395558650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 395558646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36ddeef546b45eb43b3afab9c6eff5fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  autocentreOnLoad: 1
+  manualOffset: {x: 0, y: 0, z: 0}
+  rotationOffsetDegrees: 0
+  debugLogging: 1
+--- !u!114 &395558651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 395558646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9481ad9dd8da20f45a4db73d4b797ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  roomOriginManager: {fileID: 395558650}
+  gameManager: {fileID: 395558648}
+  buttonCooldown: 0.5
+  debugLogging: 1
 --- !u!1 &402250023
 GameObject:
   m_ObjectHideFlags: 0
@@ -11833,7 +11867,7 @@ MonoBehaviour:
   requestRecordAudioPermissionOnStartup: 0
   requestPassthroughCameraAccessPermissionOnStartup: 0
   _localDimming: 1
-  _trackingOriginType: 1
+  _trackingOriginType: 2
   usePositionTracking: 1
   useRotationTracking: 1
   useIPDInPositionTracking: 1
