@@ -291,9 +291,6 @@ GameObject:
   - component: {fileID: 2514509180343679849}
   - component: {fileID: 1736513468511376003}
   - component: {fileID: 2199559715486948322}
-  - component: {fileID: 2143239397315432606}
-  - component: {fileID: 5480672263925302474}
-  - component: {fileID: 3660571940519468846}
   m_Layer: 0
   m_Name: Baseball_Bat_04
   m_TagString: Untagged
@@ -486,48 +483,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Oculus.Interaction::Oculus.Interaction.GrabAPI.HandGrabAPI
   _hand: {fileID: 0}
   _hmd: {fileID: 0}
---- !u!114 &2143239397315432606
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3776939030211101984}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cbeab510fe6d441a0b0a57a5ca7bfe30, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BatSwingTracker
-  currentSwingSpeed: 0
-  peakSwingSpeed: 0
---- !u!114 &5480672263925302474
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3776939030211101984}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c7342ea16a4e4c79b7939518bb73c52, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CollisionForceTransfer
-  forceMultiplier: 1.5
-  minimumForceThreshold: 2
-  enableHaptics: 1
-  hapticDuration: 0.1
---- !u!114 &3660571940519468846
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3776939030211101984}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69b1b3fc7ad614b53842e32a5a95725d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ZXingVersionTest
 --- !u!1 &4271260395935891397
 GameObject:
   m_ObjectHideFlags: 0
