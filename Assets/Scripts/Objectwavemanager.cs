@@ -250,12 +250,26 @@ public class ObjectWaveManager : MonoBehaviour
 
     /// <summary>
     /// Entry point for the very first wave.
-    /// Called once MRUK confirms scene data is available.
+    /// Called once MRUK confirms scene data is available via callback.
     /// </summary>
     private void StartFirstWave()
     {
         if (debugLogging)
             Debug.Log("[ObjectWaveManager] MRUK ready. Starting first wave.");
+        StartCoroutine(SpawnWave());
+    }
+
+    /// <summary>
+    /// Public entry point for the first wave.
+    /// Called by GameFlowManager after the player has confirmed their
+    /// position so objects spawn in the correct location.
+    /// Use this instead of the MRUK callback when GameFlowManager
+    /// is controlling the game flow sequence.
+    /// </summary>
+    public void StartFirstWaveManual()
+    {
+        if (debugLogging)
+            Debug.Log("[ObjectWaveManager] Manual start triggered by GameFlowManager.");
         StartCoroutine(SpawnWave());
     }
 

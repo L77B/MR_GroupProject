@@ -77,6 +77,12 @@ public class DestructibleObject : MonoBehaviour
              "Can be left empty in a prefab — ObjectWaveManager injects this at spawn time.")]
     [SerializeField] private RageMeter rageMeter;
 
+    [Header("Health Label")]
+    [Tooltip("Optional HealthLabel component on a child World Space Canvas. " +
+             "If assigned, the label updates automatically on every hit. " +
+             "Leave empty if you do not want a health display on this object.")]
+    [SerializeField] private HealthLabel healthLabel;
+
     [Header("Physics")]
     [Tooltip("Multiplier applied to the knockback impulse. Increase to make the object fly further.")]
     [SerializeField] private float knockbackMultiplier = 1f;
@@ -113,6 +119,16 @@ public class DestructibleObject : MonoBehaviour
         // Fragment pieces must be invisible and inactive at the start;
         // they are only revealed when the object breaks
         SetFragmentsActive(false);
+
+        // Auto-find HealthLabel on a child Canvas if not assigned in Inspector.
+        // This means you do not need to manually wire it up on every prefab instance.
+        if (healthLabel == null)
+            healthLabel = GetComponentInChildren<HealthLabel>();
+
+        // Initialise the label with the starting health value so it shows
+        // full health when the object first appears in the scene
+        if (healthLabel != null)
+            healthLabel.Initialise(maxHealth);
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
@@ -145,6 +161,10 @@ public class DestructibleObject : MonoBehaviour
 
         // Push the object physically in the swing direction
         ApplyKnockback(force, hitPoint, hitDirection);
+
+        // Update the health label so the player can see damage feedback
+        if (healthLabel != null)
+            healthLabel.UpdateHealth(currentHealth, maxHealth);
 
         // Decide whether this hit is fatal before reporting to the rage system
         bool willBreak = force >= breakThreshold || currentHealth <= 0f;
