@@ -5,18 +5,11 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 0
-    path: Assets/Scenes/Elin.unity
-    guid: 0f69d1a7c8881457ba635d11af287802
   - enabled: 1
-    path: Assets/Scenes/Krish.unity
-    guid: 39658c6d4e91b47b1b67e940d1e732ed
+    path: Assets/Scenes/Happy.unity
+    guid: cf765877ffa344911b7a9077fdedb8ec
   m_configObjects:
-    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: b56a0b06050ebc7419d1d482969b4bf6, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 34b8ee693a6187346b81cf5f4ecbe28a, type: 2}
-    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 401ae4bea55659440be79908b0e46987, type: 2}
+    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 8567c23ca2ea7174db2a239bb0c1725a, type: 2}
   m_UseUCBPForAssetBundles: 0
