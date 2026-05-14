@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" android:installLocation="auto" xmlns:horizonos="http://schemas.horizonos/sdk">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" 
+          xmlns:tools="http://schemas.android.com/tools" 
+          android:installLocation="auto" 
+          xmlns:horizonos="http://schemas.horizonos/sdk">
   <uses-permission android:name="android.permission.CAMERA"/>
-  <uses-feature android:name="android.hardware.camera" android:required="true"/>
+  <uses-feature android:name="android.hardware.camera" 
+                android:required="true"/>
   <uses-permission android:name="com.oculus.permission.USE_SCENE"/>
   <uses-feature android:name="android.hardware.vr.headtracking" 
               android:version="1" 
