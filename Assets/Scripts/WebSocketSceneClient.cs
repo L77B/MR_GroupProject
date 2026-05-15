@@ -5,8 +5,10 @@ using UnityEngine.SceneManagement;
 public class WebSocketSceneClient : MonoBehaviour
 {
     private WebSocket websocket;
+    public GameObject explosionPrefab;
+public Transform explosionSpawnPoint;
 
-    public string serverIP = "XXX.XXX.XXX.XXX";
+    public string serverIP = "10.204.0.57";
     public int serverPort = 8081;
 
     public SceneLoaderTwo sceneLoader;   // Assign in Inspector
@@ -67,5 +69,20 @@ public class WebSocketSceneClient : MonoBehaviour
                 Debug.Log("Button released");
             }
         }
+        // ⭐ NEW: Big arcade button triggers explosion
+    if (msg.Contains("main"))
+    {
+        if (value == "1")
+        {
+            Debug.Log("Main button pressed → Explosion!");
+            TriggerExplosion();
+        }
     }
+    }
+    private void TriggerExplosion()
+{
+    Instantiate(explosionPrefab, explosionSpawnPoint.position, explosionSpawnPoint.rotation);
+    Debug.Log("Explosion triggered!");
+}
+
 }
