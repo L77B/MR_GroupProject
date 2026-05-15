@@ -8,7 +8,7 @@ public class CollisionForceTransfer : MonoBehaviour
 
     [Header("Haptics")]
     [SerializeField] private bool enableHaptics = true;
-    [SerializeField] private float hapticDuration = 0.1f;
+    //[SerializeField] private float hapticDuration = 0.1f;
 
     private BatSwingTracker swingTracker;
 
