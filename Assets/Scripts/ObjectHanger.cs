@@ -1,51 +1,100 @@
 using UnityEngine;
 using Oculus.Interaction.HandGrab;
 using Oculus.Interaction;
+using Fusion;
 
-public class ObjectHanger : MonoBehaviour
+public class ObjectHanger : NetworkBehaviour
 {
-    private Vector3    hangPosition;
-    private Quaternion hangRotation;
-    private Rigidbody  rb;
-    private bool       isHanging = true;
+    [Networked] private Vector3     HangPosition { get; set; }
+    [Networked] private Quaternion  HangRotation { get; set; }
+    [Networked] private NetworkBool IsHanging    { get; set; }
+
+    private Rigidbody            rb;
     private HandGrabInteractable grabInteractable;
+    private bool                 _initialised = false;
 
-    public void Initialise(Vector3 position, Quaternion rotation) {
-        hangPosition = position;
-        hangRotation = rotation;
+    public void Initialise(Vector3 position,
+                           Quaternion rotation)
+    {
+        _initialised = true;
 
+        if (Object != null && Object.HasStateAuthority)
+        {
+            HangPosition = position;
+            HangRotation = rotation;
+            IsHanging    = true;
+        }
+
+        SetupPhysics();
+        SetupGrab();
+    }
+
+    public override void Spawned()
+    {
+        SetupPhysics();
+
+        if (IsHanging)
+        {
+            transform.position = HangPosition;
+            transform.rotation = HangRotation;
+        }
+    }
+
+    void SetupPhysics()
+    {
         rb = GetComponent<Rigidbody>();
-        if (rb != null) {
+        if (rb != null && IsHanging)
+        {
             rb.isKinematic = true;
             rb.useGravity  = false;
         }
+    }
 
-        grabInteractable = GetComponent<HandGrabInteractable>();
+    void SetupGrab()
+    {
+        grabInteractable =
+            GetComponent<HandGrabInteractable>();
         if (grabInteractable != null)
-            grabInteractable.WhenSelectingInteractorViewAdded +=
+            grabInteractable
+                .WhenSelectingInteractorViewAdded +=
                 OnGrabbed;
     }
 
-    void OnGrabbed(IInteractorView interactor) {
-        if (!isHanging) return;
-        isHanging = false;
+    void OnGrabbed(IInteractorView interactor)
+    {
+        if (!IsHanging) return;
 
-        if (rb != null) {
+        if (Object != null && Object.HasStateAuthority)
+            IsHanging = false;
+
+        if (rb != null)
+        {
             rb.isKinematic = false;
             rb.useGravity  = true;
         }
 
         if (grabInteractable != null)
-            grabInteractable.WhenSelectingInteractorViewAdded -=
+            grabInteractable
+                .WhenSelectingInteractorViewAdded -=
                 OnGrabbed;
 
-        Debug.Log($"{gameObject.name} grabbed from wall!");
+        Debug.Log($"{gameObject.name} grabbed!");
     }
 
-    void Update() {
-        if (isHanging) {
-            transform.position = hangPosition;
-            transform.rotation = hangRotation;
+    public override void FixedUpdateNetwork()
+    {
+        if (IsHanging)
+        {
+            transform.position = HangPosition;
+            transform.rotation = HangRotation;
         }
+    }
+
+    void OnDestroy()
+    {
+        if (grabInteractable != null)
+            grabInteractable
+                .WhenSelectingInteractorViewAdded -=
+                OnGrabbed;
     }
 }
