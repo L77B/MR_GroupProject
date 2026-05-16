@@ -82,6 +82,10 @@ public class ObjectWaveManager : MonoBehaviour
              "at runtime so you only need to set it here.")]
     [SerializeField] private int objectsPerWave = 5;
 
+    [Tooltip("Seconds before unreachable objects are auto-cleared and wave advances. " +
+             "Set 0 to disable timeout.")]
+    [SerializeField] private float waveTimeoutSeconds = 20f;
+
     [Tooltip("Seconds of pause between the last object breaking and the next wave spawning.")]
     [SerializeField] private float wavePauseDelay = 1.5f;
 
@@ -98,6 +102,13 @@ public class ObjectWaveManager : MonoBehaviour
 
     [Tooltip("Sound played when all objects in a wave have been broken.")]
     [SerializeField] private AudioClip waveCompleteClip;
+
+    [Header("Flow Control")]
+    [Tooltip("Set TRUE when GameFlowManager is in the scene. " +
+             "Prevents ObjectWaveManager from auto-spawning on MRUK load. " +
+             "GameFlowManager will call StartFirstWaveManual() instead. " +
+             "Set FALSE for standalone use without GameFlowManager.")]
+    [SerializeField] private bool controlledByFlowManager = true;
 
     [Header("Debug")]
     [Tooltip("Log wave and spawn information to the Console.")]
@@ -122,6 +133,8 @@ public class ObjectWaveManager : MonoBehaviour
     /// Populated by scanning FindSpawnPositions.SpawnedObjects after each spawn.
     /// </summary>
     private List<DestructibleObject> activeObjects = new();
+    private bool waveAdvancing = false;
+    private int registeredThisWave = 0; // actual objects spawned (may be less than objectsPerWave)
 
     // ── Unity Lifecycle ───────────────────────────────────────────────────────
 
@@ -176,13 +189,28 @@ public class ObjectWaveManager : MonoBehaviour
         // SpawnOnStart must be None so FindSpawnPositions does not spawn on its own.
         findSpawnPositions.SpawnOnStart = MRUK.RoomFilter.None;
 
-        // ── Wait for MRUK scene data before spawning ──────────────────────────
-        // RegisterSceneLoadedCallback fires immediately if already loaded,
-        // or fires once loading completes otherwise.
+        // ── Flow control gate ─────────────────────────────────────────────────
+        // When controlledByFlowManager is true, GameFlowManager calls
+        // StartFirstWaveManual() after the player confirms position.
+        // We must NOT register the MRUK callback here in that case —
+        // otherwise ObjectWaveManager spawns immediately on MRUK load
+        // before the player has confirmed their position.
+        if (controlledByFlowManager)
+        {
+            Debug.Log("[ObjectWaveManager] Controlled by GameFlowManager. " +
+                      "Waiting for StartFirstWaveManual() call. " +
+                      "Will NOT auto-register MRUK callback.");
+            return; // EXIT — GameFlowManager calls StartFirstWaveManual() later
+        }
+
+        // ── Auto-start (only when NOT controlled by GameFlowManager) ──────────
+        // Register MRUK callback so wave starts automatically on scene load.
+        // Only reaches here when controlledByFlowManager = false.
+        Debug.Log("[ObjectWaveManager] Auto-start mode — registering MRUK callback.");
         if (MRUK.Instance != null)
             MRUK.Instance.RegisterSceneLoadedCallback(StartFirstWave);
         else
-            StartFirstWave(); // No MRUK — start immediately (Editor fallback)
+            StartFirstWave();
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
@@ -202,9 +230,11 @@ public class ObjectWaveManager : MonoBehaviour
                       $"{BrokenCount}/{objectsPerWave} broken, " +
                       $"{activeObjects.Count} remaining.");
 
-        // All objects broken — begin the next wave sequence
-        if (BrokenCount >= objectsPerWave)
-            StartCoroutine(StartNextWaveAfterDelay());
+        // Primary condition: activeObjects list is empty = wave done.
+        // This is the single source of truth. BrokenCount is just a stat.
+        // Using activeObjects.Count == 0 means the wave advances correctly
+        // whether objects were broken by the player OR vanished by other means.
+        CheckWaveComplete("OnObjectBroken");
     }
 
     /// <summary>
@@ -277,6 +307,85 @@ public class ObjectWaveManager : MonoBehaviour
     /// Plays the wave complete sound, waits wavePauseDelay seconds,
     /// then spawns the next wave.
     /// </summary>
+    /// <summary>
+    /// Single point of wave completion logic.
+    /// Uses activeObjects.Count == 0 as the only condition.
+    /// The waveAdvancing guard prevents double-triggering.
+    /// </summary>
+    private void CheckWaveComplete(string caller)
+    {
+        if (waveAdvancing) return;
+        if (activeObjects.Count > 0) return;
+
+        waveAdvancing = true;
+        Debug.Log($"[ObjectWaveManager] Wave {WaveNumber} complete " +
+                  $"(triggered by {caller}). " +
+                  $"{BrokenCount} broken. Starting next wave.");
+        StartCoroutine(StartNextWaveAfterDelay());
+    }
+
+    /// <summary>
+    /// Kills any remaining objects after waveTimeoutSeconds and advances the wave.
+    /// Handles the case where objects spawn in unreachable positions.
+    /// </summary>
+    private IEnumerator WaveTimeout()
+    {
+        if (waveTimeoutSeconds <= 0f) yield break;
+
+        yield return new WaitForSeconds(waveTimeoutSeconds);
+
+        if (waveAdvancing) yield break;
+        if (activeObjects.Count == 0) yield break;
+
+        Debug.LogWarning($"[ObjectWaveManager] Wave {WaveNumber} TIMEOUT after " +
+                         $"{waveTimeoutSeconds}s. {activeObjects.Count} objects still alive. " +
+                         "Destroying unreachable objects and advancing wave.");
+
+        // Destroy all remaining objects
+        foreach (var obj in new System.Collections.Generic.List<DestructibleObject>(activeObjects))
+        {
+            if (obj != null && obj.gameObject != null)
+                Destroy(obj.gameObject);
+        }
+        activeObjects.Clear();
+        CheckWaveComplete("WaveTimeout");
+    }
+
+    /// <summary>
+    /// Periodically checks if any tracked objects have been destroyed
+    /// without calling OnObjectDestroyed (e.g. fell out of bounds, physics despawn).
+    /// Cleans them up and triggers wave advance if all objects are gone.
+    /// </summary>
+    private IEnumerator MonitorActiveObjects()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(0.5f);
+
+            if (activeObjects.Count == 0) break;
+
+            // Remove any null entries (objects destroyed without calling OnObjectDestroyed)
+            int before = activeObjects.Count;
+            activeObjects.RemoveAll(o => o == null || o.gameObject == null);
+            int removed = before - activeObjects.Count;
+
+            if (removed > 0)
+            {
+                BrokenCount += removed;
+                Debug.LogWarning($"[ObjectWaveManager] Cleaned up {removed} objects " +
+                                 "that were destroyed without notifying the wave manager. " +
+                                 $"Total gone: {BrokenCount}/{objectsPerWave}");
+
+                // Check if wave should advance now
+                if (activeObjects.Count == 0)
+                {
+                    CheckWaveComplete("MonitorActiveObjects");
+                    yield break;
+                }
+            }
+        }
+    }
+
     private IEnumerator StartNextWaveAfterDelay()
     {
         WaveActive = false;
@@ -383,36 +492,17 @@ public class ObjectWaveManager : MonoBehaviour
         // ── Step 5: Spawn via FindSpawnPositions ──────────────────────────────
         // This single call handles everything:
         //   - Generates random positions on floor surfaces
-        //   - Checks overlaps with existing physics objects
-        //   - Respects wall clearance distance
-        //   - Places objects at the correct height so they sit on the surface
-        //   - Instantiates up to SpawnAmount objects
-        if (room != null)
-            findSpawnPositions.StartSpawn(room);
-        else
-            findSpawnPositions.StartSpawn(); // Fallback: tries all available rooms
-
-        // ── Step 6: Wait one frame for instantiation to complete ──────────────
-        // StartSpawn() is synchronous but we yield one frame to ensure all
-        // GameObjects are fully initialised before we try to access their components.
-        yield return null;
-
-        // ── Step 7: Register spawned objects ─────────────────────────────────
-        // SpawnedObjects is FindSpawnPositions' IReadOnlyList of everything
-        // it just instantiated. We iterate it to wire up each object.
+        // ── Step 6: Register all spawned objects ──────────────────────────────
+        // Find all DestructibleObjects just instantiated — they are the ones
+        // not already in activeObjects from a previous wave.
         int registered = 0;
-        foreach (GameObject spawnedObj in findSpawnPositions.SpawnedObjects)
-        {
-            if (spawnedObj == null) continue;
+        var allDestructibles = FindObjectsByType<DestructibleObject>(
+            FindObjectsSortMode.None);
 
-            var destructible = spawnedObj.GetComponent<DestructibleObject>();
-            if (destructible == null)
-            {
-                Debug.LogWarning($"[ObjectWaveManager] Spawned object '{spawnedObj.name}' " +
-                                 "has no DestructibleObject component. " +
-                                 "It will not count toward wave completion.");
-                continue;
-            }
+        foreach (var destructible in allDestructibles)
+        {
+            if (destructible == null) continue;
+            if (activeObjects.Contains(destructible)) continue; // already tracked
 
             // Inject the RageMeter so hits are reported to the scoring system
             destructible.SetRageMeter(rageMeter);
@@ -427,13 +517,20 @@ public class ObjectWaveManager : MonoBehaviour
                       $"spawned and registered {registered} objects " +
                       $"using '{chosenPrefab.name}'.");
 
+        registeredThisWave = registered;
+
         // Warn if FindSpawnPositions could not fill the full wave
-        // (e.g. room too small, too many overlaps)
         if (registered < objectsPerWave)
-            Debug.LogWarning($"[ObjectWaveManager] Wave {WaveNumber}: only registered " +
-                             $"{registered}/{objectsPerWave} objects. " +
-                             "The room may be too small or maxIterations too low on " +
-                             "the FindSpawnPositions component.");
+            Debug.LogWarning($"[ObjectWaveManager] Wave {WaveNumber}: only {registered}/{objectsPerWave} " +
+                             "objects registered. Wave will complete when these {registered} are broken. " +
+                             "Increase MaxIterations on FindSpawnPositions or reduce objectsPerWave.");
+
+        // If nothing spawned at all advance immediately
+        if (registered == 0)
+        {
+            Debug.LogWarning("[ObjectWaveManager] Zero objects spawned — skipping wave.");
+            CheckWaveComplete("ZeroSpawn");
+        }
     }
 
     /// <summary>

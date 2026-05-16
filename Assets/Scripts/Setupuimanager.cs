@@ -2,38 +2,13 @@
 using UnityEngine.UI;
 using TMPro;
 using Oculus.Interaction;
+using Image = UnityEngine.UI.Image;
+using Button = UnityEngine.UI.Button;
 
 /// <summary>
 /// Manages the setup UI shown during GameFlowManager Phase 2.
-///
-/// INTERACTION METHODS SUPPORTED
-/// ───────────────────────────────
-/// 1. POKE  — Player physically pushes the button with their finger
-///            or controller tip. Uses OVR PokeInteractable.
-///            Most natural for MR — feels like pressing a real button.
-///
-/// 2. RAY   — Player points controller laser at button and pulls trigger.
-///            Uses OVR RayInteractable + Unity UI Button + OVR Raycaster.
-///            Good fallback when hands are not tracked.
-///
-/// 3. HAND  — Player uses bare hand tracking to poke the button.
-///            Works automatically when Poke is set up correctly —
-///            Meta's hand tracking drives the same PokeInteractor.
-///
-/// HOW POKE INTERACTION WORKS
-/// ───────────────────────────
-/// Each button needs:
-///   - A PokeInteractable component (defines the pokeable surface)
-///   - A RoundedBoxPokeButtonVisual (optional — animates button press)
-///   - A PointableUnityEventWrapper to fire Unity events on poke select
-///
-/// The PokeInteractor lives on the controller/hand inside OVRCameraRig.
-/// When the finger/controller tip enters the PokeInteractable's surface
-/// plane, it fires WhenStateChanged → Select, which we treat as a button press.
-///
-/// SETUP IN UNITY
-/// ───────────────
-/// See full setup guide at the bottom of this file.
+/// After the player confirms position, Hide() hides only the setup elements.
+/// The Slider, RageScoreText and RageLevelText stay visible throughout gameplay.
 /// </summary>
 public class SetupUIManager : MonoBehaviour
 {
@@ -46,33 +21,37 @@ public class SetupUIManager : MonoBehaviour
     [Tooltip("Background panel image — colour changes per phase.")]
     [SerializeField] private Image backgroundPanel;
 
+    [Header("Setup Panel")]
+    [Tooltip("Parent GO containing all setup UI (buttons, status text, background). " +
+             "This entire GO is hidden when game starts. " +
+             "Slider, RageScoreText, RageLevelText must be OUTSIDE this GO " +
+             "so they remain visible during gameplay.")]
+    [SerializeField] private GameObject setupPanel;
+
     [Header("Confirm Button")]
-    [Tooltip("The confirm button GameObject. " +
-             "Must have PokeInteractable for poke/hand interaction " +
-             "AND Button component for ray interaction.")]
+    [Tooltip("The confirm button GameObject.")]
     [SerializeField] private GameObject confirmButtonGO;
 
-    [Tooltip("Unity Button component on the confirm button — for ray interaction.")]
+    [Tooltip("Unity Button component on the confirm button.")]
     [SerializeField] private Button confirmButtonComponent;
 
     [Tooltip("Text label on the confirm button.")]
     [SerializeField] private TextMeshProUGUI confirmButtonText;
 
-    [Tooltip("PokeInteractable on the confirm button — for poke/hand interaction. " +
-             "Add via Add Component → Oculus → Interaction → PokeInteractable.")]
+    [Tooltip("PokeInteractable on the confirm button (optional).")]
     [SerializeField] private PokeInteractable confirmPokeInteractable;
 
     [Header("Reset Button")]
     [Tooltip("The reset button GameObject.")]
     [SerializeField] private GameObject resetButtonGO;
 
-    [Tooltip("Unity Button component on the reset button — for ray interaction.")]
+    [Tooltip("Unity Button component on the reset button.")]
     [SerializeField] private Button resetButtonComponent;
 
     [Tooltip("Text label on the reset button.")]
     [SerializeField] private TextMeshProUGUI resetButtonText;
 
-    [Tooltip("PokeInteractable on the reset button — for poke/hand interaction.")]
+    [Tooltip("PokeInteractable on the reset button (optional).")]
     [SerializeField] private PokeInteractable resetPokeInteractable;
 
     [Header("Phase Colours")]
@@ -81,11 +60,20 @@ public class SetupUIManager : MonoBehaviour
     [SerializeField] private Color confirmedColor = new Color(0.05f, 0.05f, 0.45f, 0.95f);
 
     [Header("Positioning")]
-    [Tooltip("Distance in front of the player (metres).")]
-    [SerializeField] private float forwardDistance = 1.2f;
+    [Tooltip("Distance in RAY mode (1.5 to 2.0m).")]
+    [SerializeField] private float rayModeDistance = 1.5f;
 
-    [Tooltip("Height relative to eye level (metres). Negative = below eye level.")]
+    [Tooltip("Distance in POKE mode (0.5 to 0.7m).")]
+    [SerializeField] private float pokeModeDistance = 0.6f;
+
+    [Tooltip("Height relative to eye level. 0 = eye level.")]
     [SerializeField] private float heightOffset = -0.1f;
+
+    [Tooltip("Hand distance threshold to switch to poke mode.")]
+    [SerializeField] private float pokeSwitchDistance = 1.0f;
+
+    [Tooltip("Smoothing speed between ray and poke distances.")]
+    [SerializeField] private float distanceSmoothSpeed = 3f;
 
     [Header("Poke Cooldown")]
     [Tooltip("Minimum seconds between poke detections to prevent double-firing.")]
@@ -93,18 +81,17 @@ public class SetupUIManager : MonoBehaviour
 
     // ── Events ────────────────────────────────────────────────────────────────
 
-    /// <summary>Fired when the player confirms their position via any interaction.</summary>
     public System.Action OnConfirmClicked;
-
-    /// <summary>Fired when the player resets their position via any interaction.</summary>
     public System.Action OnResetClicked;
 
     // ── Runtime State ─────────────────────────────────────────────────────────
 
     private Camera playerCamera;
-    private bool confirmEnabled = false; // Guards against presses during wrong phase
+    private bool confirmEnabled = false;
     private float lastConfirmTime = -999f;
     private float lastResetTime = -999f;
+    private float currentDistance;
+    private bool inPokeMode = false;
 
     // ── Unity Lifecycle ───────────────────────────────────────────────────────
 
@@ -112,16 +99,12 @@ public class SetupUIManager : MonoBehaviour
     {
         playerCamera = Camera.main;
 
-        // ── Wire Unity Button onClick (Ray interaction) ───────────────────────
         if (confirmButtonComponent != null)
             confirmButtonComponent.onClick.AddListener(OnConfirmPressed);
 
         if (resetButtonComponent != null)
             resetButtonComponent.onClick.AddListener(OnResetPressed);
 
-        // ── Wire PokeInteractable WhenStateChanged (Poke / Hand interaction) ──
-        // WhenStateChanged fires when a PokeInteractor enters/exits/selects.
-        // We listen for the Select state which means the finger pressed the button.
         if (confirmPokeInteractable != null)
             confirmPokeInteractable.WhenStateChanged += OnConfirmPokeStateChanged;
 
@@ -131,6 +114,7 @@ public class SetupUIManager : MonoBehaviour
 
     private void Start()
     {
+        currentDistance = rayModeDistance;
         SetWaitingState();
         SnapInFrontOfPlayer();
     }
@@ -142,7 +126,6 @@ public class SetupUIManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Unsubscribe all listeners
         if (confirmButtonComponent != null)
             confirmButtonComponent.onClick.RemoveListener(OnConfirmPressed);
 
@@ -158,34 +141,26 @@ public class SetupUIManager : MonoBehaviour
 
     // ── Public State API ──────────────────────────────────────────────────────
 
-    /// <summary>Phase 1: Room scanning — disable confirm button.</summary>
     public void SetWaitingState()
     {
         confirmEnabled = false;
         SetStatus("Scanning your room...\nPlease wait.");
         SetPanelColor(waitingColor);
         SetConfirmInteractable(false);
-
         if (confirmButtonText != null)
             confirmButtonText.text = "Please Wait...";
     }
 
-    /// <summary>Phase 2: Room ready — enable confirm button.</summary>
     public void SetReadyState()
     {
         confirmEnabled = true;
-        SetStatus("Room scanned! ✓\n\n" +
-                  "Walk to your play area.\n\n" +
-                  "Poke, point or press:\n" +
-                  "CONFIRM POSITION");
+        SetStatus("Room scanned!\n\nWalk to your play area.\n\nPinch or press:\nCONFIRM POSITION");
         SetPanelColor(readyColor);
         SetConfirmInteractable(true);
-
         if (confirmButtonText != null)
-            confirmButtonText.text = "✓  CONFIRM POSITION";
+            confirmButtonText.text = "CONFIRM POSITION";
     }
 
-    /// <summary>Phase 3: Confirmed — disable all buttons.</summary>
     public void SetConfirmedState()
     {
         confirmEnabled = false;
@@ -193,69 +168,85 @@ public class SetupUIManager : MonoBehaviour
         SetPanelColor(confirmedColor);
         SetConfirmInteractable(false);
         SetResetInteractable(false);
-
         if (confirmButtonText != null)
             confirmButtonText.text = "Starting...";
     }
 
-    /// <summary>Hide the panel when game starts.</summary>
+    /// <summary>
+    /// Hides the setup panel only.
+    /// The Canvas stays active so Slider, RageScoreText and RageLevelText
+    /// remain visible throughout gameplay.
+    /// </summary>
     public void Hide()
     {
-        gameObject.SetActive(false);
+        // Hide the SetupPanel GO — this hides confirm button, reset button,
+        // status text and background in one call.
+        if (setupPanel != null)
+        {
+            setupPanel.SetActive(false);
+            Debug.Log("[SetupUIManager] SetupPanel hidden. Rage meter remains visible.");
+        }
+        else
+        {
+            // Fallback if setupPanel not assigned — hide individual elements
+            if (confirmButtonGO != null) confirmButtonGO.SetActive(false);
+            if (resetButtonGO != null) resetButtonGO.SetActive(false);
+            if (backgroundPanel != null) backgroundPanel.gameObject.SetActive(false);
+            if (statusText != null) statusText.gameObject.SetActive(false);
+            Debug.Log("[SetupUIManager] Setup elements hidden individually. Rage meter remains visible.");
+        }
+
+        // Stop following the player head during gameplay
+        enabled = false;
     }
 
-    /// <summary>Show the panel.</summary>
     public void Show()
     {
-        gameObject.SetActive(true);
+        if (setupPanel != null)
+            setupPanel.SetActive(true);
+        else
+        {
+            if (confirmButtonGO != null) confirmButtonGO.SetActive(true);
+            if (resetButtonGO != null) resetButtonGO.SetActive(true);
+            if (backgroundPanel != null) backgroundPanel.gameObject.SetActive(true);
+            if (statusText != null) statusText.gameObject.SetActive(true);
+        }
+
+        enabled = true;
     }
 
-    // ── Button / Poke Callbacks ───────────────────────────────────────────────
+    // ── Button Callbacks ──────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Called by Unity Button onClick (ray interaction).
-    /// </summary>
     public void OnConfirmPressed()
     {
         if (!confirmEnabled) return;
         if (Time.time - lastConfirmTime < pokeCooldown) return;
 
         lastConfirmTime = Time.time;
-        Debug.Log("[SetupUIManager] Confirm pressed (ray/click).");
+        Debug.Log("[SetupUIManager] Confirm pressed.");
         OnConfirmClicked?.Invoke();
     }
 
-    /// <summary>
-    /// Called by Unity Button onClick (ray interaction).
-    /// </summary>
     public void OnResetPressed()
     {
         if (Time.time - lastResetTime < pokeCooldown) return;
 
         lastResetTime = Time.time;
-        Debug.Log("[SetupUIManager] Reset pressed (ray/click).");
+        Debug.Log("[SetupUIManager] Reset pressed.");
 
         SetConfirmInteractable(true);
-        SetStatus("Position reset.\n\nWalk to your play area.\nPoke or point to confirm.");
+        SetStatus("Position reset.\n\nWalk to your play area.\nPinch or press to confirm.");
         SetPanelColor(readyColor);
         confirmEnabled = true;
 
         if (confirmButtonText != null)
-            confirmButtonText.text = "✓  CONFIRM POSITION";
+            confirmButtonText.text = "CONFIRM POSITION";
 
         OnResetClicked?.Invoke();
     }
 
-    /// <summary>
-    /// Called by PokeInteractable WhenStateChanged on the CONFIRM button.
-    /// Fires when a finger or controller tip physically presses the button surface.
-    ///
-    /// InteractableState.Select = the poke interactor has fully pressed the surface.
-    /// This is equivalent to a button click in poke interaction.
-    /// </summary>
     private void OnConfirmPokeStateChanged(InteractableStateChangeArgs args)
     {
-        // Only act on the Select transition — finger pressing in, not releasing
         if (args.NewState != InteractableState.Select) return;
         if (!confirmEnabled) return;
         if (Time.time - lastConfirmTime < pokeCooldown) return;
@@ -265,9 +256,6 @@ public class SetupUIManager : MonoBehaviour
         OnConfirmClicked?.Invoke();
     }
 
-    /// <summary>
-    /// Called by PokeInteractable WhenStateChanged on the RESET button.
-    /// </summary>
     private void OnResetPokeStateChanged(InteractableStateChangeArgs args)
     {
         if (args.NewState != InteractableState.Select) return;
@@ -275,7 +263,7 @@ public class SetupUIManager : MonoBehaviour
 
         lastResetTime = Time.time;
         Debug.Log("[SetupUIManager] Reset button POKED.");
-        OnResetPressed(); // Reuse the same logic as ray reset
+        OnResetPressed();
     }
 
     // ── Internal Helpers ──────────────────────────────────────────────────────
@@ -292,12 +280,9 @@ public class SetupUIManager : MonoBehaviour
 
     private void SetConfirmInteractable(bool interactable)
     {
-        // Unity Button (ray)
         if (confirmButtonComponent != null)
             confirmButtonComponent.interactable = interactable;
 
-        // PokeInteractable (poke/hand) — enable/disable the whole GO
-        // Disabling prevents phantom pokes during wrong phase
         if (confirmPokeInteractable != null)
             confirmPokeInteractable.enabled = interactable;
     }
@@ -315,18 +300,9 @@ public class SetupUIManager : MonoBehaviour
     {
         if (playerCamera == null) return;
 
-        Vector3 forward = playerCamera.transform.forward;
-        forward.y = 0f;
-        if (forward.sqrMagnitude < 0.001f) forward = Vector3.forward;
-        forward.Normalize();
-
-        Vector3 target =
-            playerCamera.transform.position
-            + forward * forwardDistance
-            + Vector3.up * heightOffset;
-
+        Vector3 targetPos = CalculateCanvasPosition();
         transform.position = Vector3.Lerp(
-            transform.position, target, Time.deltaTime * 5f);
+            transform.position, targetPos, Time.deltaTime * 5f);
 
         Vector3 look = playerCamera.transform.position - transform.position;
         if (look.sqrMagnitude > 0.001f)
@@ -337,18 +313,53 @@ public class SetupUIManager : MonoBehaviour
     {
         if (playerCamera == null) return;
 
+        currentDistance = rayModeDistance;
+        transform.position = CalculateCanvasPosition();
+
+        Vector3 look = playerCamera.transform.position - transform.position;
+        if (look.sqrMagnitude > 0.001f)
+            transform.rotation = Quaternion.LookRotation(-look.normalized);
+    }
+
+    private Vector3 CalculateCanvasPosition()
+    {
+        // Check hand proximity to switch between ray and poke mode
+        float closestHandDist = float.MaxValue;
+
+        var cameraRig = FindAnyObjectByType<OVRCameraRig>();
+        if (cameraRig != null && cameraRig.trackingSpace != null)
+        {
+            Transform ts = cameraRig.trackingSpace;
+
+            Vector3 rLocal = OVRInput.GetLocalControllerPosition(OVRInput.Controller.RTouch);
+            Vector3 rWorld = ts.TransformPoint(rLocal);
+            closestHandDist = Mathf.Min(closestHandDist,
+                Vector3.Distance(rWorld, transform.position));
+
+            Vector3 lLocal = OVRInput.GetLocalControllerPosition(OVRInput.Controller.LTouch);
+            Vector3 lWorld = ts.TransformPoint(lLocal);
+            closestHandDist = Mathf.Min(closestHandDist,
+                Vector3.Distance(lWorld, transform.position));
+        }
+
+        bool shouldPoke = closestHandDist < pokeSwitchDistance;
+        if (shouldPoke != inPokeMode)
+        {
+            inPokeMode = shouldPoke;
+            Debug.Log($"[SetupUIManager] Switched to {(inPokeMode ? "POKE" : "RAY")} mode.");
+        }
+
+        float targetDist = inPokeMode ? pokeModeDistance : rayModeDistance;
+        currentDistance = Mathf.Lerp(currentDistance, targetDist,
+            Time.deltaTime * distanceSmoothSpeed);
+
         Vector3 forward = playerCamera.transform.forward;
         forward.y = 0f;
         if (forward.sqrMagnitude < 0.001f) forward = Vector3.forward;
         forward.Normalize();
 
-        transform.position =
-            playerCamera.transform.position
-            + forward * forwardDistance
-            + Vector3.up * heightOffset;
-
-        Vector3 look = playerCamera.transform.position - transform.position;
-        if (look.sqrMagnitude > 0.001f)
-            transform.rotation = Quaternion.LookRotation(-look.normalized);
+        return playerCamera.transform.position
+             + forward * currentDistance
+             + Vector3.up * heightOffset;
     }
 }

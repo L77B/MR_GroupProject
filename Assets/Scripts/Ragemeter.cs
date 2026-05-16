@@ -1,7 +1,7 @@
 ﻿using System;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// Tracks the player's rage score on a 0–100 scale.
@@ -312,7 +312,12 @@ public class RageMeter : MonoBehaviour
 
         // Show numeric rage value and live combo multiplier
         if (rageText != null)
-            rageText.text = $"Rage: {currentRage:F0}%  ×{comboMultiplier:F1} combo";
+            // Show rage percentage clearly
+            // Only show combo multiplier when it is active (above 1x)
+            if (comboMultiplier > 1.05f)
+                rageText.text = $"{currentRage:F0}%  ×{comboMultiplier:F1}";
+            else
+                rageText.text = $"{currentRage:F0}%";
 
         // Show the current level name as a prominent label
         if (levelNameText != null)
