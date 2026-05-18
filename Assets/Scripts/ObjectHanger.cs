@@ -5,33 +5,33 @@ using Fusion;
 
 public class ObjectHanger : NetworkBehaviour
 {
-    [Networked] private Vector3     HangPosition { get; set; }
-    [Networked] private Quaternion  HangRotation { get; set; }
-    [Networked] private NetworkBool IsHanging    { get; set; }
+    [Networked] public Vector3     HangPosition
+        { get; set; }
+    [Networked] public Quaternion  HangRotation
+        { get; set; }
+    [Networked] public NetworkBool IsHanging
+        { get; set; }
 
     private Rigidbody            rb;
     private HandGrabInteractable grabInteractable;
-    private bool                 _initialised = false;
 
     public void Initialise(Vector3 position,
                            Quaternion rotation)
     {
-        _initialised = true;
-
-        if (Object != null && Object.HasStateAuthority)
+        if (Object != null &&
+            Object.HasStateAuthority)
         {
             HangPosition = position;
             HangRotation = rotation;
             IsHanging    = true;
         }
 
-        SetupPhysics();
-        SetupGrab();
+        Setup();
     }
 
     public override void Spawned()
     {
-        SetupPhysics();
+        Setup();
 
         if (IsHanging)
         {
@@ -40,7 +40,7 @@ public class ObjectHanger : NetworkBehaviour
         }
     }
 
-    void SetupPhysics()
+    void Setup()
     {
         rb = GetComponent<Rigidbody>();
         if (rb != null && IsHanging)
@@ -48,10 +48,7 @@ public class ObjectHanger : NetworkBehaviour
             rb.isKinematic = true;
             rb.useGravity  = false;
         }
-    }
 
-    void SetupGrab()
-    {
         grabInteractable =
             GetComponent<HandGrabInteractable>();
         if (grabInteractable != null)
@@ -64,21 +61,36 @@ public class ObjectHanger : NetworkBehaviour
     {
         if (!IsHanging) return;
 
+        Debug.Log($"{gameObject.name} grabbed!");
+
         if (Object != null && Object.HasStateAuthority)
+        {
             IsHanging = false;
 
-        if (rb != null)
+            if (rb != null)
+            {
+                rb.isKinematic = false;
+                rb.useGravity  = true;
+            }
+        }
+        else
         {
-            rb.isKinematic = false;
-            rb.useGravity  = true;
+            // Request state authority so this
+            // player can control the bat
+            Object.RequestStateAuthority();
+            IsHanging = false;
+
+            if (rb != null)
+            {
+                rb.isKinematic = false;
+                rb.useGravity  = true;
+            }
         }
 
         if (grabInteractable != null)
             grabInteractable
                 .WhenSelectingInteractorViewAdded -=
                 OnGrabbed;
-
-        Debug.Log($"{gameObject.name} grabbed!");
     }
 
     public override void FixedUpdateNetwork()
