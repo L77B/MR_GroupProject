@@ -24,7 +24,7 @@ MonoBehaviour:
   faceTrackingSupport: 0
   eyeTrackingSupport: 0
   virtualKeyboardSupport: 0
-  colocationSessionSupport: 0
+  colocationSessionSupport: 1
   sceneSupport: 2
   boundaryVisibilitySupport: 0
   disableBackups: 1
