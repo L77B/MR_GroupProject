@@ -7,6 +7,8 @@ public class WebSocketSceneClient : MonoBehaviour
     private WebSocket websocket;
     public GameObject explosionPrefab;
 public Transform explosionSpawnPoint;
+public DestructibleObject dynamite;
+
 
     public string serverIP = "10.204.0.57";
     public int serverPort = 8081;
@@ -69,13 +71,13 @@ public Transform explosionSpawnPoint;
                 Debug.Log("Button released");
             }
         }
-        // ⭐ NEW: Big arcade button triggers explosion
+        //Big arcade button triggers explosion
     if (msg.Contains("main"))
     {
         if (value == "1")
         {
-            Debug.Log("Main button pressed → Explosion!");
-            TriggerExplosion();
+            Debug.Log("Both buttons pressed → Dynamite breaks!");
+            dynamite.BreakNow();
         }
     }
     }
@@ -84,5 +86,6 @@ public Transform explosionSpawnPoint;
     Instantiate(explosionPrefab, explosionSpawnPoint.position, explosionSpawnPoint.rotation);
     Debug.Log("Explosion triggered!");
 }
+
 
 }
