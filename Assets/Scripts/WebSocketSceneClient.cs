@@ -8,6 +8,8 @@ public class WebSocketSceneClient : MonoBehaviour
     public GameObject explosionPrefab;
 public Transform explosionSpawnPoint;
 public DestructibleObject dynamite;
+private bool hasExploded = false;
+
 
 
     public string serverIP = "10.204.0.57";
@@ -74,10 +76,16 @@ public DestructibleObject dynamite;
         //Big arcade button triggers explosion
     if (msg.Contains("main"))
     {
-        if (value == "1")
+        if (value == "1" && !hasExploded)
         {
+            hasExploded = true; 
             Debug.Log("Both buttons pressed → Dynamite breaks!");
-            dynamite.BreakNow();
+            // Hide the dynamite
+        if (dynamite != null)
+            dynamite.gameObject.SetActive(false);
+
+        // Spawn explosion
+        TriggerExplosion();
         }
     }
     }
