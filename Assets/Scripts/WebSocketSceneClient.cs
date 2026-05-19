@@ -1,6 +1,11 @@
 using UnityEngine;
 using NativeWebSocket;
 using UnityEngine.SceneManagement;
+using Meta.XR.MRUtilityKit;
+using System.Collections.Generic;
+
+
+
 
 public class WebSocketSceneClient : MonoBehaviour
 {
@@ -9,6 +14,11 @@ public class WebSocketSceneClient : MonoBehaviour
 public Transform explosionSpawnPoint;
 public DestructibleObject dynamite;
 private bool hasExploded = false;
+public FindSpawnPositions spawnFinder;
+public GameObject[] spawnPrefabsA;
+public GameObject[] spawnPrefabsB;
+
+
 
 
 
@@ -88,12 +98,83 @@ private bool hasExploded = false;
         TriggerExplosion();
         }
     }
+    if (msg.Contains("spawnA"))
+{
+    if (value == "1")
+        SpawnRandom(spawnPrefabsA);
+}
+
+if (msg.Contains("spawnB"))
+{
+    if (value == "1")
+        SpawnRandom(spawnPrefabsB);
+}
+
     }
     private void TriggerExplosion()
 {
     Instantiate(explosionPrefab, explosionSpawnPoint.position, explosionSpawnPoint.rotation);
     Debug.Log("Explosion triggered!");
 }
+
+
+
+private void SpawnRandom(GameObject[] prefabs)
+{
+    if (prefabs.Length == 0) return;
+
+    Vector3 pos = GetRandomMRPosition();
+    if (pos == Vector3.zero) return;
+
+    GameObject prefab = prefabs[Random.Range(0, prefabs.Length)];
+    Instantiate(prefab, pos, Quaternion.identity);
+}
+
+
+
+private Vector3 GetRandomMRPosition()
+{
+    MRUKRoom room = MRUK.Instance.GetCurrentRoom();
+    if (room == null)
+    {
+        Debug.LogWarning("No MR room found!");
+        return Vector3.zero;
+    }
+
+    // We want only upward-facing surfaces (floor, tables, beds, couches)
+    MRUK.SurfaceType surfaceType = MRUK.SurfaceType.FACING_UP;
+
+    // Filter to FLOOR + TABLE
+    LabelFilter filter = new LabelFilter(
+        MRUKAnchor.SceneLabels.FLOOR | MRUKAnchor.SceneLabels.TABLE
+    );
+
+    float clearance = spawnFinder.SurfaceClearanceDistance;
+
+    Vector3 pos;
+    Vector3 normal;
+
+    bool success = room.GenerateRandomPositionOnSurface(
+        surfaceType,
+        clearance,
+        filter,
+        out pos,
+        out normal
+    );
+
+    if (!success)
+    {
+        Debug.LogWarning("Could not find a valid surface spawn position.");
+        return Vector3.zero;
+    }
+
+    return pos;
+}
+
+
+
+
+
 
 
 }
