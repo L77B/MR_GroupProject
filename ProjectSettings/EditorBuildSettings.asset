@@ -8,9 +8,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Happy.unity
     guid: cf765877ffa344911b7a9077fdedb8ec
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Krish.unity
     guid: 39658c6d4e91b47b1b67e940d1e732ed
+  - enabled: 1
+    path: Assets/Scenes/Elin.unity
+    guid: 0f69d1a7c8881457ba635d11af287802
   m_configObjects:
     com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: b56a0b06050ebc7419d1d482969b4bf6, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 34b8ee693a6187346b81cf5f4ecbe28a, type: 2}
