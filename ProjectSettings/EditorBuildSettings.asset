@@ -14,6 +14,9 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/ColocationTest.unity
     guid: 7be4084382deb4b8ca4a08ace6b7c8bf
+  - enabled: 0
+    path: Assets/Scenes/test.unity
+    guid: 5b82797f40983444eb204af58818ee5e
   m_configObjects:
     com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: b56a0b06050ebc7419d1d482969b4bf6, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 34b8ee693a6187346b81cf5f4ecbe28a, type: 2}

@@ -9,11 +9,10 @@ public class WeaponSpawner : MonoBehaviour
 {
     public static WeaponSpawner Instance;
 
-    [Header("Bat Prefab")]
-    [SerializeField] private GameObject batPrefab;
+    [Header("Weapon Prefabs")]
+    [SerializeField] private List<GameObject> weaponPrefabs;
 
     [Header("Spawn Settings")]
-    [SerializeField] private int   batCount       = 2;
     [SerializeField] private float spawnHeight    = 1.4f;
     [SerializeField] private float spacingBetween = 0.8f;
 
@@ -55,38 +54,48 @@ public class WeaponSpawner : MonoBehaviour
 
         if (!canSpawn)
         {
-            Debug.Log("Client — waiting for bats");
+            Debug.Log("Client — waiting for weapons");
             yield break;
         }
 
-        if (batPrefab == null)
+        if (weaponPrefabs == null ||
+            weaponPrefabs.Count == 0)
         {
-            Debug.LogError("Bat prefab not assigned!");
-            yield break;
-        }
-
-        NetworkObject netObj = batPrefab
-            .GetComponent<NetworkObject>();
-
-        if (netObj == null)
-        {
-            Debug.LogError(
-                "Bat prefab missing NetworkObject!");
+            Debug.LogError("No weapon prefabs assigned!");
             yield break;
         }
 
         _hasSpawned = true;
 
-        // Calculate wall positions from QR
         Vector3 wallNormal = qrRot * Vector3.forward;
         Vector3 wallRight  = qrRot * Vector3.right;
 
-        float totalWidth  = (batCount - 1) *
-                             spacingBetween;
-        float startOffset = -totalWidth / 2f;
+        // Calculate total width for all weapons
+        int     count       = weaponPrefabs.Count;
+        float   totalWidth  = (count - 1) * spacingBetween;
+        float   startOffset = -totalWidth / 2f;
 
-        for (int i = 0; i < batCount; i++)
+        for (int i = 0; i < count; i++)
         {
+            GameObject prefab = weaponPrefabs[i];
+            if (prefab == null)
+            {
+                Debug.LogWarning($"Weapon prefab " +
+                                 $"{i} is null!");
+                continue;
+            }
+
+            NetworkObject netObj = prefab
+                .GetComponent<NetworkObject>();
+
+            if (netObj == null)
+            {
+                Debug.LogError(
+                    $"{prefab.name} missing " +
+                    "NetworkObject!");
+                continue;
+            }
+
             float offset = startOffset +
                            i * spacingBetween;
 
@@ -99,28 +108,21 @@ public class WeaponSpawner : MonoBehaviour
             Quaternion spawnRot =
                 Quaternion.LookRotation(wallNormal);
 
-            Debug.Log($"Spawning bat {i + 1} " +
-                      $"at {spawnPos}");
+            Debug.Log($"Spawning weapon {i+1}: " +
+                      $"{prefab.name} at {spawnPos}");
 
             NetworkObject spawned = _runner.Spawn(
-                netObj,
-                spawnPos,
-                spawnRot);
+                netObj, spawnPos, spawnRot);
 
             if (spawned != null)
-            {
-                Debug.Log($"Bat {i + 1} spawned " +
-                          $"successfully!");
-            }
+                Debug.Log($"Weapon {i+1} spawned!");
             else
-            {
                 Debug.LogError(
-                    $"Bat {i + 1} spawn failed!");
-            }
+                    $"Weapon {i+1} spawn failed!");
 
             yield return new WaitForSeconds(0.1f);
         }
 
-        Debug.Log("All bats spawned!");
+        Debug.Log("All weapons spawned!");
     }
 }

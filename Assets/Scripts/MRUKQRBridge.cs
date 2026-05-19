@@ -3,6 +3,7 @@ using Meta.XR.MRUtilityKit;
 using TMPro;
 using Fusion;
 using System.Collections;
+using Unity.Netcode;
 
 public class MRUKQRBridge : MonoBehaviour
 {
@@ -118,37 +119,42 @@ public class MRUKQRBridge : MonoBehaviour
 
         if (isHost)
         {
-            UpdateDebug("HOST!\nSpawning weapons...");
+            UpdateDebug("HOST!\nSpawning...");
 
+            // Spawn test cube
+            TestSpawner testSpawner =
+                FindFirstObjectByType<TestSpawner>();
+            if (testSpawner != null)
+                testSpawner.SpawnCubes(
+                    position, rotation);
+            else
+                Debug.Log("No TestSpawner — " +
+                          "using weapon spawner");
+
+            // Spawn weapons
             if (WeaponSpawner.Instance != null)
                 WeaponSpawner.Instance.SpawnWeapons(
                     position, rotation);
             else
                 UpdateDebug("WeaponSpawner missing!");
 
+            // Spawn breakables
             if (BreakableSpawner.Instance != null)
                 BreakableSpawner.Instance.Initialise();
             else
                 UpdateDebug("BreakableSpawner missing!");
 
-            // Wait for bats to spawn
             yield return new WaitForSeconds(2f);
-            UpdateDebug("Ready!\nBats spawned ✓");
+            UpdateDebug("Ready!\nSpawn complete ✓");
         }
         else
         {
-            UpdateDebug("CLIENT!\nWaiting for bats...");
+            UpdateDebug("CLIENT!\nWaiting...");
 
-            // Wait for bats to appear
-            // (Fusion replicates from host)
-            yield return new WaitUntil(() =>
-                FindFirstObjectByType<NetworkedBat>()
-                    != null);
+            // Wait for networked objects to appear
+            yield return new WaitForSeconds(5f);
 
-            int count = FindObjectsByType<NetworkedBat>(
-                FindObjectsSortMode.None).Length;
-
-            UpdateDebug($"Ready!\n{count} bats found ✓");
+            UpdateDebug("CLIENT ready!");
         }
     }
 
