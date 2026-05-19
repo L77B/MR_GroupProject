@@ -316,6 +316,8 @@ MonoBehaviour:
   forceMultiplier: 1.2
   maxForce: 50
   hitCooldown: 0.15
+  handPositionOffset: {x: 0, y: 0, z: 0}
+  handRotationOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &3354176323354763284
 MonoBehaviour:
   m_ObjectHideFlags: 0
