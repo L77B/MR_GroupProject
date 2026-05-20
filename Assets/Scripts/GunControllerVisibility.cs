@@ -4,6 +4,8 @@ public class GunControllerVisibility : MonoBehaviour
 {
     public GameObject gun;
 
+    //public GameObject baseballbat;
+
     public GameObject leftControllerVisual;
     public GameObject rightControllerVisual;
 
@@ -14,6 +16,7 @@ public class GunControllerVisibility : MonoBehaviour
             OVRInput.IsControllerConnected(OVRInput.Controller.RTouch);
 
         gun.SetActive(controllersActive);
+        //baseballbat.SetActive(controllersActive);
 
         leftControllerVisual.SetActive(false);
         rightControllerVisual.SetActive(false);
