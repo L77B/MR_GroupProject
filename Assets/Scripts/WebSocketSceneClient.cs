@@ -3,6 +3,7 @@ using NativeWebSocket;
 using UnityEngine.SceneManagement;
 using Meta.XR.MRUtilityKit;
 using System.Collections.Generic;
+using System.Collections;
 
 
 
@@ -17,6 +18,7 @@ private bool hasExploded = false;
 public FindSpawnPositions spawnFinder;
 public GameObject[] spawnPrefabsA;
 public GameObject[] spawnPrefabsB;
+
 
 
 
@@ -76,7 +78,9 @@ public GameObject[] spawnPrefabsB;
             if (value == "1")
             {
                 Debug.Log("Button pressed → Reloading scene");
-                sceneLoader.RestartGame();
+                FindFirstObjectByType<SceneLoaderTwo>().RestartGame();
+
+                //sceneLoader.RestartGame();
             }
             else if (value == "0")
             {
@@ -170,6 +174,8 @@ private Vector3 GetRandomMRPosition()
 
     return pos;
 }
+
+
 
 
 
