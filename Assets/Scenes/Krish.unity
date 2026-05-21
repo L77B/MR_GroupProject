@@ -8434,7 +8434,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponSpawner
   batPrefab: {fileID: 1225118020377716861, guid: ff2480fd869a41742b55442dfdba4858, type: 3}
-  batCount: 2
+  batCount: 1
   spawnHeight: 1.4
   spacingBetween: 0.8
   debugText: {fileID: 1037288147}
