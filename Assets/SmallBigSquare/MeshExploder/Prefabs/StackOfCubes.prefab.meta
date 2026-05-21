@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 3b75bd4c82498ed4ea241104bb20f0fd
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 307984
+  packageName: Mesh Exploder
+  packageVersion: 1.0
+  assetPath: Assets/SmallBigSquare/MeshExploder/Prefabs/StackOfCubes.prefab
+  uploadId: 725329

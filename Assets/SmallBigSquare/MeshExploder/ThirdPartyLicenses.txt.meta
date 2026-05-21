@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 084953c1acf67b04397afb372718467c
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 307984
+  packageName: Mesh Exploder
+  packageVersion: 1.0
+  assetPath: Assets/SmallBigSquare/MeshExploder/ThirdPartyLicenses.txt
+  uploadId: 725329

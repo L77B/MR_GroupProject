@@ -1473,10 +1473,7 @@ PrefabInstance:
       addedObject: {fileID: 7527375087447677350}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3065967880fbd84459ca14a74366dd00, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 5225790408004864693}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3065967880fbd84459ca14a74366dd00, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 154798872007581036}
+      addedObject: {fileID: -8400668598195837713}
   m_SourcePrefab: {fileID: 100100000, guid: 3065967880fbd84459ca14a74366dd00, type: 3}
 --- !u!1 &5866842773001083876 stripped
 GameObject:
@@ -1501,7 +1498,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours: []
   ForceRemoteRenderTimeframe: 0
---- !u!114 &5225790408004864693
+--- !u!114 &-8400668598195837713
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1510,51 +1507,36 @@ MonoBehaviour:
   m_GameObject: {fileID: 5866842773001083876}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1541381998, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Script: {fileID: 11500000, guid: 88c01c208fe74764a83a739f6c71136a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObjectPrefabData
-  Guid:
-    RawGuidValue: b044b066381aff84387d353ac80c3fe9
---- !u!114 &154798872007581036
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5866842773001083876}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4d007359bfaa4ad29e0f05bf928d36e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BreakableObject
-  maxHealth: 100
-  currentHealth: 0
-  lightHitThreshold: 5
-  heavyHitThreshold: 15
-  breakThreshold: 25
-  fracturedPieces:
-  - {fileID: 3394659726552698056}
-  - {fileID: 6618478373516224527}
-  - {fileID: 1132404729317236206}
-  - {fileID: 527503573047439436}
-  - {fileID: 2062247664940586994}
-  - {fileID: 6010589516081443341}
-  - {fileID: 4682171639302153001}
-  - {fileID: 7975051726116733495}
-  - {fileID: 5613721756252872504}
-  - {fileID: 4993264795604159282}
-  - {fileID: 481385039109445501}
-  - {fileID: 4145154026681099795}
-  pieceExplosionForce: 300
-  pieceExplosionRadius: 0.5
-  pieceFadeTime: 4
-  hitParticles: {fileID: 0}
-  breakParticles: {fileID: 0}
-  audioSource: {fileID: 0}
-  lightHitSound: {fileID: 0}
-  heavyHitSound: {fileID: 0}
-  breakSound: {fileID: 0}
-  knockbackMultiplier: 1
+  m_EditorClassIdentifier: Assembly-CSharp::SBS.ME.MeshExploder
+  explodeNOW: 0
+  recalculteNormals: 1
+  recalculateTangents: 0
+  recalculateBounds: 0
+  createGameObjects: 0
+  probabilityOfCreatingAnObject: 1
+  colliderAttached: 1
+  useNormalsAsExplosionDirection: 0
+  explosionOrigin: 0
+  ExplosionOffset: {x: 0, y: 0, z: 0}
+  normalizeDirection: 1
+  explosionInitSpeed: 1
+  gravity: {x: 0, y: 0, z: 0}
+  friction: 0.99
+  doubleSided: 1
+  flipSideDistance: 0.001
+  explosionTime: 1
+  destroyObjectAfterExplosion: 1
+  onExplosionStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  onPartsCreated:
+    m_PersistentCalls:
+      m_Calls: []
+  onExplosionFinished:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &6494444407582638430 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 3065967880fbd84459ca14a74366dd00, type: 3}

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 60c3636557d2d9748910875cbe3161cf
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 307984
+  packageName: Mesh Exploder
+  packageVersion: 1.0
+  assetPath: Assets/SmallBigSquare/MeshExploder/Guide.asset
+  uploadId: 725329

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b411f7f6ab185054f8ea0a73b9a2522f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 307984
+  packageName: Mesh Exploder
+  packageVersion: 1.0
+  assetPath: Assets/SmallBigSquare/MeshExploder/Mesh/SuitCase_mesh.asset
+  uploadId: 725329

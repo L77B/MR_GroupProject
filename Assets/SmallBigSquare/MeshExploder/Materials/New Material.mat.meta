@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 217a575fe1dccee479e8ad539c356c97
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 307984
+  packageName: Mesh Exploder
+  packageVersion: 1.0
+  assetPath: Assets/SmallBigSquare/MeshExploder/Materials/New Material.mat
+  uploadId: 725329

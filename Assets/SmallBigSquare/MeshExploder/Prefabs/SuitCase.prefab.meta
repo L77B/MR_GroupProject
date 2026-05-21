@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 55856eb317a6f6d46b94f45021548c4f
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 307984
+  packageName: Mesh Exploder
+  packageVersion: 1.0
+  assetPath: Assets/SmallBigSquare/MeshExploder/Prefabs/SuitCase.prefab
+  uploadId: 725329
