@@ -1,8 +1,7 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
-using Fusion;
 using TMPro;
+using Meta.XR.MRUtilityKit;
 
 public class WeaponSpawner : MonoBehaviour
 {
@@ -19,8 +18,7 @@ public class WeaponSpawner : MonoBehaviour
     [Header("Debug")]
     [SerializeField] private TMP_Text debugText;
 
-    private NetworkRunner _runner;
-    private bool          _hasSpawned = false;
+    private bool _hasSpawned = false;
 
     void Awake()
     {
@@ -30,12 +28,8 @@ public class WeaponSpawner : MonoBehaviour
     public void SpawnWeapons(Vector3 qrPosition,
                               Quaternion qrRotation)
     {
-        UpdateDebug("SpawnWeapons called!");
-        if (_hasSpawned)
-        {
-            UpdateDebug("Already spawned — skipping");
-            return;
-        }
+        if (_hasSpawned) return;
+        _hasSpawned = true;
         StartCoroutine(SpawnRoutine(
             qrPosition, qrRotation));
     }
@@ -43,61 +37,13 @@ public class WeaponSpawner : MonoBehaviour
     IEnumerator SpawnRoutine(Vector3 qrPos,
                               Quaternion qrRot)
     {
-        UpdateDebug("SpawnRoutine started!\n" +
-                    $"Bat prefab null: " +
-                    $"{batPrefab == null}");
-
-        // Wait for runner
-        yield return new WaitUntil(() => {
-            _runner =
-                FindFirstObjectByType<NetworkRunner>();
-            return _runner != null && _runner.IsRunning;
-        });
-
-        UpdateDebug("Runner found!\n" +
-                    $"IsServer: {_runner.IsServer}\n" +
-                    $"IsClient: {_runner.IsClient}");
-
-        // Wait for role
-        yield return new WaitUntil(() =>
-            _runner.IsServer || _runner.IsClient);
-
-        yield return new WaitForSeconds(2f);
-
-        bool canSpawn = _runner.IsServer ||
-                        _runner.IsSharedModeMasterClient;
-
-        UpdateDebug($"CanSpawn: {canSpawn}\n" +
-                    $"IsServer: {_runner.IsServer}\n" +
-                    $"IsMaster: " +
-                    $"{_runner.IsSharedModeMasterClient}");
-
-        if (!canSpawn)
-        {
-            UpdateDebug("Client — waiting for bats");
-            yield break;
-        }
+        UpdateDebug("Spawning local weapons...");
 
         if (batPrefab == null)
         {
             UpdateDebug("ERROR: Bat prefab null!");
             yield break;
         }
-
-        NetworkObject netObj = batPrefab
-            .GetComponent<NetworkObject>();
-
-        if (netObj == null)
-        {
-            UpdateDebug("ERROR: No NetworkObject " +
-                        "on bat prefab!");
-            yield break;
-        }
-
-        UpdateDebug($"Ready to spawn {batCount} bats!\n" +
-                    $"NetObj: {netObj.name}");
-
-        _hasSpawned = true;
 
         Vector3 wallNormal = qrRot * Vector3.forward;
         Vector3 wallRight  = qrRot * Vector3.right;
@@ -120,34 +66,20 @@ public class WeaponSpawner : MonoBehaviour
             Quaternion spawnRot =
                 Quaternion.LookRotation(wallNormal);
 
-            UpdateDebug($"Spawning bat {i+1}/{batCount}\n" +
-                        $"at {spawnPos}");
+            // Simple local instantiate - no networking
+            GameObject bat = Instantiate(
+                batPrefab, spawnPos, spawnRot);
 
-            NetworkObject spawned = _runner.Spawn(
-                netObj,
-                spawnPos,
-                spawnRot);
-
-            if (spawned != null)
+            if (bat != null)
             {
-                UpdateDebug($"Bat {i+1} spawned! ✓\n" +
-                            $"at {spawnPos}");
-                Debug.Log($"Bat {i+1} spawned!");
-            }
-            else
-            {
-                UpdateDebug($"ERROR: Bat {i+1} " +
-                            "spawn failed!\n" +
-                            "Check Fusion config");
-                Debug.LogError(
-                    $"Bat {i+1} spawn failed!");
+                Debug.Log($"Bat {i+1} spawned locally!");
+                UpdateDebug($"Bat {i+1} spawned ✓");
             }
 
             yield return new WaitForSeconds(0.1f);
         }
 
-        UpdateDebug($"All {batCount} bats spawned! ✓");
-        Debug.Log("All bats spawned!");
+        UpdateDebug($"All {batCount} bats ready!");
     }
 
     void UpdateDebug(string msg)

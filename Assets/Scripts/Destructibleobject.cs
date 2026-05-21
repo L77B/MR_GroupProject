@@ -33,6 +33,8 @@ public class DestructibleObject : MonoBehaviour
 
     [Header("Physics")]
     [SerializeField] private float knockbackMultiplier = 1f;
+    public GameObject explosionPrefab;
+public Transform explosionSpawnPoint;
 
     // ── OnBroken Event ────────────────────────────────────────────────────────
     // ObjectSpawner subscribes to this to know when to respawn
@@ -232,4 +234,17 @@ public class DestructibleObject : MonoBehaviour
             if (piece == obj) return true;
         return false;
     }
+    public void BreakNow()
+{
+    if (isBroken) return;
+
+    Vector3 fakeHitPoint = transform.position;
+    Vector3 fakeDirection = Vector3.up;
+    float fakeForce = breakThreshold + 1f;
+
+    Break(fakeHitPoint, fakeDirection, fakeForce);
+    Instantiate(explosionPrefab, explosionSpawnPoint.position, explosionSpawnPoint.rotation);
+    Debug.Log("Explosion triggered!");
+}
+
 }
