@@ -1716,6 +1716,7 @@ GameObject:
   - component: {fileID: 97045229681203664}
   - component: {fileID: 1284819726727533234}
   - component: {fileID: 3687632341539770495}
+  - component: {fileID: -9074799799573466731}
   m_Layer: 0
   m_Name: Cup
   m_TagString: Untagged
@@ -1854,6 +1855,24 @@ MonoBehaviour:
   onObjectDestruct:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &-9074799799573466731
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3828203389611155867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
+  SortKey: 3084704370
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours: []
+  ForceRemoteRenderTimeframe: 0
 --- !u!1 &3856660895610614658
 GameObject:
   m_ObjectHideFlags: 0
