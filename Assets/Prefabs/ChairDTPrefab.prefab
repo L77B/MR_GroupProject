@@ -1473,6 +1473,12 @@ PrefabInstance:
       addedObject: {fileID: 7527375087447677350}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3065967880fbd84459ca14a74366dd00, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 7318808824176283257}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3065967880fbd84459ca14a74366dd00, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -8193368904583722381}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3065967880fbd84459ca14a74366dd00, type: 3}
+      insertIndex: -1
       addedObject: {fileID: -8400668598195837713}
   m_SourcePrefab: {fileID: 100100000, guid: 3065967880fbd84459ca14a74366dd00, type: 3}
 --- !u!1 &5866842773001083876 stripped
@@ -1496,8 +1502,39 @@ MonoBehaviour:
   ObjectInterest: 1
   Flags: 262145
   NestedObjects: []
-  NetworkedBehaviours: []
+  NetworkedBehaviours:
+  - {fileID: 7318808824176283257}
+  - {fileID: -8193368904583722381}
   ForceRemoteRenderTimeframe: 0
+--- !u!114 &7318808824176283257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5866842773001083876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkTransform
+  _stateAuthorityChangeErrorCorrectionDelta: 0
+  SyncScale: 0
+  SyncParent: 0
+  _autoAOIOverride: 1
+  DisableSharedModeInterpolation: 0
+--- !u!114 &-8193368904583722381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5866842773001083876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09b5afd74dccd4327b18c4d3767d105b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MeshExploderBreakable
 --- !u!114 &-8400668598195837713
 MonoBehaviour:
   m_ObjectHideFlags: 0
