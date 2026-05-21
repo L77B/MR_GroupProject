@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Krish.unity
     guid: 39658c6d4e91b47b1b67e940d1e732ed
   - enabled: 1
+    path: Assets/Scenes/XRBootstrap.unity
+    guid: 5d80d408f53b74723bfab3f4a87fb991
+  - enabled: 1
     path: Assets/Scenes/Elin.unity
     guid: 0f69d1a7c8881457ba635d11af287802
   m_configObjects:

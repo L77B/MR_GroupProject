@@ -2,34 +2,28 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
-
-
 public class SceneLoaderTwo : MonoBehaviour
 {
     public GameObject explosionPrefab;
     public Transform spawnPoint;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    
-
-IEnumerator RestartSceneSafely()
-{
-    yield return null;
-    yield return null;
-    yield return null;
-    yield return null; // wait one frame so MR shuts down cleanly
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-}
-
+ 
     public void RestartGame()
     {
-        StartCoroutine(RestartSceneSafely());
-        //SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        StartCoroutine(RestartRoutine());
     }
 
-    public void LoadSceneByName(string sceneName)
+    IEnumerator RestartRoutine()
     {
-        SceneManager.LoadScene(sceneName);
+        // Unload the game scene
+        yield return SceneManager.UnloadSceneAsync("GameScene");
+
+        // Reload the game scene
+        yield return SceneManager.LoadSceneAsync("GameScene", LoadSceneMode.Additive);
     }
+
+
+    
+
     public void TriggerExplosion()
     {
         gameObject.SetActive(false);
