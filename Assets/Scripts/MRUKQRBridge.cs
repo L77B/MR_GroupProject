@@ -3,7 +3,6 @@ using Meta.XR.MRUtilityKit;
 using TMPro;
 using Fusion;
 using System.Collections;
-using Unity.Netcode;
 
 public class MRUKQRBridge : MonoBehaviour
 {
@@ -46,7 +45,7 @@ public class MRUKQRBridge : MonoBehaviour
                 FindFirstObjectByType<NetworkRunner>();
             return _runner != null && _runner.IsRunning;
         });
-        Debug.Log("Runner found in QRBridge");
+        Debug.Log("Runner found!");
     }
 
     public void OnColocationReady()
@@ -91,15 +90,18 @@ public class MRUKQRBridge : MonoBehaviour
     IEnumerator ApplyOrigin(Vector3 position,
                              Quaternion rotation)
     {
-        // Wait for runner
+        if (position == Vector3.zero)
+        {
+            UpdateDebug("Invalid QR position!");
+            yield break;
+        }
+
         yield return new WaitUntil(() =>
             _runner != null && _runner.IsRunning);
 
-        // Wait for role
         yield return new WaitUntil(() =>
             _runner.IsServer || _runner.IsClient);
 
-        // Extra wait for session to stabilise
         yield return new WaitForSeconds(2f);
 
         bool isHost = _runner.IsServer ||
@@ -108,53 +110,39 @@ public class MRUKQRBridge : MonoBehaviour
         UpdateDebug($"Role: " +
                     $"{(isHost ? "HOST" : "CLIENT")}\n" +
                     $"Session: " +
-                    $"{_runner.SessionInfo.Name}\n" +
-                    $"Players: " +
-                    $"{_runner.SessionInfo.PlayerCount}");
+                    $"{_runner.SessionInfo.Name}");
 
-        // Set local world origin
         if (WorldOrigin.Instance != null)
             WorldOrigin.Instance.SetOrigin(
                 position, rotation);
 
         if (isHost)
-        {
-            UpdateDebug("HOST!\nSpawning...");
+{
+    UpdateDebug("HOST!\nSpawning objects...");
 
-            // Spawn test cube
-            TestSpawner testSpawner =
-                FindFirstObjectByType<TestSpawner>();
-            if (testSpawner != null)
-                testSpawner.SpawnCubes(
-                    position, rotation);
-            else
-                Debug.Log("No TestSpawner — " +
-                          "using weapon spawner");
+    if (WeaponSpawner.Instance != null)
+        WeaponSpawner.Instance.SpawnWeapons(
+            position, rotation);
+    else
+        UpdateDebug("WeaponSpawner missing!");
 
-            // Spawn weapons
-            if (WeaponSpawner.Instance != null)
-                WeaponSpawner.Instance.SpawnWeapons(
-                    position, rotation);
-            else
-                UpdateDebug("WeaponSpawner missing!");
+    if (BreakableSpawner.Instance != null)
+        BreakableSpawner.Instance.Initialise();
+    else
+        UpdateDebug("BreakableSpawner missing!");
 
-            // Spawn breakables
-            if (BreakableSpawner.Instance != null)
-                BreakableSpawner.Instance.Initialise();
-            else
-                UpdateDebug("BreakableSpawner missing!");
-
-            yield return new WaitForSeconds(2f);
-            UpdateDebug("Ready!\nSpawn complete ✓");
-        }
+    yield return new WaitForSeconds(2f);
+    UpdateDebug("Ready!\nAll objects spawned ✓");
+}
         else
         {
-            UpdateDebug("CLIENT!\nWaiting...");
+            UpdateDebug("CLIENT!\nWaiting for bats...");
 
-            // Wait for networked objects to appear
-            yield return new WaitForSeconds(5f);
+            yield return new WaitUntil(() =>
+                FindFirstObjectByType<NetworkObject>()
+                    != null);
 
-            UpdateDebug("CLIENT ready!");
+            UpdateDebug("CLIENT ready!\nBats received ✓");
         }
     }
 

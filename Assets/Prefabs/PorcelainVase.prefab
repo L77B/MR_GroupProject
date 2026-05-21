@@ -2239,6 +2239,7 @@ GameObject:
   - component: {fileID: 5011878308592114837}
   - component: {fileID: 2314227383665511544}
   - component: {fileID: 7448121191725008969}
+  - component: {fileID: 3165594754290279991}
   m_Layer: 0
   m_Name: PorcelainVase
   m_TagString: Untagged
@@ -2405,6 +2406,24 @@ MonoBehaviour:
   heavyHitSound: {fileID: 0}
   breakSound: {fileID: 0}
   knockbackMultiplier: 1
+--- !u!114 &3165594754290279991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3527309188772009321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
+  SortKey: 3628649595
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours: []
+  ForceRemoteRenderTimeframe: 0
 --- !u!1 &3577376333106786860
 GameObject:
   m_ObjectHideFlags: 0

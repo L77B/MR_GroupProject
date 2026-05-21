@@ -4,25 +4,20 @@ public class WorldOrigin : MonoBehaviour
 {
     public static WorldOrigin Instance;
 
-    public Transform Origin => transform;
     public bool IsSet { get; private set; }
+    public Transform Origin => transform;
 
     void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
         Instance = this;
-        DontDestroyOnLoad(gameObject);
     }
 
-    public void SetOrigin(Vector3 position, Quaternion rotation)
+    public void SetOrigin(Vector3 position,
+                          Quaternion rotation)
     {
         transform.position = position;
         transform.rotation = rotation;
         IsSet = true;
-        Debug.Log($"WorldOrigin set at: {position}");
+        Debug.Log($"WorldOrigin set: {position}");
     }
 }

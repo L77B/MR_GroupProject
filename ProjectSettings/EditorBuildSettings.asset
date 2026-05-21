@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/test.unity
     guid: 5b82797f40983444eb204af58818ee5e
+  - enabled: 0
+    path: Assets/Scenes/Krish-NEW.unity
+    guid: 9638028b7970549f698c385d1393567f
   m_configObjects:
     com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: b56a0b06050ebc7419d1d482969b4bf6, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 34b8ee693a6187346b81cf5f4ecbe28a, type: 2}

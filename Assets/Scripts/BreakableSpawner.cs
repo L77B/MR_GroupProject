@@ -1,21 +1,22 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using Meta.XR.MRUtilityKit;
 using Fusion;
+using TMPro;
 
 public class BreakableSpawner : MonoBehaviour
 {
     public static BreakableSpawner Instance;
 
     [Header("Breakable Prefabs")]
-    [SerializeField] private List<GameObject> breakablePrefabs;
+    [SerializeField] private List<GameObject>
+        breakablePrefabs;
 
     [Header("Spawn Settings")]
     [SerializeField] private int   targetCount        = 10;
     [SerializeField] private float minDistanceBetween = 0.4f;
-    [SerializeField] private int   maxAttempts        = 20;
+    [SerializeField] private int   maxAttempts        = 30;
 
     [Header("Debug")]
     [SerializeField] private TMP_Text debugText;
@@ -35,11 +36,14 @@ public class BreakableSpawner : MonoBehaviour
     public void Initialise()
     {
         if (_initialised) return;
+        _initialised = true;
         StartCoroutine(InitRoutine());
     }
 
     IEnumerator InitRoutine()
     {
+        UpdateDebug("Breakables: waiting for room...");
+
         // Wait for MRUK room
         yield return new WaitUntil(() =>
             MRUK.Instance != null &&
@@ -59,10 +63,12 @@ public class BreakableSpawner : MonoBehaviour
         yield return new WaitUntil(() =>
             _runner.IsServer || _runner.IsClient);
 
+        yield return new WaitForSeconds(2f);
+
         bool canSpawn = _runner.IsServer ||
                         _runner.IsSharedModeMasterClient;
 
-        Debug.Log($"BreakableSpawner - " +
+        Debug.Log($"BreakableSpawner " +
                   $"CanSpawn: {canSpawn}");
 
         if (!canSpawn)
@@ -72,18 +78,14 @@ public class BreakableSpawner : MonoBehaviour
             yield break;
         }
 
-        _initialised = true;
         UpdateDebug("Spawning breakables...");
-
-        yield return StartCoroutine(
-            MaintainCount());
-
+        yield return StartCoroutine(MaintainCount());
         UpdateDebug($"Breakables ready: " +
-                    $"{activeBreakables.Count}/" +
-                    $"{targetCount}");
+                    $"{activeBreakables.Count}" +
+                    $"/{targetCount}");
     }
 
-    public IEnumerator MaintainCount()
+    IEnumerator MaintainCount()
     {
         activeBreakables.RemoveAll(
             obj => obj == null);
@@ -91,12 +93,12 @@ public class BreakableSpawner : MonoBehaviour
         int toSpawn = targetCount -
                       activeBreakables.Count;
 
-        Debug.Log($"Need to spawn {toSpawn} breakables");
+        Debug.Log($"Spawning {toSpawn} breakables");
 
         for (int i = 0; i < toSpawn; i++)
         {
             SpawnOne();
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.2f);
         }
     }
 
@@ -118,7 +120,6 @@ public class BreakableSpawner : MonoBehaviour
 
         GameObject prefab = breakablePrefabs[
             Random.Range(0, breakablePrefabs.Count)];
-
         if (prefab == null) return;
 
         NetworkObject netObj = prefab
@@ -165,16 +166,13 @@ public class BreakableSpawner : MonoBehaviour
 
         if (!found)
         {
-            Debug.LogWarning("No floor position — " +
-                             "using fallback");
+            Debug.LogWarning(
+                "No floor position — using fallback");
             spawnPos = new Vector3(
                 Random.Range(-2f, 2f),
                 0.1f,
                 Random.Range(0.5f, 2f));
         }
-
-        Debug.Log($"Spawning breakable: {prefab.name}" +
-                  $" at {spawnPos}");
 
         NetworkObject spawned = _runner.Spawn(
             netObj,
@@ -193,7 +191,7 @@ public class BreakableSpawner : MonoBehaviour
 
             activeBreakables.Add(spawned.gameObject);
             Debug.Log($"Breakable spawned: " +
-                      $"{prefab.name}");
+                      $"{prefab.name} at {spawnPos}");
         }
         else
         {
@@ -219,7 +217,8 @@ public class BreakableSpawner : MonoBehaviour
     {
         activeBreakables.Remove(broken);
         Debug.Log($"Broken: {broken.name}. " +
-                  $"Remaining: {activeBreakables.Count}");
+                  $"Remaining: " +
+                  $"{activeBreakables.Count}");
         StartCoroutine(RespawnAfterDelay(2f));
     }
 
@@ -228,8 +227,8 @@ public class BreakableSpawner : MonoBehaviour
         yield return new WaitForSeconds(delay);
         yield return StartCoroutine(MaintainCount());
         UpdateDebug($"Breakables: " +
-                    $"{activeBreakables.Count}/" +
-                    $"{targetCount}");
+                    $"{activeBreakables.Count}" +
+                    $"/{targetCount}");
     }
 
     void UpdateDebug(string msg)

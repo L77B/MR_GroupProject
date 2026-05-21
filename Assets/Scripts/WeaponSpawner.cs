@@ -2,19 +2,22 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using Fusion;
-using Fusion.Sockets;
-using System;
+using TMPro;
 
 public class WeaponSpawner : MonoBehaviour
 {
     public static WeaponSpawner Instance;
 
-    [Header("Weapon Prefabs")]
-    [SerializeField] private List<GameObject> weaponPrefabs;
+    [Header("Bat Prefab")]
+    [SerializeField] private GameObject batPrefab;
 
     [Header("Spawn Settings")]
+    [SerializeField] private int   batCount       = 2;
     [SerializeField] private float spawnHeight    = 1.4f;
     [SerializeField] private float spacingBetween = 0.8f;
+
+    [Header("Debug")]
+    [SerializeField] private TMP_Text debugText;
 
     private NetworkRunner _runner;
     private bool          _hasSpawned = false;
@@ -27,7 +30,12 @@ public class WeaponSpawner : MonoBehaviour
     public void SpawnWeapons(Vector3 qrPosition,
                               Quaternion qrRotation)
     {
-        if (_hasSpawned) return;
+        UpdateDebug("SpawnWeapons called!");
+        if (_hasSpawned)
+        {
+            UpdateDebug("Already spawned — skipping");
+            return;
+        }
         StartCoroutine(SpawnRoutine(
             qrPosition, qrRotation));
     }
@@ -35,6 +43,10 @@ public class WeaponSpawner : MonoBehaviour
     IEnumerator SpawnRoutine(Vector3 qrPos,
                               Quaternion qrRot)
     {
+        UpdateDebug("SpawnRoutine started!\n" +
+                    $"Bat prefab null: " +
+                    $"{batPrefab == null}");
+
         // Wait for runner
         yield return new WaitUntil(() => {
             _runner =
@@ -42,87 +54,106 @@ public class WeaponSpawner : MonoBehaviour
             return _runner != null && _runner.IsRunning;
         });
 
+        UpdateDebug("Runner found!\n" +
+                    $"IsServer: {_runner.IsServer}\n" +
+                    $"IsClient: {_runner.IsClient}");
+
         // Wait for role
         yield return new WaitUntil(() =>
             _runner.IsServer || _runner.IsClient);
 
+        yield return new WaitForSeconds(2f);
+
         bool canSpawn = _runner.IsServer ||
                         _runner.IsSharedModeMasterClient;
 
-        Debug.Log($"WeaponSpawner - " +
-                  $"CanSpawn: {canSpawn}");
+        UpdateDebug($"CanSpawn: {canSpawn}\n" +
+                    $"IsServer: {_runner.IsServer}\n" +
+                    $"IsMaster: " +
+                    $"{_runner.IsSharedModeMasterClient}");
 
         if (!canSpawn)
         {
-            Debug.Log("Client — waiting for weapons");
+            UpdateDebug("Client — waiting for bats");
             yield break;
         }
 
-        if (weaponPrefabs == null ||
-            weaponPrefabs.Count == 0)
+        if (batPrefab == null)
         {
-            Debug.LogError("No weapon prefabs assigned!");
+            UpdateDebug("ERROR: Bat prefab null!");
             yield break;
         }
+
+        NetworkObject netObj = batPrefab
+            .GetComponent<NetworkObject>();
+
+        if (netObj == null)
+        {
+            UpdateDebug("ERROR: No NetworkObject " +
+                        "on bat prefab!");
+            yield break;
+        }
+
+        UpdateDebug($"Ready to spawn {batCount} bats!\n" +
+                    $"NetObj: {netObj.name}");
 
         _hasSpawned = true;
 
         Vector3 wallNormal = qrRot * Vector3.forward;
         Vector3 wallRight  = qrRot * Vector3.right;
 
-        // Calculate total width for all weapons
-        int     count       = weaponPrefabs.Count;
-        float   totalWidth  = (count - 1) * spacingBetween;
-        float   startOffset = -totalWidth / 2f;
+        float totalWidth  = (batCount - 1) *
+                             spacingBetween;
+        float startOffset = -totalWidth / 2f;
 
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < batCount; i++)
         {
-            GameObject prefab = weaponPrefabs[i];
-            if (prefab == null)
-            {
-                Debug.LogWarning($"Weapon prefab " +
-                                 $"{i} is null!");
-                continue;
-            }
-
-            NetworkObject netObj = prefab
-                .GetComponent<NetworkObject>();
-
-            if (netObj == null)
-            {
-                Debug.LogError(
-                    $"{prefab.name} missing " +
-                    "NetworkObject!");
-                continue;
-            }
-
             float offset = startOffset +
                            i * spacingBetween;
 
-            Vector3 spawnPos = qrPos +
-                wallRight  * offset +
-                Vector3.up * (spawnHeight -
-                              qrPos.y) +
-                wallNormal * 0.05f;
+            Vector3 spawnPos = new Vector3(
+                qrPos.x + wallRight.x * offset,
+                spawnHeight,
+                qrPos.z + wallRight.z * offset)
+                + wallNormal * 0.1f;
 
             Quaternion spawnRot =
                 Quaternion.LookRotation(wallNormal);
 
-            Debug.Log($"Spawning weapon {i+1}: " +
-                      $"{prefab.name} at {spawnPos}");
+            UpdateDebug($"Spawning bat {i+1}/{batCount}\n" +
+                        $"at {spawnPos}");
 
             NetworkObject spawned = _runner.Spawn(
-                netObj, spawnPos, spawnRot);
+                netObj,
+                spawnPos,
+                spawnRot);
 
             if (spawned != null)
-                Debug.Log($"Weapon {i+1} spawned!");
+            {
+                UpdateDebug($"Bat {i+1} spawned! ✓\n" +
+                            $"at {spawnPos}");
+                Debug.Log($"Bat {i+1} spawned!");
+            }
             else
+            {
+                UpdateDebug($"ERROR: Bat {i+1} " +
+                            "spawn failed!\n" +
+                            "Check Fusion config");
                 Debug.LogError(
-                    $"Weapon {i+1} spawn failed!");
+                    $"Bat {i+1} spawn failed!");
+            }
 
             yield return new WaitForSeconds(0.1f);
         }
 
-        Debug.Log("All weapons spawned!");
+        UpdateDebug($"All {batCount} bats spawned! ✓");
+        Debug.Log("All bats spawned!");
+    }
+
+    void UpdateDebug(string msg)
+    {
+        Debug.Log($"[WeaponSpawner] {msg}");
+        if (debugText != null)
+            debugText.text = msg;
     }
 }
