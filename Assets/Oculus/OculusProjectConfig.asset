@@ -12,21 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05d394ae2a81edd4cbc3c51917e766e3, type: 3}
   m_Name: OculusProjectConfig
   m_EditorClassIdentifier: Oculus.VR.Editor::OVRProjectConfig
-  targetDeviceTypes: 02000000030000000400000005000000
+  targetDeviceTypes: 0400000005000000
   allowOptional3DofHeadTracking: 0
-  handTrackingSupport: 2
+  handTrackingSupport: 1
   handTrackingFrequency: 2
   anchorSupport: 1
-  sharedAnchorSupport: 0
+  sharedAnchorSupport: 2
   renderModelSupport: 0
   trackedKeyboardSupport: 0
-  bodyTrackingSupport: 0
-  faceTrackingSupport: 0
-  eyeTrackingSupport: 0
-  virtualKeyboardSupport: 0
-  colocationSessionSupport: 1
+  bodyTrackingSupport: 1
+  faceTrackingSupport: 1
+  eyeTrackingSupport: 1
+  colocationSessionSupport: 2
   sceneSupport: 2
-  boundaryVisibilitySupport: 0
+  boundaryVisibilitySupport: 1
   disableBackups: 1
   enableNSCConfig: 1
   securityXmlPath: 
