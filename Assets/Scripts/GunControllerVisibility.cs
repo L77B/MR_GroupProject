@@ -6,6 +6,8 @@ public class GunControllerVisibility : MonoBehaviour
 
     public GameObject baseballbat;
 
+    public GameObject lightsaber;
+
     public GameObject leftControllerVisual;
     public GameObject rightControllerVisual;
 
@@ -17,6 +19,7 @@ public class GunControllerVisibility : MonoBehaviour
 
         gun.SetActive(controllersActive);
         baseballbat.SetActive(controllersActive);
+        lightsaber.SetActive(controllersActive);
 
         leftControllerVisual.SetActive(false);
         rightControllerVisual.SetActive(false);
