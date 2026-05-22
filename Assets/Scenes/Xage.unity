@@ -17627,7 +17627,7 @@ MonoBehaviour:
   SpawnAmount: 0
   MaxIterations: 1000
   SpawnLocations: 3
-  Labels: 2443
+  Labels: 9
   CheckOverlaps: 0
   OverrideBounds: -1
   LayerMask:
@@ -19779,6 +19779,67 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1238708096}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1001 &1241096235
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8882656747801673479, guid: 6c704c1f32595e54ca7ec6dc6f661245, type: 3}
+      propertyPath: SortKey
+      value: 2262549714
+      objectReference: {fileID: 0}
+    - target: {fileID: 2951724353884839816, guid: 6c704c1f32595e54ca7ec6dc6f661245, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.004
+      objectReference: {fileID: 0}
+    - target: {fileID: 2951724353884839816, guid: 6c704c1f32595e54ca7ec6dc6f661245, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.495
+      objectReference: {fileID: 0}
+    - target: {fileID: 2951724353884839816, guid: 6c704c1f32595e54ca7ec6dc6f661245, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.4282515
+      objectReference: {fileID: 0}
+    - target: {fileID: 2951724353884839816, guid: 6c704c1f32595e54ca7ec6dc6f661245, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2951724353884839816, guid: 6c704c1f32595e54ca7ec6dc6f661245, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2951724353884839816, guid: 6c704c1f32595e54ca7ec6dc6f661245, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2951724353884839816, guid: 6c704c1f32595e54ca7ec6dc6f661245, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2951724353884839816, guid: 6c704c1f32595e54ca7ec6dc6f661245, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2951724353884839816, guid: 6c704c1f32595e54ca7ec6dc6f661245, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2951724353884839816, guid: 6c704c1f32595e54ca7ec6dc6f661245, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6680040189557159697, guid: 6c704c1f32595e54ca7ec6dc6f661245, type: 3}
+      propertyPath: m_Name
+      value: LaptopBreakable
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 6c704c1f32595e54ca7ec6dc6f661245, type: 3}
 --- !u!1 &1244474169
 GameObject:
   m_ObjectHideFlags: 0
@@ -35416,14 +35477,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BreakableSpawner
   breakablePrefabs:
-  - {fileID: 5866842773001083876, guid: b044b066381aff84387d353ac80c3fe9, type: 3}
-  - {fileID: 3828203389611155867, guid: e5eaae30b33fc4251a42e22b5c91a32d, type: 3}
-  - {fileID: 3527309188772009321, guid: ef78e62cd04304101b74dbb2ec3cf96c, type: 3}
-  - {fileID: 3521386555018725736, guid: 0738b65d547d144ec9f4aa2999ed7894, type: 3}
-  - {fileID: 5955032572976847648, guid: 4fe8bdef4fa21418085b0e8df8c0b905, type: 3}
-  - {fileID: 8719209802316264557, guid: 476da65130d4e7d43acf1b628f57186b, type: 3}
-  - {fileID: 8268719871678887891, guid: 5fb323cd684e3cd48b76fa27f0098914, type: 3}
-  - {fileID: 1891699360071768823, guid: d7d9f15125cd74fd09bea17552fe7d28, type: 3}
+  - {fileID: 8896873760725292759, guid: 43e301bbf8c2aa54dbf1f789415bca7b, type: 3}
+  - {fileID: 6680040189557159697, guid: 6c704c1f32595e54ca7ec6dc6f661245, type: 3}
+  - {fileID: 2241864863656924871, guid: 213a4a7f245dc1f48b3fa4ba47abbc4a, type: 3}
   targetCount: 10
   minDistanceBetween: 0.6
   maxAttempts: 20
@@ -36533,3 +36589,4 @@ SceneRoots:
   - {fileID: 2093432653}
   - {fileID: 2050466494}
   - {fileID: 910576702}
+  - {fileID: 1241096235}
