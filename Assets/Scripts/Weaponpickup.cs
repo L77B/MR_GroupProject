@@ -57,7 +57,8 @@ public class WeaponPickup : MonoBehaviour
     /// </summary>
     public bool IsHeld => selectCount > 0;
 
-    private WeaponRack rack;             // The rack that owns this weapon
+    [HideInInspector]
+    public WeaponRack rack;             // The rack that owns this weapon — set by WeaponRack.RegisterWeaponInSlot() at runtime
     private int slotIndex;        // Index of this weapon's slot on the rack
     private HandGrabInteractable grabInteractable; // SDK component — source of grab events
 

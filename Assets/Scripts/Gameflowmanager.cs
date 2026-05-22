@@ -44,6 +44,13 @@ public class GameFlowManager : MonoBehaviour
     [Tooltip("Seconds to wait after origin is set before spawning begins.")]
     [SerializeField] private float spawnDelay = 1.0f;
 
+    [Header("MRUK Timeout")]
+    [Tooltip("If MRUK does not fire SceneLoaded within this many seconds, " +
+             "proceed to Phase 2 anyway. Prevents the game getting stuck " +
+             "when running via Meta Quest Link or in Editor without full Scene API. " +
+             "Set to 0 to disable the timeout.")]
+    [SerializeField] private float mrukTimeoutSeconds = 10f;
+
     [Header("Debug")]
     [SerializeField] private bool debugLogging = true;
 
@@ -96,7 +103,14 @@ public class GameFlowManager : MonoBehaviour
         // Phase 1: Wait for MRUK to finish scanning
         // Nothing spawns until the player confirms via the UI button
         if (MRUK.Instance != null)
+        {
             MRUK.Instance.RegisterSceneLoadedCallback(OnMRUKReady);
+
+            // Safety timeout — if MRUK does not fire the callback within
+            // mrukTimeoutSeconds (e.g. running via Link with limited Scene API),
+            // proceed to Phase 2 anyway so the game is not stuck forever.
+            StartCoroutine(MRUKLoadTimeout());
+        }
         else
         {
             Debug.LogWarning("[GameFlowManager] MRUK not found. " +
@@ -112,6 +126,30 @@ public class GameFlowManager : MonoBehaviour
         {
             setupUI.OnConfirmClicked -= OnPlayerConfirmedPosition;
             setupUI.OnResetClicked -= OnPlayerResetPosition;
+        }
+    }
+
+    /// <summary>
+    /// Safety timeout for MRUK scene loading.
+    /// If MRUK does not fire SceneLoadedCallback within mrukTimeoutSeconds,
+    /// proceed to Phase 2 anyway so the game does not get stuck.
+    /// This handles Meta Quest Link mode where Scene API may be limited.
+    /// </summary>
+    private System.Collections.IEnumerator MRUKLoadTimeout()
+    {
+        if (mrukTimeoutSeconds <= 0f) yield break;
+
+        yield return new WaitForSeconds(mrukTimeoutSeconds);
+
+        // Only fire timeout if still waiting for MRUK
+        if (CurrentPhase == GamePhase.WaitingForMRUK)
+        {
+            Debug.LogWarning($"[GameFlowManager] MRUK did not load within " +
+                             $"{mrukTimeoutSeconds}s. Proceeding anyway. " +
+                             "This is normal when running via Meta Quest Link " +
+                             "or in Editor without full Scene API support. " +
+                             "Build and Run to the headset for full MRUK functionality.");
+            OnMRUKReady();
         }
     }
 
@@ -176,9 +214,23 @@ public class GameFlowManager : MonoBehaviour
         if (setupUI != null)
             setupUI.SetConfirmedState();
 
-        // ── Step 1: Set origin to player position ─────────────────────────────
-        if (roomOriginManager != null)
+        // ── Step 1: Origin management ─────────────────────────────────────────
+        // RoomOriginManager.autocentreOnLoad handles origin on scene load.
+        // If autocentreOnLoad is OFF (fixed installation), no offset is applied
+        // and objects spawn at the tracking origin which matches the guardian.
+        // If autocentreOnLoad is ON, it already ran when MRUK loaded.
+        // We call SetOriginToPlayerPosition() only if explicitly needed.
+        if (roomOriginManager != null && roomOriginManager.AutocentreOnLoad)
+        {
+            // Autocentre is on — re-centre on player's confirmed position
             roomOriginManager.SetOriginToPlayerPosition();
+            Debug.Log("[GameFlowManager] Origin set to player confirmed position.");
+        }
+        else
+        {
+            Debug.Log("[GameFlowManager] Using fixed origin — no offset applied. " +
+                      "Guardian boundary and spawns should be aligned.");
+        }
 
         // Wait for MRUK TrackingSpaceOffset to propagate
         yield return new WaitForSeconds(0.3f);
@@ -189,9 +241,18 @@ public class GameFlowManager : MonoBehaviour
 
         yield return new WaitForSeconds(spawnDelay * 0.5f);
 
-        // ── Step 3: Spawn default weapon ──────────────────────────────────────
+        // ── Step 3: Spawn bat via SpawnManager at index 0 ────────────────────────
+        // SpawnManager.SpawnByIndex(0) places the bat via FindSpawnPositions
+        // at a valid surface near the player so it is always reachable.
         if (spawnManager != null)
+        {
             spawnManager.SpawnByIndex(0);
+            Debug.Log("[GameFlowManager] SpawnManager spawned bat at index 0.");
+        }
+        else
+        {
+            Debug.LogWarning("[GameFlowManager] SpawnManager null — bat not spawned via SpawnByIndex.");
+        }
 
         yield return new WaitForSeconds(spawnDelay);
 
