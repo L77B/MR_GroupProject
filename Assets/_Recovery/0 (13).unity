@@ -119,84 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1001 &4277185
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 3756703507379349124, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 3756703507379349124, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 3756703507379349124, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 3756703507379349124, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -1.572
-      objectReference: {fileID: 0}
-    - target: {fileID: 3756703507379349124, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.177
-      objectReference: {fileID: 0}
-    - target: {fileID: 3756703507379349124, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3756703507379349124, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3756703507379349124, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3756703507379349124, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3756703507379349124, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3756703507379349124, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3756703507379349124, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3756703507379349124, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5185209267480678150, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
-      propertyPath: m_Name
-      value: Explosion3
-      objectReference: {fileID: 0}
-    - target: {fileID: 5185209267480678150, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
---- !u!1 &4277186 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5185209267480678150, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
-  m_PrefabInstance: {fileID: 4277185}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &12299827
 GameObject:
   m_ObjectHideFlags: 0
@@ -3820,7 +3742,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SceneLoaderTwo
   explosionPrefab: {fileID: 5185209267480678150, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
   spawnPoint: {fileID: 780056329}
-  explosionObject: {fileID: 0}
 --- !u!1 &259874196
 GameObject:
   m_ObjectHideFlags: 0
@@ -22398,7 +22319,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.812
+      value: 0.909
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
       propertyPath: m_LocalPosition.z
@@ -26835,7 +26756,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9a9b466113ba45ab83ceaff8c04a775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WebSocketSceneClient
-  explosionPrefab: {fileID: 0}
+  explosionPrefab: {fileID: 5185209267480678150, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
   explosionSpawnPoint: {fileID: 780056329}
   dynamite: {fileID: 259596758}
   spawnFinder: {fileID: 1065728074}
@@ -26849,7 +26770,6 @@ MonoBehaviour:
   - {fileID: 8992960436560914535, guid: 5cfe0349a30ca5141921861f169683c2, type: 3}
   - {fileID: 1800982050785462730, guid: 7b263552a35e1f54880aa060bafa14e9, type: 3}
   - {fileID: 326031453610686555, guid: a534c66d8a385834c99b46e1c8b19897, type: 3}
-  explosionObject: {fileID: 4277186}
   serverIP: 10.204.0.57
   serverPort: 8081
   sceneLoader: {fileID: 1978975427}
@@ -34619,9 +34539,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 755401b726c444bba86a954f81656d4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneLoaderTwo
-  explosionPrefab: {fileID: 0}
+  explosionPrefab: {fileID: 5185209267480678150, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
   spawnPoint: {fileID: 780056329}
-  explosionObject: {fileID: 4277186}
 --- !u!4 &1978975428
 Transform:
   m_ObjectHideFlags: 0
@@ -37035,4 +36954,3 @@ SceneRoots:
   - {fileID: 1978975428}
   - {fileID: 780056329}
   - {fileID: 1363087181}
-  - {fileID: 4277185}

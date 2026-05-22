@@ -6,27 +6,22 @@ public class SceneLoaderTwo : MonoBehaviour
 {
     public GameObject explosionPrefab;
     public Transform spawnPoint;
+    public GameObject explosionObject;
  
     public void RestartGame()
     {
-        StartCoroutine(RestartRoutine());
+       SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
-
-    IEnumerator RestartRoutine()
-    {
-        // Unload the game scene
-        yield return SceneManager.UnloadSceneAsync("GameScene");
-
-        // Reload the game scene
-        yield return SceneManager.LoadSceneAsync("GameScene", LoadSceneMode.Additive);
-    }
-
 
     
 
     public void TriggerExplosion()
     {
-        gameObject.SetActive(false);
-        Instantiate(explosionPrefab, spawnPoint.position, spawnPoint.rotation);
+    
+    explosionObject.SetActive(true);
+    Debug.Log("Explosion triggered!");
+
+
+
     }
 }
