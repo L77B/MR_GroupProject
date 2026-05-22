@@ -4,54 +4,41 @@ using Meta.XR.MRUtilityKit;
 using UnityEngine;
 
 /// <summary>
-/// Manages the waves of breakable objects in the Rage Room.
+/// Manages waves of breakable objects in the Rage Room.
 ///
-/// SPAWN STRATEGY — REUSING FindSpawnPositions
-/// ─────────────────────────────────────────────
-/// Rather than reimplementing room position logic, this script drives the
-/// existing Meta MRUK FindSpawnPositions component directly — the same
-/// component already used by SpawnManager for room layout spawning.
+/// ROOT CAUSE OF THE 0/N BUG — SDK SOURCE ANALYSIS
+/// ─────────────────────────────────────────────────
+/// After reading FindSpawnPositions.cs directly, two bugs were found:
 ///
-/// FindSpawnPositions already handles:
-///   - Random positions on floor surfaces (SpawnLocation.OnTopOfSurfaces)
-///   - Overlap checking so objects do not intersect each other or furniture
-///   - Wall clearance via SurfaceClearanceDistance
-///   - Correct height placement so objects sit flush on the surface
-///   - Cleanup of previously spawned objects via ClearSpawnedPrefabs()
+/// BUG 1 — Missing else/continue in FindSpawnPositions.StartSpawn()
+///   When GenerateRandomPositionOnSurface() returns false (no surface found),
+///   the SDK code has no else branch — it falls through with spawnPosition
+///   still at Vector3.zero. That zero position then fails IsPositionInRoom()
+///   and loops all MaxIterations doing nothing, placing 0 objects silently.
+///   This is an SDK bug we cannot patch — so we bypass StartSpawn() entirely.
 ///
-/// ObjectWaveManager simply sets the prefab and amount on FindSpawnPositions,
-/// calls StartSpawn(room), then tracks which objects were spawned so it can
-/// detect when all of them have been broken.
+/// BUG 2 — ClearSpawnedPrefabs + CheckOverlaps in the same frame
+///   Destroy() is deferred to end of frame. If StartSpawn() is called in the
+///   same frame as ClearSpawnedPrefabs(), the old wave's colliders are still
+///   live in the physics engine and CheckOverlaps rejects every candidate.
+///   Fixed by yielding one frame after clearing before spawning.
 ///
-/// WAVE RULES
-/// ──────────
-/// - Each wave spawns objectsPerWave objects via FindSpawnPositions.
-/// - When ALL objects in the wave are broken, the next wave spawns after a pause.
-/// - Waves continue indefinitely.
-///
-/// PREFAB LIST
-/// ───────────
-/// Assign any number of breakable object prefabs to breakablePrefabs[].
-/// Each prefab MUST have a DestructibleObject component.
-/// A random prefab is chosen for each wave from the list.
-/// Duplicate entries to increase the spawn probability of a specific prefab.
+/// SOLUTION — CALL GenerateRandomPositionOnSurface DIRECTLY
+/// ──────────────────────────────────────────────────────────
+/// We call MRUKRoom.GenerateRandomPositionOnSurface() ourselves, check its
+/// bool return value correctly, and Instantiate prefabs directly. This is
+/// the same underlying path FindSpawnPositions uses, but without the SDK bug.
+/// FindSpawnPositions is still kept as a reference for ClearSpawnedPrefabs()
+/// compatibility — we just no longer call StartSpawn() on it.
 ///
 /// SETUP
 /// ─────
-/// 1. Attach this script to the GameManagers GameObject.
-/// 2. Assign findSpawnPositions — drag the FindSpawnPositions component here.
-///    This is the same FindSpawnPositions used by SpawnManager, or a dedicated
-///    one configured specifically for breakable objects.
-/// 3. Assign breakablePrefabs[] with your destructible object prefabs.
-/// 4. Assign rageMeter.
-/// 5. MRUK must be in the scene.
-///
-/// FINDSPAWNPOSITIONS INSPECTOR SETTINGS (configure on the component itself)
-/// ──────────────────────────────────────────────────────────────────────────
-///   SpawnLocations    → OnTopOfSurfaces  (places on floor and furniture tops)
-///   CheckOverlaps     → true             (prevents objects overlapping)
-///   SpawnOnStart      → None             (ObjectWaveManager controls spawning)
-///   SpawnAmount       → (ignored — ObjectWaveManager sets this at runtime)
+/// 1. Attach to the GameManagers GameObject alongside SpawnManager.
+/// 2. findSpawnPositions: keep assigned — used only for ClearSpawnedPrefabs().
+///    SpawnOnStart MUST be None on that component.
+/// 3. breakablePrefabs[]: all entries must have DestructibleObject.
+/// 4. rageMeter: injected into each object at spawn time.
+/// 5. MRUK must be in the scene and room scan must complete before wave 1.
 /// </summary>
 public class ObjectWaveManager : MonoBehaviour
 {
@@ -59,266 +46,234 @@ public class ObjectWaveManager : MonoBehaviour
 
     public static ObjectWaveManager Instance { get; private set; }
 
-    // ── Inspector Config ──────────────────────────────────────────────────────
+    // ── Inspector ─────────────────────────────────────────────────────────────
 
     [Header("MRUK Spawner")]
-    [Tooltip("The FindSpawnPositions component that handles all room position logic. " +
-             "This reuses Meta's built-in floor placement, overlap checking, and " +
-             "surface detection — no custom position logic needed. " +
-             "On the FindSpawnPositions component itself set: " +
-             "SpawnLocations = OnTopOfSurfaces, CheckOverlaps = true, SpawnOnStart = None.")]
+    [Tooltip("The FindSpawnPositions component for breakables. " +
+             "SpawnOnStart must be None. Used only for ClearSpawnedPrefabs(). " +
+             "Actual spawning now bypasses StartSpawn() due to an SDK bug " +
+             "where a false return from GenerateRandomPositionOnSurface() " +
+             "causes all iterations to fail silently with 0 objects placed.")]
     [SerializeField] private FindSpawnPositions findSpawnPositions;
 
     [Header("Breakable Object Prefabs")]
-    [Tooltip("List of breakable object prefabs to spawn each wave. " +
-             "Every prefab MUST have a DestructibleObject component. " +
-             "One prefab is chosen at random each wave. " +
-             "Duplicate entries to increase spawn probability of a specific prefab.")]
+    [Tooltip("Every entry must have a DestructibleObject component. " +
+             "Entries without one are skipped. Duplicate entries raise " +
+             "the probability of that prefab being chosen.")]
     [SerializeField] private GameObject[] breakablePrefabs;
 
     [Header("Wave Settings")]
-    [Tooltip("Number of breakable objects to spawn per wave. " +
-             "This value is passed directly to FindSpawnPositions.SpawnAmount " +
-             "at runtime so you only need to set it here.")]
-    [SerializeField] private int objectsPerWave = 5;
+    [Tooltip("How many breakable objects to spawn per wave.")]
+    [SerializeField] private int objectsPerWave = 3;
 
-    [Tooltip("Seconds of pause between the last object breaking and the next wave spawning.")]
+    [Tooltip("Seconds before unreachable objects are cleared and wave advances. " +
+             "Set 0 to disable.")]
+    [SerializeField] private float waveTimeoutSeconds = 20f;
+
+    [Tooltip("Pause in seconds between last object breaking and next wave.")]
     [SerializeField] private float wavePauseDelay = 1.5f;
 
+    [Tooltip("Max placement attempts per object. 1000 is safe. " +
+             "Reduce if waves start noticeably slowly in large rooms.")]
+    [SerializeField] private int maxSpawnIterations = 1000;
+
+    [Tooltip("Clearance from surface edges needed for a valid spawn. " +
+             "0.1m is correct. Raise only if objects clip into walls.")]
+    [SerializeField] private float surfaceClearanceDistance = 0.1f;
+
+    [Tooltip("Physics overlap check before placing each object. " +
+             "Prevents objects spawning inside furniture or each other. " +
+             "Safe to enable — one frame delay after clear prevents false rejects.")]
+    [SerializeField] private bool checkOverlaps = true;
+
     [Header("References")]
-    [Tooltip("The player's RageMeter. Injected into each spawned " +
-             "DestructibleObject at runtime — no need to pre-assign in the prefab.")]
+    [Tooltip("Injected into each DestructibleObject at spawn time.")]
     [SerializeField] private RageMeter rageMeter;
 
     [Header("Audio FX")]
     [SerializeField] private AudioSource audioSource;
-
-    [Tooltip("Sound played at the start of each new wave.")]
     [SerializeField] private AudioClip waveStartClip;
-
-    [Tooltip("Sound played when all objects in a wave have been broken.")]
     [SerializeField] private AudioClip waveCompleteClip;
 
+    [Header("Flow Control")]
+    [Tooltip("True = GameFlowManager calls StartFirstWaveManual() after " +
+             "player confirms position. False = auto-start on MRUK load.")]
+    [SerializeField] private bool controlledByFlowManager = true;
+
     [Header("Debug")]
-    [Tooltip("Log wave and spawn information to the Console.")]
     [SerializeField] private bool debugLogging = true;
 
     // ── Runtime State ─────────────────────────────────────────────────────────
 
-    /// <summary>Current wave number. Starts at 0, increments each SpawnWave().</summary>
     public int WaveNumber { get; private set; } = 0;
-
-    /// <summary>Number of objects broken in the current wave.</summary>
     public int BrokenCount { get; private set; } = 0;
-
-    /// <summary>Number of objects still alive in the current wave.</summary>
     public int RemainingCount => activeObjects.Count;
-
-    /// <summary>True while a wave is actively running.</summary>
     public bool WaveActive { get; private set; } = false;
 
-    /// <summary>
-    /// Live list of DestructibleObjects still active in the current wave.
-    /// Populated by scanning FindSpawnPositions.SpawnedObjects after each spawn.
-    /// </summary>
     private List<DestructibleObject> activeObjects = new();
+    private List<GameObject> spawnedThisWave = new();
+    private bool waveAdvancing = false;
 
     // ── Unity Lifecycle ───────────────────────────────────────────────────────
 
     private void Awake()
     {
-        // Enforce singleton — only one ObjectWaveManager should exist per player
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
     }
 
     private void Start()
     {
-        // ── Validate FindSpawnPositions reference ─────────────────────────────
-        if (findSpawnPositions == null)
-        {
-            Debug.LogError("[ObjectWaveManager] FindSpawnPositions not assigned! " +
-                           "Drag a FindSpawnPositions component into the inspector slot.");
-            return;
-        }
-
-        // ── Validate breakable prefabs ────────────────────────────────────────
         if (breakablePrefabs == null || breakablePrefabs.Length == 0)
         {
             Debug.LogError("[ObjectWaveManager] No breakable prefabs assigned! " +
-                           "Drag your destructible object prefabs into 'Breakable Prefabs'.");
+                           "Add prefabs with DestructibleObject to the array.");
             return;
         }
 
-        // Warn about any prefabs missing a DestructibleObject component
-        // Better to catch this at startup than discover it silently mid-game
         for (int i = 0; i < breakablePrefabs.Length; i++)
         {
             if (breakablePrefabs[i] == null)
             {
-                Debug.LogWarning($"[ObjectWaveManager] breakablePrefabs[{i}] is null. " +
-                                 "Remove empty entries from the array.");
+                Debug.LogWarning($"[ObjectWaveManager] breakablePrefabs[{i}] is null.");
                 continue;
             }
-
             if (breakablePrefabs[i].GetComponent<DestructibleObject>() == null)
                 Debug.LogWarning($"[ObjectWaveManager] Prefab '{breakablePrefabs[i].name}' " +
-                                 $"at index [{i}] is missing a DestructibleObject component. " +
-                                 "It will be skipped if selected.");
+                                 $"at index [{i}] has no DestructibleObject — will be skipped.");
         }
 
-        // ── Configure FindSpawnPositions ──────────────────────────────────────
-        // Disable auto-spawning on start — ObjectWaveManager controls all spawning.
-        // SpawnOnStart must be None so FindSpawnPositions does not spawn on its own.
-        findSpawnPositions.SpawnOnStart = MRUK.RoomFilter.None;
+        // Disable auto-spawning on FindSpawnPositions — we control all spawning.
+        if (findSpawnPositions != null)
+            findSpawnPositions.SpawnOnStart = MRUK.RoomFilter.None;
 
-        // ── Wait for MRUK scene data before spawning ──────────────────────────
-        // RegisterSceneLoadedCallback fires immediately if already loaded,
-        // or fires once loading completes otherwise.
+        if (controlledByFlowManager)
+        {
+            Debug.Log("[ObjectWaveManager] Controlled by GameFlowManager. " +
+                      "Waiting for StartFirstWaveManual().");
+            return;
+        }
+
+        // Auto-start mode (no GameFlowManager)
         if (MRUK.Instance != null)
-            MRUK.Instance.RegisterSceneLoadedCallback(StartFirstWave);
+            MRUK.Instance.RegisterSceneLoadedCallback(AutoStart);
         else
-            StartFirstWave(); // No MRUK — start immediately (Editor fallback)
+            AutoStart();
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Called by DestructibleObject.Break() each time an object is destroyed.
-    /// Removes the object from active tracking and checks if the wave is complete.
+    /// Called by GameFlowManager after the player confirms their play position.
+    /// Objects will spawn in the correct location relative to the player.
     /// </summary>
-    /// <param name="obj">The DestructibleObject that was just destroyed.</param>
+    public void StartFirstWaveManual()
+    {
+        Debug.Log("[ObjectWaveManager] Manual start triggered by GameFlowManager.");
+        StartCoroutine(SpawnWave());
+    }
+
+    /// <summary>
+    /// Called by DestructibleObject.Break() each time an object is destroyed.
+    /// </summary>
     public void OnObjectBroken(DestructibleObject obj)
     {
         activeObjects.Remove(obj);
+        spawnedThisWave.Remove(obj != null ? obj.gameObject : null);
         BrokenCount++;
 
         if (debugLogging)
             Debug.Log($"[ObjectWaveManager] Wave {WaveNumber}: " +
-                      $"{BrokenCount}/{objectsPerWave} broken, " +
-                      $"{activeObjects.Count} remaining.");
+                      $"{BrokenCount} broken, {activeObjects.Count} remaining.");
 
-        // All objects broken — begin the next wave sequence
-        if (BrokenCount >= objectsPerWave)
-            StartCoroutine(StartNextWaveAfterDelay());
+        CheckWaveComplete("OnObjectBroken");
     }
 
-    /// <summary>
-    /// Adds a prefab to the breakable list at runtime.
-    /// Useful for unlocking new object types at higher rage levels.
-    /// </summary>
+    /// <summary>Adds a breakable prefab at runtime (e.g. rage-level unlock).</summary>
     public void AddBreakablePrefab(GameObject prefab)
     {
         if (prefab == null) return;
-
         if (prefab.GetComponent<DestructibleObject>() == null)
         {
             Debug.LogWarning($"[ObjectWaveManager] '{prefab.name}' has no DestructibleObject.");
             return;
         }
-
-        // Extend the array by one entry
-        var newArray = new GameObject[breakablePrefabs.Length + 1];
-        breakablePrefabs.CopyTo(newArray, 0);
-        newArray[breakablePrefabs.Length] = prefab;
-        breakablePrefabs = newArray;
-
-        if (debugLogging)
-            Debug.Log($"[ObjectWaveManager] Added '{prefab.name}'. " +
-                      $"Total prefabs: {breakablePrefabs.Length}");
+        var arr = new GameObject[breakablePrefabs.Length + 1];
+        breakablePrefabs.CopyTo(arr, 0);
+        arr[breakablePrefabs.Length] = prefab;
+        breakablePrefabs = arr;
+        Debug.Log($"[ObjectWaveManager] Added '{prefab.name}'. Total: {breakablePrefabs.Length}");
     }
 
-    /// <summary>
-    /// Forces the current wave to end immediately and starts the next one.
-    /// All remaining active objects are destroyed via FindSpawnPositions.ClearSpawnedPrefabs().
-    /// </summary>
+    /// <summary>Immediately ends the current wave and starts the next.</summary>
     public void ForceNextWave()
     {
-        // Use FindSpawnPositions' own cleanup so its internal list stays consistent
-        findSpawnPositions.ClearSpawnedPrefabs();
-        activeObjects.Clear();
-
+        ClearWaveObjects();
         StartCoroutine(StartNextWaveAfterDelay());
-        Debug.Log("[ObjectWaveManager] Wave forced to end.");
+        Debug.Log("[ObjectWaveManager] Wave force-ended.");
     }
 
-    // ── Internal Helpers ──────────────────────────────────────────────────────
+    // ── Internal ──────────────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Entry point for the very first wave.
-    /// Called once MRUK confirms scene data is available via callback.
-    /// </summary>
-    private void StartFirstWave()
+    private void AutoStart()
     {
-        if (debugLogging)
-            Debug.Log("[ObjectWaveManager] MRUK ready. Starting first wave.");
+        Debug.Log("[ObjectWaveManager] MRUK ready — auto-starting first wave.");
         StartCoroutine(SpawnWave());
     }
 
-    /// <summary>
-    /// Public entry point for the first wave.
-    /// Called by GameFlowManager after the player has confirmed their
-    /// position so objects spawn in the correct location.
-    /// Use this instead of the MRUK callback when GameFlowManager
-    /// is controlling the game flow sequence.
-    /// </summary>
-    public void StartFirstWaveManual()
+    private void CheckWaveComplete(string caller)
     {
-        if (debugLogging)
-            Debug.Log("[ObjectWaveManager] Manual start triggered by GameFlowManager.");
-        StartCoroutine(SpawnWave());
+        if (waveAdvancing) return;
+        if (activeObjects.Count > 0) return;
+        waveAdvancing = true;
+        Debug.Log($"[ObjectWaveManager] Wave {WaveNumber} complete ({caller}). " +
+                  $"{BrokenCount} broken.");
+        StartCoroutine(StartNextWaveAfterDelay());
     }
 
-    /// <summary>
-    /// Plays the wave complete sound, waits wavePauseDelay seconds,
-    /// then spawns the next wave.
-    /// </summary>
     private IEnumerator StartNextWaveAfterDelay()
     {
         WaveActive = false;
         audioSource?.PlayOneShot(waveCompleteClip);
-
         if (debugLogging)
-            Debug.Log($"[ObjectWaveManager] Wave {WaveNumber} complete. " +
-                      $"Next wave in {wavePauseDelay}s.");
-
+            Debug.Log($"[ObjectWaveManager] Next wave in {wavePauseDelay}s.");
         yield return new WaitForSeconds(wavePauseDelay);
         StartCoroutine(SpawnWave());
     }
 
+    private void ClearWaveObjects()
+    {
+        foreach (var go in spawnedThisWave)
+            if (go != null) Destroy(go);
+        spawnedThisWave.Clear();
+        activeObjects.Clear();
+    }
+
     /// <summary>
-    /// Core wave spawning coroutine.
+    /// Core wave coroutine. Spawns directly via GenerateRandomPositionOnSurface.
     ///
-    /// HOW IT USES FindSpawnPositions
-    /// ────────────────────────────────
-    /// 1. ClearSpawnedPrefabs() destroys all objects from the previous wave
-    ///    and clears FindSpawnPositions' internal SpawnedObjects list.
-    /// 2. A random prefab is selected from breakablePrefabs[].
-    /// 3. SpawnObject is set to the chosen prefab on FindSpawnPositions.
-    /// 4. SpawnAmount is set to objectsPerWave.
-    /// 5. StartSpawn(room) is called — FindSpawnPositions handles all position
-    ///    logic: floor detection, overlap checking, wall clearance, height offset.
-    /// 6. After spawning, we scan SpawnedObjects to get references to the new
-    ///    GameObjects, extract their DestructibleObject components, inject the
-    ///    RageMeter, and register them for wave completion tracking.
+    /// WHY WE DON'T USE FindSpawnPositions.StartSpawn()
+    /// ──────────────────────────────────────────────────
+    /// The SDK source (FindSpawnPositions.cs line ~236) shows:
     ///
-    /// NOTE ON MIXED PREFABS PER WAVE
-    /// ────────────────────────────────
-    /// FindSpawnPositions spawns one prefab type per StartSpawn() call.
-    /// If you want different prefab types within the same wave, call
-    /// StartSpawn() multiple times with different prefabs and split
-    /// objectsPerWave across the calls. The current implementation
-    /// uses one random prefab per wave for simplicity.
+    ///   if (room.GenerateRandomPositionOnSurface(..., out pos, out normal))
+    ///   {
+    ///       spawnPosition = pos + normal * baseOffset;
+    ///       // validity checks with continue...
+    ///   }
+    ///   // NO ELSE — falls through with spawnPosition = Vector3.zero
+    ///   // Then IsPositionInRoom(Vector3.zero) returns false → continue
+    ///   // This loops MaxIterations times placing nothing.
+    ///
+    /// We call GenerateRandomPositionOnSurface ourselves and check the bool
+    /// correctly with an explicit `if (!gotPos) continue;` guard.
     /// </summary>
     private IEnumerator SpawnWave()
     {
         WaveNumber++;
         BrokenCount = 0;
         WaveActive = true;
+        waveAdvancing = false;
         activeObjects.Clear();
 
         audioSource?.PlayOneShot(waveStartClip);
@@ -327,138 +282,215 @@ public class ObjectWaveManager : MonoBehaviour
             Debug.Log($"[ObjectWaveManager] ── Wave {WaveNumber} starting " +
                       $"({objectsPerWave} objects) ──");
 
-        // ── Step 1: Clear objects from the previous wave ──────────────────────
-        // ClearSpawnedPrefabs() destroys all GameObjects in FindSpawnPositions'
-        // internal SpawnedObjects list and clears the list itself.
-        // This ensures no leftover objects from the previous wave remain.
-        findSpawnPositions.ClearSpawnedPrefabs();
+        // ── 1. Destroy previous wave objects ──────────────────────────────────
+        // Yield one frame AFTER Destroy() calls so Unity deregisters the old
+        // colliders from the physics engine before CheckOverlaps runs.
+        // Without this yield, CheckBox sees the old wave's colliders and
+        // rejects every spawn position (the reason Check Overlaps had to be
+        // disabled in the Inspector as a workaround).
+        ClearWaveObjects();
+        findSpawnPositions?.ClearSpawnedPrefabs();
+        yield return null;
 
-        // ── Step 2: Choose a random prefab for this wave ──────────────────────
-        // Pick one prefab type for the entire wave.
-        // To use mixed prefabs per wave, call StartSpawn() multiple times.
-        GameObject chosenPrefab = GetRandomValidPrefab();
-        if (chosenPrefab == null)
+        // ── 2. Get MRUK room ──────────────────────────────────────────────────
+        MRUKRoom room = MRUK.Instance?.GetCurrentRoom();
+        if (room == null)
         {
-            Debug.LogError("[ObjectWaveManager] No valid prefab found. " +
-                           "Check that breakablePrefabs[] contains prefabs with " +
-                           "DestructibleObject components.");
+            Debug.LogError("[ObjectWaveManager] MRUK room is null — wave cannot start. " +
+                           "Ensure MRUK has finished scanning before StartFirstWaveManual().");
+            WaveActive = false;
             yield break;
         }
 
-        // ── Step 3: Configure FindSpawnPositions ──────────────────────────────
-        // Set the prefab and amount directly on the component.
-        // FindSpawnPositions reads these values when StartSpawn() is called.
-        findSpawnPositions.SpawnObject = chosenPrefab;
-        findSpawnPositions.SpawnAmount = objectsPerWave;
-
-        // Force OnTopOfSurfaces so objects always spawn ON a surface (floor
-        // or table) rather than Floating in mid-air which causes infinite falling.
-        // This overrides whatever is set in the Inspector at runtime to guarantee
-        // correct behaviour every wave regardless of Inspector configuration.
-        findSpawnPositions.SpawnLocations =
-            FindSpawnPositions.SpawnLocation.OnTopOfSurfaces;
-
-        // Include both FLOOR and TABLE as valid spawn surfaces.
-        // TABLE alone fails if no table is scanned; FLOOR alone ignores tables.
-        // This combination uses whichever surfaces are available in the room.
-        // Change to MRUKAnchor.SceneLabels.TABLE only if you exclusively want
-        // table spawning and your room always has a scanned table.
-        findSpawnPositions.Labels =
-            MRUKAnchor.SceneLabels.FLOOR |
-            MRUKAnchor.SceneLabels.TABLE;
-
-        // ── Step 4: Get the current MRUK room ─────────────────────────────────
-        // FindSpawnPositions.StartSpawn(room) needs the current room to query
-        // floor positions and check bounds against the room geometry.
-        MRUKRoom room = MRUK.Instance != null
-            ? MRUK.Instance.GetCurrentRoom()
-            : null;
-
-        if (room == null)
+        // Diagnostic: log what surfaces MRUK has for this room
+        if (debugLogging)
         {
-            Debug.LogWarning("[ObjectWaveManager] No MRUK room found. " +
-                             "Objects may not spawn correctly without room data.");
+            Debug.Log($"[ObjectWaveManager] Room '{room.name}': " +
+                      $"FloorAnchor={(room.FloorAnchor != null ? "present" : "NULL")}, " +
+                      $"CeilingAnchor={(room.CeilingAnchor != null ? "present" : "NULL")}, " +
+                      $"WallAnchors={room.WallAnchors?.Count ?? 0}");
         }
 
-        // ── Step 5: Spawn via FindSpawnPositions ──────────────────────────────
-        // This single call handles everything:
-        //   - Generates random positions on floor surfaces
-        //   - Checks overlaps with existing physics objects
-        //   - Respects wall clearance distance
-        //   - Places objects at the correct height so they sit on the surface
-        //   - Instantiates up to SpawnAmount objects
-        if (room != null)
-            findSpawnPositions.StartSpawn(room);
-        else
-            findSpawnPositions.StartSpawn(); // Fallback: tries all available rooms
-
-        // ── Step 6: Wait one frame for instantiation to complete ──────────────
-        // StartSpawn() is synchronous but we yield one frame to ensure all
-        // GameObjects are fully initialised before we try to access their components.
-        yield return null;
-
-        // ── Step 7: Register spawned objects ─────────────────────────────────
-        // SpawnedObjects is FindSpawnPositions' IReadOnlyList of everything
-        // it just instantiated. We iterate it to wire up each object.
-        int registered = 0;
-        foreach (GameObject spawnedObj in findSpawnPositions.SpawnedObjects)
+        // ── 3. Choose prefab ──────────────────────────────────────────────────
+        GameObject chosenPrefab = GetRandomValidPrefab();
+        if (chosenPrefab == null)
         {
-            if (spawnedObj == null) continue;
+            Debug.LogError("[ObjectWaveManager] No valid prefab in breakablePrefabs[].");
+            WaveActive = false;
+            yield break;
+        }
 
-            var destructible = spawnedObj.GetComponent<DestructibleObject>();
-            if (destructible == null)
+        // Pre-compute bounds for overlap check (same logic as FindSpawnPositions)
+        Bounds? prefabBounds = Utilities.GetPrefabBounds(chosenPrefab);
+        float baseOffset = -(prefabBounds?.min.y ?? 0f);
+        float centerOffset = prefabBounds?.center.y ?? 0f;
+
+        Bounds adjustedBounds = new();
+        if (prefabBounds.HasValue)
+        {
+            const float clearance = 0.01f;
+            var min = prefabBounds.Value.min;
+            var max = prefabBounds.Value.max;
+            min.y += clearance;
+            if (max.y < min.y) max.y = min.y;
+            adjustedBounds.SetMinMax(min, max);
+        }
+
+        // ── 4. Place each object ──────────────────────────────────────────────
+        if (debugLogging)
+            Debug.Log($"[ObjectWaveManager] Placing {objectsPerWave}× '{chosenPrefab.name}' " +
+                      $"on FLOOR|TABLE in '{room.name}'...");
+
+        int placed = 0;
+
+        for (int i = 0; i < objectsPerWave; i++)
+        {
+            bool placed_this_slot = false;
+
+            for (int attempt = 0; attempt < maxSpawnIterations; attempt++)
             {
-                Debug.LogWarning($"[ObjectWaveManager] Spawned object '{spawnedObj.name}' " +
-                                 "has no DestructibleObject component. " +
-                                 "It will not count toward wave completion.");
-                continue;
+                // KEY FIX: check bool return before using pos/normal.
+                // If false, pos = Vector3.zero and normal = Vector3.zero —
+                // using them causes IsPositionInRoom to fail for all iterations.
+                bool gotPos = room.GenerateRandomPositionOnSurface(
+                    MRUK.SurfaceType.FACING_UP,
+                    0f,
+                    new LabelFilter(
+                        MRUKAnchor.SceneLabels.FLOOR |
+                        MRUKAnchor.SceneLabels.TABLE),
+                    out Vector3 pos,
+                    out Vector3 normal);
+
+                if (!gotPos) continue;  // <── this is the fix the SDK is missing
+
+                Vector3 spawnPos = pos + normal * baseOffset;
+                Vector3 centerPos = spawnPos + normal * centerOffset;
+                Quaternion spawnRot = Quaternion.FromToRotation(Vector3.up, normal);
+
+                // Must be inside room
+                if (!room.IsPositionInRoom(centerPos)) continue;
+
+                // Must not be inside furniture volumes
+                if (room.IsPositionInSceneVolume(centerPos)) continue;
+
+                // Must have clearance above surface (nothing blocking)
+                if (room.Raycast(new Ray(pos, normal), surfaceClearanceDistance, out _))
+                    continue;
+
+                // Must not overlap existing physics colliders
+                if (checkOverlaps && prefabBounds.HasValue)
+                {
+                    if (Physics.CheckBox(
+                            spawnPos + spawnRot * adjustedBounds.center,
+                            adjustedBounds.extents,
+                            spawnRot,
+                            ~0,
+                            QueryTriggerInteraction.Ignore))
+                        continue;
+                }
+
+                // All checks passed — instantiate
+                GameObject spawned = Object.Instantiate(chosenPrefab, spawnPos, spawnRot);
+                var destructible = spawned.GetComponent<DestructibleObject>();
+
+                if (destructible == null)
+                {
+                    Debug.LogWarning($"[ObjectWaveManager] Spawned '{spawned.name}' has no " +
+                                     "DestructibleObject. Destroying it. Fix the prefab.");
+                    Destroy(spawned);
+                    break;
+                }
+
+                destructible.SetRageMeter(rageMeter);
+                activeObjects.Add(destructible);
+                spawnedThisWave.Add(spawned);
+                placed++;
+                placed_this_slot = true;
+
+                if (debugLogging)
+                    Debug.Log($"[ObjectWaveManager] Object {placed}/{objectsPerWave} " +
+                              $"placed at {spawnPos:F2} after {attempt + 1} attempt(s).");
+                break;
             }
 
-            // Inject the RageMeter so hits are reported to the scoring system
-            destructible.SetRageMeter(rageMeter);
-
-            // Register for wave completion tracking
-            activeObjects.Add(destructible);
-            registered++;
+            if (!placed_this_slot)
+                Debug.LogWarning($"[ObjectWaveManager] Could not place object {i + 1}" +
+                                 $"/{objectsPerWave} after {maxSpawnIterations} attempts. " +
+                                 "Is there a scanned FLOOR or TABLE in the MRUK room?");
         }
 
-        if (debugLogging)
-            Debug.Log($"[ObjectWaveManager] Wave {WaveNumber}: " +
-                      $"spawned and registered {registered} objects " +
-                      $"using '{chosenPrefab.name}'.");
+        // ── 5. Results ────────────────────────────────────────────────────────
+        Debug.Log($"[ObjectWaveManager] Wave {WaveNumber} spawn complete: " +
+                  $"{placed}/{objectsPerWave} objects placed using '{chosenPrefab.name}'.");
 
-        // Warn if FindSpawnPositions could not fill the full wave
-        // (e.g. room too small, too many overlaps)
-        if (registered < objectsPerWave)
-            Debug.LogWarning($"[ObjectWaveManager] Wave {WaveNumber}: only registered " +
-                             $"{registered}/{objectsPerWave} objects. " +
-                             "The room may be too small or maxIterations too low on " +
-                             "the FindSpawnPositions component.");
+        if (placed < objectsPerWave)
+            Debug.LogWarning($"[ObjectWaveManager] Only {placed}/{objectsPerWave} placed. " +
+                             $"FloorAnchor={(room.FloorAnchor != null ? "present" : "NULL — MRUK did not scan a floor")}. " +
+                             "Try reducing objectsPerWave or increasing surfaceClearanceDistance.");
+
+        if (placed == 0)
+        {
+            Debug.LogWarning("[ObjectWaveManager] Zero objects placed — skipping wave.");
+            CheckWaveComplete("ZeroSpawn");
+            yield break;
+        }
+
+        // ── 6. Safety coroutines ──────────────────────────────────────────────
+        StartCoroutine(WaveTimeout());
+        StartCoroutine(MonitorActiveObjects());
     }
 
-    /// <summary>
-    /// Picks a random prefab from breakablePrefabs[] that has a valid
-    /// DestructibleObject component. Skips null or invalid entries.
-    /// Returns null if no valid prefab exists in the array.
-    /// </summary>
+    private IEnumerator WaveTimeout()
+    {
+        if (waveTimeoutSeconds <= 0f) yield break;
+        yield return new WaitForSeconds(waveTimeoutSeconds);
+        if (waveAdvancing || activeObjects.Count == 0) yield break;
+
+        Debug.LogWarning($"[ObjectWaveManager] Wave {WaveNumber} TIMEOUT — " +
+                         $"{activeObjects.Count} objects still alive. Clearing.");
+        ClearWaveObjects();
+        CheckWaveComplete("WaveTimeout");
+    }
+
+    private IEnumerator MonitorActiveObjects()
+    {
+        while (WaveActive && !waveAdvancing)
+        {
+            yield return new WaitForSeconds(0.5f);
+            if (activeObjects.Count == 0) yield break;
+
+            int before = activeObjects.Count;
+            activeObjects.RemoveAll(o => o == null || o.gameObject == null);
+            spawnedThisWave.RemoveAll(go => go == null);
+            int removed = before - activeObjects.Count;
+
+            if (removed > 0)
+            {
+                BrokenCount += removed;
+                if (debugLogging)
+                    Debug.LogWarning($"[ObjectWaveManager] Monitor: {removed} objects " +
+                                     "destroyed silently. " +
+                                     $"{activeObjects.Count} remaining.");
+                if (activeObjects.Count == 0)
+                {
+                    CheckWaveComplete("MonitorActiveObjects");
+                    yield break;
+                }
+            }
+        }
+    }
+
     private GameObject GetRandomValidPrefab()
     {
-        if (breakablePrefabs == null || breakablePrefabs.Length == 0)
-            return null;
+        if (breakablePrefabs == null || breakablePrefabs.Length == 0) return null;
 
-        // Shuffle attempts to avoid getting stuck on a run of null entries
-        // Try up to the full array length before giving up
         for (int attempt = 0; attempt < breakablePrefabs.Length * 2; attempt++)
         {
-            GameObject candidate = breakablePrefabs[
-                Random.Range(0, breakablePrefabs.Length)];
-
+            var candidate = breakablePrefabs[Random.Range(0, breakablePrefabs.Length)];
             if (candidate == null) continue;
             if (candidate.GetComponent<DestructibleObject>() == null) continue;
-
-            return candidate; // Valid prefab found
+            return candidate;
         }
-
         return null;
     }
 }

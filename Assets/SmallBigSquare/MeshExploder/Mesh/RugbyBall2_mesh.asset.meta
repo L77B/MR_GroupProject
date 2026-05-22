@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e2af1b7fe70087e4980b77a054a5cd17
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 307984
+  packageName: Mesh Exploder
+  packageVersion: 1.0
+  assetPath: Assets/SmallBigSquare/MeshExploder/Mesh/RugbyBall2_mesh.asset
+  uploadId: 725329

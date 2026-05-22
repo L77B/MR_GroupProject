@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 88c01c208fe74764a83a739f6c71136a
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 307984
+  packageName: Mesh Exploder
+  packageVersion: 1.0
+  assetPath: Assets/SmallBigSquare/MeshExploder/Scripts/MeshExploder.cs
+  uploadId: 725329

@@ -17,10 +17,12 @@ public class WebSocketClientExample : MonoBehaviour
     [Range(0, 255)]
     public int ledIntensity = 0;
     public SpawnManager spawnManager;
+    public SetupUIManager setupuiManager;
     async void Start()
     {
         websocket = new WebSocket("ws://" + serverIP + ":" + serverPort);
         spawnManager = FindAnyObjectByType<SpawnManager>();
+        setupuiManager = FindAnyObjectByType<SetupUIManager>(); 
         //Runs when connected to the server
         websocket.OnOpen += async () =>
         {
@@ -126,7 +128,9 @@ public class WebSocketClientExample : MonoBehaviour
             {
                 //do something if button pressed
                 Debug.Log("ESP32 Button Pressed");
-                spawnManager.SpawnNext();
+                //spawnManager.SpawnNext();
+                setupuiManager.OnConfirmClicked();
+                Debug.Log("ConfirmClicked");
 
             }
             if(valueParsed == "0") 

@@ -2,141 +2,190 @@
 using UnityEngine;
 
 /// <summary>
-/// Central coordinator for the Rage Room game.
+/// Central coordinator — extended for two-player mode.
 ///
-/// RESPONSIBILITIES
-/// ────────────────
-/// - Holds references to all major subsystems so they can be reached from one place.
-/// - Auto-finds subsystems at startup if they were not assigned in the Inspector.
-/// - Subscribes to RageMeter events for any game-level reactions (logging, future
-///   multiplayer announcements, etc.).
-/// - Exposes a RestartGame() method that can be called from a UI button or from
-///   the ESP32 button via WebSocketClientExample.
+/// TWO-PLAYER CHANGES FROM SINGLE-PLAYER VERSION
+/// ───────────────────────────────────────────────
+/// 1. rageMeterP1 and rageMeterP2 replace the single rageMeter field.
+///    The old public rageMeter field is kept as a compatibility alias
+///    pointing to rageMeterP1 for any scripts that still reference it.
 ///
-/// SINGLE PLAYER NOW / MULTIPLAYER LATER
-/// ──────────────────────────────────────
-/// Currently wired for one player. To support two players, duplicate the
-/// RageMeter, WeaponRack, and ObjectWaveManager components (or GameObjects)
-/// and assign them to a second GameManager instance (or extend this class
-/// with Player 1 / Player 2 reference pairs).
+/// 2. Weapon unlocks are now driven by the HIGHER of the two players' rage
+///    levels. Either player reaching level 2 unlocks the paintball gun for
+///    both — the weapon rack is shared. You can change this to require BOTH
+///    players to reach the level by changing the GetLeadLevelIndex() logic.
 ///
-/// SETUP
-/// ─────
-/// Attach this script to the GameManagers empty GameObject alongside
-/// RageMeter, ObjectWaveManager, and any other persistent managers.
-/// SpawnManager can be anywhere in the scene — it will be found automatically.
+/// 3. ObjectWaveManager.rageMeter is injected as rageMeterP1 by default.
+///    When a DestructibleObject is hit by P2's bat, it calls SetRageMeter(p2)
+///    via BatImpactHandler — DestructibleObject must call the correct meter
+///    based on which player's bat struck it (see DestructibleObject notes).
+///
+/// SETUP STEPS
+/// ────────────
+/// 1. On the GameManager GameObject:
+///    - Add a second RageMeter component
+///    - Set its playerIndex to 1
+///    - Assign it to the rageMeterP2 field below
+/// 2. Add DualRageBarUI to the HUD Canvas and assign both meters.
+/// 3. Assign weaponRack — it subscribes to OnRageLevelUp from the lead player.
 /// </summary>
 public class GameManager : MonoBehaviour
 {
-    // ── Inspector References ──────────────────────────────────────────────────
+    // ── Inspector ─────────────────────────────────────────────────────────────
+
+    [Header("Player Rage Meters")]
+    [Tooltip("RageMeter for Player 1 (playerIndex = 0). " +
+             "Also exposed as 'rageMeter' for legacy script compatibility.")]
+    public RageMeter rageMeterP1;
+
+    [Tooltip("RageMeter for Player 2 (playerIndex = 1). " +
+             "Add a second RageMeter component to this GameObject and assign it here.")]
+    public RageMeter rageMeterP2;
 
     [Header("Core Systems")]
-    [Tooltip("The player's rage meter. Drives scoring, level-ups, and weapon unlocks. " +
-             "Auto-found if not assigned.")]
-    public RageMeter rageMeter;
-
-    [Tooltip("The weapon rack in the scene. Manages weapon slots and unlock events. " +
-             "Auto-found if not assigned.")]
     public WeaponRack weaponRack;
-
-    [Tooltip("Manages object wave spawning and break counting. " +
-             "Auto-found if not assigned.")]
     public ObjectWaveManager waveManager;
-
-    [Tooltip("Handles prefab cycling via MRUK FindSpawnPositions. " +
-             "Used by the ESP32 button (WebSocket) to spawn the next room layout. " +
-             "Auto-found if not assigned.")]
     public SpawnManager spawnManager;
+
+    [Header("Dual Bar UI")]
+    [Tooltip("The DualRageBarUI component on the HUD Canvas. " +
+             "Auto-found if not assigned.")]
+    [SerializeField] private DualRageBarUI dualBar;
+
+    [Header("Weapon Unlock Mode")]
+    [Tooltip("If true, weapon unlocks trigger when EITHER player reaches the tier. " +
+             "If false, BOTH players must reach it (more challenging).")]
+    [SerializeField] private bool unlockOnEitherPlayer = true;
+
+    // ── Compatibility alias ───────────────────────────────────────────────────
+
+    /// <summary>
+    /// Legacy alias — returns rageMeterP1.
+    /// Scripts that reference GameManager.rageMeter still compile without change.
+    /// </summary>
+    public RageMeter rageMeter => rageMeterP1;
 
     // ── Read-only State ───────────────────────────────────────────────────────
 
-    /// <summary>True once Start() has completed successfully.</summary>
     public bool GameStarted { get; private set; }
 
     // ── Unity Lifecycle ───────────────────────────────────────────────────────
 
     private void Awake()
     {
-        // Auto-find any subsystems that were not manually wired in the Inspector.
-        // This is a convenience fallback — explicit Inspector assignment is preferred
-        // because it avoids the overhead of a scene-wide search.
-        if (rageMeter == null) rageMeter = FindAnyObjectByType<RageMeter>();
+        // Auto-find components if not wired in Inspector
+        if (rageMeterP1 == null)
+        {
+            // Find the meter with playerIndex = 0
+            var meters = FindObjectsByType<RageMeter>(FindObjectsSortMode.None);
+            foreach (var m in meters)
+            {
+                if (m.playerIndex == 0 && rageMeterP1 == null) rageMeterP1 = m;
+                if (m.playerIndex == 1 && rageMeterP2 == null) rageMeterP2 = m;
+            }
+        }
+
         if (weaponRack == null) weaponRack = FindAnyObjectByType<WeaponRack>();
         if (waveManager == null) waveManager = FindAnyObjectByType<ObjectWaveManager>();
         if (spawnManager == null) spawnManager = FindAnyObjectByType<SpawnManager>();
+        if (dualBar == null) dualBar = FindAnyObjectByType<DualRageBarUI>();
     }
 
     private void Start()
     {
-        // Validate that the essential rage meter is present before continuing
-        if (rageMeter == null)
+        if (rageMeterP1 == null)
         {
-            Debug.LogError("[GameManager] RageMeter not found in the scene! " +
-                           "Make sure a RageMeter component exists.");
+            Debug.LogError("[GameManager] RageMeter P1 not found!");
             return;
         }
 
-        // Listen for rage level-up events — used here for logging and as a hook
-        // for future multiplayer announcements or scene changes
-        rageMeter.OnRageLevelUp += OnRageLevelUp;
+        // Subscribe to level-up events from both meters
+        rageMeterP1.OnRageLevelUp += (level, index) => OnAnyPlayerLevelUp(0, level, index);
+
+        if (rageMeterP2 != null)
+            rageMeterP2.OnRageLevelUp += (level, index) => OnAnyPlayerLevelUp(1, level, index);
+        else
+            Debug.LogWarning("[GameManager] RageMeter P2 not assigned — " +
+                             "add a second RageMeter component with playerIndex=1.");
 
         GameStarted = true;
-        Debug.Log("[GameManager] Game started — single player mode.");
+        Debug.Log("[GameManager] Game started — two-player mode.");
     }
 
     private void OnDestroy()
     {
-        // Always clean up event subscriptions to prevent callbacks on destroyed objects
-        if (rageMeter != null)
-            rageMeter.OnRageLevelUp -= OnRageLevelUp;
+        if (rageMeterP1 != null)
+            rageMeterP1.OnRageLevelUp -= (level, index) => OnAnyPlayerLevelUp(0, level, index);
+        if (rageMeterP2 != null)
+            rageMeterP2.OnRageLevelUp -= (level, index) => OnAnyPlayerLevelUp(1, level, index);
     }
 
-    // ── Bat Placement ─────────────────────────────────────────────────────────
+    // ── Shared unlock event ───────────────────────────────────────────────────
 
     /// <summary>
-    /// Places the baseball bat on the nearest floor or table surface
-    /// so the player can walk to it and pick it up naturally.
-    /// Called once after MRUK scene data is loaded.
+    /// Subscribe WeaponRack to this event in WeaponRack.Start():
+    ///   GameManager.OnSharedRageLevelUp += HandleRageLevelUp;
+    /// GameManager fires it after applying the unlock gate.
+    /// WeaponRack.HandleRageLevelUp() guards against duplicate unlocks
+    /// via slotUnlocked[], so firing from two meters is safe.
     /// </summary>
-    private void PlaceBatOnStart()
-    {
-        if (weaponRack == null)
-        {
-            Debug.LogWarning("[GameManager] WeaponRack not found — cannot place bat.");
-            return;
-        }
-
-        // PlaceBatNearPlayer() tries table first, falls back to floor
-        // 0.8m in front of the player if no table is available in the room
-        weaponRack.PlaceBatNearPlayer();
-    }
+    public static event System.Action<RageLevelConfig.RageLevel, int> OnSharedRageLevelUp;
 
     // ── Event Handlers ────────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Called by RageMeter whenever the player reaches a new rage tier.
-    /// Currently logs the event. Extend this to trigger multiplayer sync,
-    /// environmental effects, or announcements.
-    /// </summary>
-    private void OnRageLevelUp(RageLevelConfig.RageLevel level, int levelIndex)
+    private void OnAnyPlayerLevelUp(int playerIdx,
+                                    RageLevelConfig.RageLevel level,
+                                    int levelIndex)
     {
-        Debug.Log($"[GameManager] Player reached rage level {levelIndex}: '{level.levelName}'");
+        Debug.Log($"[GameManager] P{playerIdx + 1} reached rage level " +
+                  $"{levelIndex}: '{level.levelName}'");
 
-        // Future: broadcast to second player, trigger room effects, etc.
+        if (unlockOnEitherPlayer)
+        {
+            // Fire immediately — WeaponRack handles duplicate guard internally
+            OnSharedRageLevelUp?.Invoke(level, levelIndex);
+        }
+        else
+        {
+            // Require BOTH players to have reached at least this level
+            int p1Level = rageMeterP1?.CurrentLevelIndex ?? 0;
+            int p2Level = rageMeterP2?.CurrentLevelIndex ?? 0;
+            int minLevel = Mathf.Min(p1Level, p2Level);
+
+            if (minLevel >= levelIndex)
+                OnSharedRageLevelUp?.Invoke(level, levelIndex);
+            else
+                Debug.Log($"[GameManager] Unlock gated — " +
+                          $"P{(p1Level < p2Level ? 1 : 2)} at level {minLevel}, " +
+                          $"need {levelIndex}.");
+        }
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Reloads the current scene from scratch, resetting all game state.
-    /// Can be called from:
-    ///   - A UI button in the scene.
-    ///   - WebSocketClientExample.IncomingMessageParser() for ESP32 button restart.
-    ///   - Any other external trigger.
+    /// Returns the RageMeter for a given player index (0 or 1).
+    /// Used by BatImpactHandler and DestructibleObject to pick the right meter.
     /// </summary>
+    public RageMeter GetMeterForPlayer(int playerIdx)
+    {
+        return playerIdx == 0 ? rageMeterP1 : rageMeterP2;
+    }
+
+    /// <summary>
+    /// Returns the index of the player with the higher current rage.
+    /// Used for UI highlights or announcements.
+    /// </summary>
+    public int GetLeadPlayerIndex()
+    {
+        float r1 = rageMeterP1?.CurrentRage ?? 0f;
+        float r2 = rageMeterP2?.CurrentRage ?? 0f;
+        return r1 >= r2 ? 0 : 1;
+    }
+
     public void RestartGame()
     {
-        Debug.Log("[GameManager] Restarting game...");
+        Debug.Log("[GameManager] Restarting...");
         UnityEngine.SceneManagement.SceneManager.LoadScene(
             UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
     }
