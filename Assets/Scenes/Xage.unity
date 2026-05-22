@@ -14816,7 +14816,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 3.28}
+  m_AnchoredPosition: {x: 0, y: 3.379}
   m_SizeDelta: {x: 800, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &826319857
@@ -28207,6 +28207,55 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.013708875, y: -0.018841378, z: 0.08463192}
     m_Extent: {x: 0.07778123, y: 0.052475788, z: 0.10698962}
   m_DirtyAABB: 0
+--- !u!1 &1579343376
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1579343378}
+  - component: {fileID: 1579343377}
+  m_Layer: 0
+  m_Name: WebSocketClient
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1579343377
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1579343376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ee1741b8bc7e4d2e9f19b05af2114a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WebSocketClientExample
+  serverIP: 10.204.0.50
+  serverPort: 8081
+  ledIntensity: 0
+  spawnManager: {fileID: 0}
+  setupuiManager: {fileID: 0}
+--- !u!4 &1579343378
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1579343376}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1580742835
 GameObject:
   m_ObjectHideFlags: 0
@@ -39783,3 +39832,4 @@ SceneRoots:
   - {fileID: 4277185}
   - {fileID: 825635541}
   - {fileID: 813461558}
+  - {fileID: 1579343378}
