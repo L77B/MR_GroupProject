@@ -113,6 +113,7 @@ GameObject:
   - component: {fileID: 4497377190136037557}
   - component: {fileID: -3875072333416026196}
   - component: {fileID: 7114454058478263436}
+  - component: {fileID: 2242203602658904566}
   m_Layer: 0
   m_Name: Baseball_Bat_04
   m_TagString: Untagged
@@ -454,6 +455,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99899b04f6bc34e85974d4e22d3e2f50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkGrabbableBat
+--- !u!114 &2242203602658904566
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1225118020377716861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a359c41f1ab03ac4c9b6dc1076a550e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BatImpactHandler
+  controllerHand: 1
+  minSwingSpeed: 1
+  forceMultiplier: 1.2
+  maxForce: 50
+  hitCooldown: 0.15
+  handPositionOffset: {x: 0, y: 0, z: 0}
+  handRotationOffset: {x: 0, y: 0, z: 0}
+  isEquipped: 0
 --- !u!1 &4106740417378998975
 GameObject:
   m_ObjectHideFlags: 0
