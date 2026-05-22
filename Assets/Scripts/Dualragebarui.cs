@@ -4,212 +4,228 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// Collaborative dual rage bar for two players.
+/// Collaborative dual rage bar — P1 fills BLUE from LEFT, P2 fills GREEN from RIGHT.
+/// When they meet a RED blinking zone appears. When combined = full bar, FULL RED blinks.
 ///
-/// VISUAL BEHAVIOUR
-/// ─────────────────
-/// Three fill segments sit inside one bar track:
+/// SINGLETON GUARD — ONE BAR ONLY
+/// ────────────────────────────────
+/// Fusion's NetworkSceneManagerDefault re-instantiates every root GameObject
+/// when it takes over the scene, creating duplicate Canvases and duplicate bars.
+/// This class uses a static Instance guard: if a second DualRageBarUI tries to
+/// Awake(), it immediately destroys its own parent Canvas and stops. Only the
+/// first bar ever created survives.
 ///
-///   [=====BLUE=====][==RED==][=====GREEN=====]
-///    P1 left→right   overlap  P2 right→left
-///
-/// Blue   (#185FA5)  — P1's portion, grows from the LEFT.
-/// Green  (#3B6D11)  — P2's portion, grows from the RIGHT.
-/// Red    (#E24B4A)  — the overlapping zone where both fills have met.
-///                     Blinks continuously once it appears.
-///
-/// GOAL: When P1+P2 combined rage fills the ENTIRE bar (sum = 200, i.e.
-/// both at 100), the whole bar turns red and blinks as a victory state.
-///
-/// RED ZONE SIZE
-/// ──────────────
-/// redZonePixels = max(0, (p1Pixels + p2Pixels) - barWidth)
-///
-/// The red zone starts where P1's blue fill ends (the meeting point)
-/// and extends rightward, eating into P2's green.
-///
-/// CANVAS HIERARCHY
-/// ─────────────────
-///   Canvas (World Space)
-///     └── DualRageBar           ← attach DualRageBarUI here
-///           ├── BarTrack        ← Image, full width, dark bg  ← barTrack
-///           ├── FillBlue        ← Image, #185FA5, anchored LEFT  ← fillBlue
-///           ├── FillRed         ← Image, #E24B4A, free-positioned  ← fillRed
-///           ├── FillGreen       ← Image, #3B6D11, anchored RIGHT  ← fillGreen
-///           ├── FillVictory     ← Image, #E24B4A, full width, alpha 0  ← fillVictory
-///           ├── LabelP1         ← TMP left, rage number  ← labelP1
-///           ├── LabelP2         ← TMP right, rage number  ← labelP2
-///           ├── LabelCenter     ← TMP center, "FULL RAGE!"  ← labelCenter
-///           ├── LevelP1         ← TMP, level name  ← levelLabelP1
-///           └── LevelP2         ← TMP, level name  ← levelLabelP2
-///
-/// RECT SETUP
-/// ───────────
-/// FillBlue:    Anchor Min=(0,0) Max=(0,1)  Pivot=(0,0.5)   sizeDelta.x = bluePixels
-/// FillGreen:   Anchor Min=(1,0) Max=(1,1)  Pivot=(1,0.5)   sizeDelta.x = greenPixels
-/// FillRed:     Anchor Min=(0,0) Max=(0,1)  Pivot=(0,0.5)   anchoredPosition.x = bluePixels
-///              sizeDelta.x = redPixels
-/// FillVictory: Anchor Min=(0,0) Max=(1,1)  Stretch full    alpha driven by blink coroutine
-/// BarTrack:    Anchor stretch full width — used to read barWidth at runtime
+/// Pair this with PersistentCanvas.cs on the Canvas parent to survive
+/// Fusion scene takeovers cleanly.
 /// </summary>
 public class DualRageBarUI : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // ── Singleton ─────────────────────────────────────────────────────────────
 
-    [Header("Bar Segments — assign RectTransforms")]
-    [Tooltip("Full-width bar background. Used to read pixel width at runtime.")]
+    private static DualRageBarUI _instance;
+
+    // ── Inspector — RectTransforms ────────────────────────────────────────────
+
+    [Header("Bar RectTransforms")]
     [SerializeField] private RectTransform barTrack;
-
-    [Tooltip("P1 blue fill image. Anchor LEFT. sizeDelta.x is set by script.")]
     [SerializeField] private RectTransform fillBlue;
-
-    [Tooltip("Red overlap zone. Anchor LEFT, free x. Both anchoredPosition.x and sizeDelta.x set by script.")]
-    [SerializeField] private RectTransform fillRed;
-
-    [Tooltip("P2 green fill image. Anchor RIGHT. sizeDelta.x is set by script.")]
     [SerializeField] private RectTransform fillGreen;
-
-    [Tooltip("Full-bar victory overlay. Stays alpha=0 until both fills sum to 100%. " +
-             "Stretch anchor to fill entire bar. Image color = red.")]
+    [SerializeField] private RectTransform fillRed;
     [SerializeField] private RectTransform fillVictory;
 
-    [Header("Image Components (for colour and alpha)")]
+    [Header("Image Components")]
     [SerializeField] private Image imageBlue;
-    [SerializeField] private Image imageRed;
     [SerializeField] private Image imageGreen;
+    [SerializeField] private Image imageRed;
     [SerializeField] private Image imageVictory;
 
     [Header("Text Labels")]
-    [Tooltip("Left side — shows P1 rage number.")]
     [SerializeField] private TextMeshProUGUI labelP1;
-
-    [Tooltip("Right side — shows P2 rage number.")]
     [SerializeField] private TextMeshProUGUI labelP2;
 
-    [Tooltip("Center — hidden normally, shows 'FULL RAGE!' on victory.")]
+    [Tooltip("Starts INACTIVE. Shown only on victory.")]
     [SerializeField] private TextMeshProUGUI labelCenter;
 
-    [Tooltip("Level name label for P1 (e.g. 'FURIOUS').")]
     [SerializeField] private TextMeshProUGUI levelLabelP1;
-
-    [Tooltip("Level name label for P2.")]
     [SerializeField] private TextMeshProUGUI levelLabelP2;
-
-    [Header("Rage Meters")]
-    [SerializeField] private RageMeter rageMeterP1;
-    [SerializeField] private RageMeter rageMeterP2;
 
     [Header("Config")]
     [SerializeField] private RageLevelConfig levelConfig;
 
-    [Tooltip("Blink frequency in seconds for the red zone (0.5 = fast blink).")]
-    [SerializeField] private float blinkPeriod = 0.5f;
+    [Tooltip("Blink interval for the red meeting zone (seconds).")]
+    [SerializeField] private float blinkPeriod = 0.25f;
 
-    [Tooltip("Blink frequency in seconds for the victory full-bar state.")]
-    [SerializeField] private float victoryBlinkPeriod = 0.4f;
+    [Tooltip("Blink interval for the full victory bar (seconds).")]
+    [SerializeField] private float victoryBlinkPeriod = 0.2f;
+
+    [Tooltip("How long the victory state stays locked before rage decay can cancel it. " +
+             "Default 10s so players see the full red bar clearly.")]
+    [SerializeField] private float victoryHoldSeconds = 10f;
+
+    [Header("Debug")]
+    [SerializeField] private bool debugLogging = true;
 
     // ── Colours ───────────────────────────────────────────────────────────────
 
-    private static readonly Color ColorBlue = new Color(0.094f, 0.373f, 0.647f, 1f); // #185FA5
-    private static readonly Color ColorGreen = new Color(0.231f, 0.427f, 0.067f, 1f); // #3B6D11
-    private static readonly Color ColorRed = new Color(0.886f, 0.294f, 0.290f, 1f); // #E24B4A
-    private static readonly Color ColorRedDim = new Color(0.886f, 0.294f, 0.290f, 0.2f);
+    private static readonly Color ColBlue = new Color(0.094f, 0.373f, 0.647f, 1.0f);
+    private static readonly Color ColGreen = new Color(0.231f, 0.427f, 0.067f, 1.0f);
+    private static readonly Color ColRed = new Color(0.886f, 0.294f, 0.290f, 1.0f);
+    private static readonly Color ColDim = new Color(0.886f, 0.294f, 0.290f, 0.15f);
+    private static readonly Color ColHidden = new Color(0.886f, 0.294f, 0.290f, 0.0f);
 
-    // ── State ─────────────────────────────────────────────────────────────────
+    // ── Runtime state ─────────────────────────────────────────────────────────
+
+    private RageMeter activeMeterP1;
+    private RageMeter activeMeterP2;
 
     private bool victoryAchieved = false;
-    private Coroutine redBlinkCoroutine;
-    private Coroutine victoryBlinkCoroutine;
+    private bool victoryLocked = false;
+    private bool redIsBlinking = false;
+    private Coroutine redBlink = null;
+    private Coroutine vicBlink = null;
+    private Coroutine victoryHold = null;
+    private float debugTimer = 0f;
 
-    // ── Unity Lifecycle ───────────────────────────────────────────────────────
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     private void Awake()
     {
-        // Set initial colours
-        if (imageBlue) imageBlue.color = ColorBlue;
-        if (imageGreen) imageGreen.color = ColorGreen;
-        if (imageRed) imageRed.color = ColorRed;
-        if (imageVictory) imageVictory.color = new Color(ColorRed.r, ColorRed.g, ColorRed.b, 0f);
+        // ── Singleton guard ───────────────────────────────────────────────────
+        // If another DualRageBarUI already exists, this is a Fusion duplicate.
+        // Destroy the root Canvas that contains this duplicate and stop.
+        if (_instance != null && _instance != this)
+        {
+            Debug.LogWarning("[DualRageBarUI] Duplicate detected — destroying this Canvas. " +
+                             "Only one DualRageBarUI is allowed in the scene.");
+            // Destroy the Canvas root (parent of DualRageBar) not just this GO
+            // so the whole duplicate UI disappears, not just the script.
+            Transform root = transform;
+            while (root.parent != null) root = root.parent;
+            Destroy(root.gameObject);
+            return;
+        }
 
-        if (labelCenter) labelCenter.gameObject.SetActive(false);
-    }
+        _instance = this;
 
-    private void Start()
-    {
-        if (rageMeterP1 != null)
-            rageMeterP1.OnRageChanged += OnAnyRageChanged;
-        if (rageMeterP2 != null)
-            rageMeterP2.OnRageChanged += OnAnyRageChanged;
+        // ── Colours ───────────────────────────────────────────────────────────
+        if (imageBlue) imageBlue.color = ColBlue;
+        if (imageGreen) imageGreen.color = ColGreen;
+        if (imageRed) imageRed.color = ColRed;
+        if (imageVictory) imageVictory.color = ColHidden;
 
-        RefreshBar();
+        // ── Hide dynamic elements ─────────────────────────────────────────────
+        if (labelCenter != null) labelCenter.gameObject.SetActive(false);
+        if (fillVictory != null) fillVictory.gameObject.SetActive(false);
+        if (fillRed != null) fillRed.gameObject.SetActive(false);
+
+        SetWidth(fillBlue, 0f);
+        SetWidth(fillGreen, 0f);
+        SetWidth(fillRed, 0f);
+
+        Debug.Log("[DualRageBarUI] Awake — singleton registered. " +
+                  "Will find meters by playerIndex each Update().");
     }
 
     private void OnDestroy()
     {
-        if (rageMeterP1 != null) rageMeterP1.OnRageChanged -= OnAnyRageChanged;
-        if (rageMeterP2 != null) rageMeterP2.OnRageChanged -= OnAnyRageChanged;
+        // Clear singleton so a fresh bar can register if the scene reloads
+        if (_instance == this) _instance = null;
     }
 
-    // ── Event Handler ─────────────────────────────────────────────────────────
+    private void Start()
+    {
+        Debug.Log("[DualRageBarUI] Start — Update() drives render every frame.");
+    }
 
-    private void OnAnyRageChanged(float rage, float delta) => RefreshBar();
-
-    // ── Core Render ───────────────────────────────────────────────────────────
+    // ── Meter fetch ───────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Reads both rage values, computes segment widths, and updates all UI.
-    ///
-    /// SEGMENT MATH
-    /// ─────────────
-    /// barW        = total pixel width of the bar track
-    /// p1px        = barW × (r1 / maxRage)          ← P1 wants this many pixels
-    /// p2px        = barW × (r2 / maxRage)          ← P2 wants this many pixels
-    /// combined    = p1px + p2px
-    /// redPx       = max(0, combined - barW)         ← overlap = the red zone
-    /// bluePx      = p1px - redPx                   ← blue shrinks as red grows
-    /// greenPx     = p2px - redPx                   ← green shrinks as red grows
-    ///
-    /// Red zone position (anchoredPosition.x in left-anchored space):
-    ///   redX = bluePx   ← red starts where blue ends
-    ///
-    /// VICTORY: when combined >= barW (both players together fill 100%)
-    ///   → hide blue/red/green, show full-bar victory overlay, start blinking.
+    /// Finds the current active P1 and P2 RageMeters by playerIndex.
+    /// When multiple components exist due to Fusion duplications, picks the one
+    /// with the highest instanceID — newest component = currently active one.
+    /// Called every Update() so new meters are always picked up.
     /// </summary>
-    public void RefreshBar()
+    private void FetchCurrentMeters()
+    {
+        RageMeter newP1 = null, newP2 = null;
+
+        var all = FindObjectsByType<RageMeter>(FindObjectsSortMode.None);
+        foreach (var m in all)
+        {
+            if (m.playerIndex == 0 &&
+                (newP1 == null || m.GetInstanceID() > newP1.GetInstanceID()))
+                newP1 = m;
+
+            if (m.playerIndex == 1 &&
+                (newP2 == null || m.GetInstanceID() > newP2.GetInstanceID()))
+                newP2 = m;
+        }
+
+        activeMeterP1 = newP1;
+        activeMeterP2 = newP2;
+    }
+
+    // ── Update ────────────────────────────────────────────────────────────────
+
+    private void Update()
+    {
+        FetchCurrentMeters();
+        RefreshBar();
+
+        if (!debugLogging) return;
+        debugTimer += Time.deltaTime;
+        if (debugTimer < 2f) return;
+        debugTimer = 0f;
+
+        float barW = barTrack != null ? barTrack.rect.width : -1f;
+        float r1 = activeMeterP1 != null ? activeMeterP1.CurrentRage : -1f;
+        float r2 = activeMeterP2 != null ? activeMeterP2.CurrentRage : -1f;
+        int id1 = activeMeterP1 != null ? activeMeterP1.GetInstanceID() : 0;
+        int id2 = activeMeterP2 != null ? activeMeterP2.GetInstanceID() : 0;
+
+        Debug.Log($"[DualRageBarUI] barW={barW:F0}px  " +
+                  $"P1={r1:F1}(id={id1})  P2={r2:F1}(id={id2})  " +
+                  $"victory={victoryAchieved}  locked={victoryLocked}  " +
+                  $"redBlinking={redIsBlinking}");
+    }
+
+    // ── Core render ───────────────────────────────────────────────────────────
+
+    private void RefreshBar()
     {
         if (barTrack == null) return;
 
         float barW = barTrack.rect.width;
-        if (barW < 1f) return; // canvas not yet laid out
+        if (barW < 2f) return;
 
-        float r1 = rageMeterP1 != null ? rageMeterP1.CurrentRage : 0f;
-        float r2 = rageMeterP2 != null ? rageMeterP2.CurrentRage : 0f;
-        float max1 = rageMeterP1 != null ? rageMeterP1.MaxRage : 100f;
-        float max2 = rageMeterP2 != null ? rageMeterP2.MaxRage : 100f;
+        float r1 = activeMeterP1 != null ? activeMeterP1.CurrentRage : 0f;
+        float r2 = activeMeterP2 != null ? activeMeterP2.CurrentRage : 0f;
+        float max1 = activeMeterP1 != null ? activeMeterP1.MaxRage : 100f;
+        float max2 = activeMeterP2 != null ? activeMeterP2.MaxRage : 100f;
 
         float p1px = barW * Mathf.Clamp01(r1 / max1);
         float p2px = barW * Mathf.Clamp01(r2 / max2);
         float combined = p1px + p2px;
 
-        // ── Victory check ─────────────────────────────────────────────────────
-        bool isVictory = combined >= barW - 0.5f;
+        // ── Victory ───────────────────────────────────────────────────────────
+        bool isVictory = combined >= barW - 1f;
 
         if (isVictory && !victoryAchieved)
         {
             victoryAchieved = true;
-            TriggerVictory();
+            victoryLocked = true;
+            ShowVictory();
+            if (victoryHold != null) StopCoroutine(victoryHold);
+            victoryHold = StartCoroutine(VictoryHoldTimer());
             return;
         }
 
-        if (victoryAchieved && !isVictory)
-        {
-            // Rage decayed below 100% combined — cancel victory state
+        if (victoryAchieved && !isVictory && !victoryLocked)
             CancelVictory();
-        }
 
-        if (victoryAchieved) return; // skip normal render while in victory
+        if (victoryAchieved) return;
 
-        // ── Normal render ─────────────────────────────────────────────────────
+        // ── Segment widths ────────────────────────────────────────────────────
         float redPx = Mathf.Max(0f, combined - barW);
         float bluePx = Mathf.Max(0f, p1px - redPx);
         float greenPx = Mathf.Max(0f, p2px - redPx);
@@ -217,58 +233,62 @@ public class DualRageBarUI : MonoBehaviour
         SetWidth(fillBlue, bluePx);
         SetWidth(fillGreen, greenPx);
 
-        bool redVisible = redPx > 0.5f;
+        bool showRed = redPx > 0.5f;
 
         if (fillRed != null)
         {
-            fillRed.gameObject.SetActive(redVisible);
-            if (redVisible)
+            if (showRed)
             {
+                if (!fillRed.gameObject.activeSelf)
+                    fillRed.gameObject.SetActive(true);
+
                 SetWidth(fillRed, redPx);
-                // Position red starting at the right edge of blue
-                Vector2 ap = fillRed.anchoredPosition;
+
+                var ap = fillRed.anchoredPosition;
                 ap.x = bluePx;
                 fillRed.anchoredPosition = ap;
 
-                // Start blinking coroutine if not already running
-                if (redBlinkCoroutine == null)
-                    redBlinkCoroutine = StartCoroutine(BlinkRed());
+                if (!redIsBlinking)
+                {
+                    redIsBlinking = true;
+                    if (redBlink != null) StopCoroutine(redBlink);
+                    redBlink = StartCoroutine(BlinkRed());
+                }
             }
             else
             {
-                // Stop blinking when red zone disappears
-                if (redBlinkCoroutine != null)
+                if (fillRed.gameObject.activeSelf)
+                    fillRed.gameObject.SetActive(false);
+
+                if (redIsBlinking)
                 {
-                    StopCoroutine(redBlinkCoroutine);
-                    redBlinkCoroutine = null;
-                    if (imageRed) imageRed.color = ColorRed;
+                    redIsBlinking = false;
+                    if (redBlink != null) { StopCoroutine(redBlink); redBlink = null; }
+                    if (imageRed) imageRed.color = ColRed;
                 }
             }
         }
 
-        // ── Labels ────────────────────────────────────────────────────────────
-        UpdateLabels(r1, r2, max1, max2);
+        UpdateLabels(r1, r2);
     }
 
-    // ── Victory State ─────────────────────────────────────────────────────────
+    // ── Victory ───────────────────────────────────────────────────────────────
 
-    private void TriggerVictory()
+    private void ShowVictory()
     {
-        // Hide the individual segments
-        if (fillBlue) fillBlue.gameObject.SetActive(false);
-        if (fillGreen) fillGreen.gameObject.SetActive(false);
-        if (fillRed) fillRed.gameObject.SetActive(false);
+        if (fillBlue != null) fillBlue.gameObject.SetActive(false);
+        if (fillGreen != null) fillGreen.gameObject.SetActive(false);
+        if (fillRed != null) fillRed.gameObject.SetActive(false);
 
-        // Stop any existing blink
-        if (redBlinkCoroutine != null) { StopCoroutine(redBlinkCoroutine); redBlinkCoroutine = null; }
+        redIsBlinking = false;
+        if (redBlink != null) { StopCoroutine(redBlink); redBlink = null; }
 
-        // Show victory overlay and start blinking
-        if (fillVictory) fillVictory.gameObject.SetActive(true);
-        if (victoryBlinkCoroutine == null)
-            victoryBlinkCoroutine = StartCoroutine(BlinkVictory());
+        if (fillVictory != null) fillVictory.gameObject.SetActive(true);
 
-        // Show center label
-        if (labelCenter)
+        if (vicBlink != null) StopCoroutine(vicBlink);
+        vicBlink = StartCoroutine(BlinkVictory());
+
+        if (labelCenter != null)
         {
             labelCenter.gameObject.SetActive(true);
             labelCenter.text = "FULL RAGE!";
@@ -276,80 +296,77 @@ public class DualRageBarUI : MonoBehaviour
 
         if (labelP1) labelP1.text = "";
         if (labelP2) labelP2.text = "";
-
         if (levelLabelP1) levelLabelP1.text = "MAX";
         if (levelLabelP2) levelLabelP2.text = "MAX";
 
-        Debug.Log("[DualRageBarUI] VICTORY — full bar rage achieved by both players!");
+        Debug.Log($"[DualRageBarUI] *** VICTORY — full red bar! Holding for {victoryHoldSeconds}s ***");
+    }
+
+    private IEnumerator VictoryHoldTimer()
+    {
+        yield return new WaitForSeconds(victoryHoldSeconds);
+        victoryLocked = false;
+        Debug.Log("[DualRageBarUI] Victory hold expired — decay can now cancel.");
     }
 
     private void CancelVictory()
     {
         victoryAchieved = false;
+        victoryLocked = false;
 
-        if (victoryBlinkCoroutine != null)
-        {
-            StopCoroutine(victoryBlinkCoroutine);
-            victoryBlinkCoroutine = null;
-        }
+        if (victoryHold != null) { StopCoroutine(victoryHold); victoryHold = null; }
+        if (vicBlink != null) { StopCoroutine(vicBlink); vicBlink = null; }
 
-        if (imageVictory) imageVictory.color = new Color(ColorRed.r, ColorRed.g, ColorRed.b, 0f);
-        if (fillVictory) fillVictory.gameObject.SetActive(false);
-        if (fillBlue) fillBlue.gameObject.SetActive(true);
-        if (fillGreen) fillGreen.gameObject.SetActive(true);
-        if (labelCenter) labelCenter.gameObject.SetActive(false);
+        if (imageVictory) imageVictory.color = ColHidden;
+        if (fillVictory != null) fillVictory.gameObject.SetActive(false);
+        if (fillBlue != null) fillBlue.gameObject.SetActive(true);
+        if (fillGreen != null) fillGreen.gameObject.SetActive(true);
+        if (labelCenter != null) labelCenter.gameObject.SetActive(false);
+
+        Debug.Log("[DualRageBarUI] Victory cancelled — rage decayed below full.");
     }
 
-    // ── Blink Coroutines ──────────────────────────────────────────────────────
+    // ── Blink coroutines ──────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Blinks the red overlap zone continuously while it has non-zero width.
-    /// Alternates between full opacity and dim at blinkPeriod intervals.
-    /// </summary>
     private IEnumerator BlinkRed()
     {
+        var wait = new WaitForSeconds(blinkPeriod * 0.5f);
         bool bright = true;
         while (true)
         {
-            if (imageRed)
-                imageRed.color = bright ? ColorRed : ColorRedDim;
+            if (imageRed) imageRed.color = bright ? ColRed : ColDim;
             bright = !bright;
-            yield return new WaitForSeconds(blinkPeriod * 0.5f);
+            yield return wait;
         }
     }
 
-    /// <summary>
-    /// Blinks the full victory bar between full red and dim red.
-    /// </summary>
     private IEnumerator BlinkVictory()
     {
+        var wait = new WaitForSeconds(victoryBlinkPeriod * 0.5f);
         bool bright = true;
         while (true)
         {
-            if (imageVictory)
-                imageVictory.color = bright
-                    ? new Color(ColorRed.r, ColorRed.g, ColorRed.b, 1f)
-                    : new Color(ColorRed.r, ColorRed.g, ColorRed.b, 0.25f);
+            if (imageVictory) imageVictory.color = bright ? ColRed : ColDim;
             bright = !bright;
-            yield return new WaitForSeconds(victoryBlinkPeriod * 0.5f);
+            yield return wait;
         }
     }
 
     // ── Labels ────────────────────────────────────────────────────────────────
 
-    private void UpdateLabels(float r1, float r2, float max1, float max2)
+    private void UpdateLabels(float r1, float r2)
     {
-        if (labelP1) labelP1.text = Mathf.RoundToInt(r1) > 3
-            ? Mathf.RoundToInt(r1).ToString() : "";
+        if (labelP1 != null)
+            labelP1.text = r1 > 3f ? Mathf.RoundToInt(r1).ToString() : "";
 
-        if (labelP2) labelP2.text = Mathf.RoundToInt(r2) > 3
-            ? Mathf.RoundToInt(r2).ToString() : "";
+        if (labelP2 != null)
+            labelP2.text = r2 > 3f ? Mathf.RoundToInt(r2).ToString() : "";
 
-        if (levelLabelP1) levelLabelP1.text = GetLevelName(r1);
-        if (levelLabelP2) levelLabelP2.text = GetLevelName(r2);
+        if (levelLabelP1 != null) levelLabelP1.text = LevelName(r1);
+        if (levelLabelP2 != null) levelLabelP2.text = LevelName(r2);
     }
 
-    private string GetLevelName(float rage)
+    private string LevelName(float rage)
     {
         if (levelConfig != null) return levelConfig.GetLevelForRage(rage).levelName;
         if (rage < 20f) return "Calm";
@@ -359,13 +376,12 @@ public class DualRageBarUI : MonoBehaviour
         return "Rage mode";
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
-    private static void SetWidth(RectTransform rt, float pixels)
+    private static void SetWidth(RectTransform rt, float px)
     {
         if (rt == null) return;
-        Vector2 sd = rt.sizeDelta;
-        sd.x = pixels;
+        var sd = rt.sizeDelta;
+        if (Mathf.Approximately(sd.x, px)) return;
+        sd.x = px;
         rt.sizeDelta = sd;
     }
 }
