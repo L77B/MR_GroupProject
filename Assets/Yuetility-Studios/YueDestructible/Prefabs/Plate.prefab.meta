@@ -1,10 +1,7 @@
 fileFormatVersion: 2
 guid: 7b263552a35e1f54880aa060bafa14e9
-PrefabImporter:
-  externalObjects: {}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+labels:
+- FusionPrefab
 AssetOrigin:
   serializedVersion: 1
   productId: 242653
@@ -12,3 +9,8 @@ AssetOrigin:
   packageVersion: 1.0
   assetPath: Assets/Yuetility-Studios/YueDestructible/Prefabs/Plate.prefab
   uploadId: 551719
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

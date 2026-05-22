@@ -1,10 +1,7 @@
 fileFormatVersion: 2
 guid: 9dffff5a27c3f6d469687917958ffbe3
-PrefabImporter:
-  externalObjects: {}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+labels:
+- FusionPrefab
 AssetOrigin:
   serializedVersion: 1
   productId: 242653
@@ -12,3 +9,8 @@ AssetOrigin:
   packageVersion: 1.0
   assetPath: Assets/Yuetility-Studios/YueDestructible/Prefabs/Cup.prefab
   uploadId: 551719
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,10 +1,7 @@
 fileFormatVersion: 2
 guid: a534c66d8a385834c99b46e1c8b19897
-PrefabImporter:
-  externalObjects: {}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+labels:
+- FusionPrefab
 AssetOrigin:
   serializedVersion: 1
   productId: 242653
@@ -12,3 +9,8 @@ AssetOrigin:
   packageVersion: 1.0
   assetPath: Assets/Yuetility-Studios/YueDestructible/Prefabs/Bottle.prefab
   uploadId: 551719
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

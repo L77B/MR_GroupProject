@@ -128,6 +128,8 @@ GameObject:
   - component: {fileID: 3328624691433643052}
   - component: {fileID: 3658512381621635577}
   - component: {fileID: 273478156043576518}
+  - component: {fileID: -7261674174398802149}
+  - component: {fileID: 9151892194721058299}
   m_Layer: 0
   m_Name: Cube with Health
   m_TagString: Untagged
@@ -313,6 +315,44 @@ MonoBehaviour:
   rageMeter: {fileID: 0}
   healthLabel: {fileID: 0}
   knockbackMultiplier: 1
+  explosionPrefab: {fileID: 0}
+  explosionSpawnPoint: {fileID: 0}
+--- !u!114 &-7261674174398802149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1309180877111917618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
+  SortKey: 1557560935
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 9151892194721058299}
+  ForceRemoteRenderTimeframe: 0
+--- !u!114 &9151892194721058299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1309180877111917618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkTransform
+  _stateAuthorityChangeErrorCorrectionDelta: 0
+  SyncScale: 0
+  SyncParent: 0
+  _autoAOIOverride: 1
+  DisableSharedModeInterpolation: 0
 --- !u!1 &2917009710078139968
 GameObject:
   m_ObjectHideFlags: 0
