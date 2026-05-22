@@ -90,10 +90,10 @@ PrefabInstance:
       addedObject: {fileID: 5535195320030776503}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3065967880fbd84459ca14a74366dd00, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -1284230916610355636}
+      addedObject: {fileID: 7236376116733027146}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3065967880fbd84459ca14a74366dd00, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7323677526582852211}
+      addedObject: {fileID: -4964937134648948755}
   m_SourcePrefab: {fileID: 100100000, guid: 3065967880fbd84459ca14a74366dd00, type: 3}
 --- !u!1 &5866842773001083876 stripped
 GameObject:
@@ -145,9 +145,9 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!114 &7527375087447677350
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -166,7 +166,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 5535195320030776503}
-  - {fileID: -1284230916610355636}
+  - {fileID: -4964937134648948755}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &5535195320030776503
 MonoBehaviour:
@@ -185,19 +185,7 @@ MonoBehaviour:
   SyncParent: 0
   _autoAOIOverride: 1
   DisableSharedModeInterpolation: 0
---- !u!114 &-1284230916610355636
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5866842773001083876}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 09b5afd74dccd4327b18c4d3767d105b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MeshExploderBreakable
---- !u!114 &7323677526582852211
+--- !u!114 &7236376116733027146
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -236,3 +224,15 @@ MonoBehaviour:
   onExplosionFinished:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &-4964937134648948755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5866842773001083876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09b5afd74dccd4327b18c4d3767d105b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MeshExploderBreakable

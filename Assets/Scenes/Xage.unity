@@ -11973,55 +11973,6 @@ Transform:
   - {fileID: 1571553697}
   m_Father: {fileID: 1297362422}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &762309296
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 762309298}
-  - component: {fileID: 762309297}
-  m_Layer: 0
-  m_Name: WeaponSpawner
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &762309297
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 762309296}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8b85035cded814eacb58af8eb9142faf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponSpawner
-  batPrefab: {fileID: 1225118020377716861, guid: ff2480fd869a41742b55442dfdba4858, type: 3}
-  batCount: 2
-  spawnHeight: 1.4
-  spacingBetween: 0.8
-  debugText: {fileID: 1037288147}
---- !u!4 &762309298
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 762309296}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &762533025
 GameObject:
   m_ObjectHideFlags: 0
@@ -35558,8 +35509,13 @@ MonoBehaviour:
   - {fileID: 5866842773001083876, guid: b044b066381aff84387d353ac80c3fe9, type: 3}
   - {fileID: 3828203389611155867, guid: e5eaae30b33fc4251a42e22b5c91a32d, type: 3}
   - {fileID: 3527309188772009321, guid: ef78e62cd04304101b74dbb2ec3cf96c, type: 3}
+  - {fileID: 3521386555018725736, guid: 0738b65d547d144ec9f4aa2999ed7894, type: 3}
+  - {fileID: 5955032572976847648, guid: 4fe8bdef4fa21418085b0e8df8c0b905, type: 3}
+  - {fileID: 8719209802316264557, guid: 476da65130d4e7d43acf1b628f57186b, type: 3}
+  - {fileID: 8268719871678887891, guid: 5fb323cd684e3cd48b76fa27f0098914, type: 3}
+  - {fileID: 1891699360071768823, guid: d7d9f15125cd74fd09bea17552fe7d28, type: 3}
   targetCount: 10
-  minDistanceBetween: 0.4
+  minDistanceBetween: 0.6
   maxAttempts: 20
   debugText: {fileID: 1037288147}
 --- !u!4 &2050466494
@@ -36666,6 +36622,5 @@ SceneRoots:
   - {fileID: 1065728076}
   - {fileID: 1282854600}
   - {fileID: 2093432653}
-  - {fileID: 762309298}
   - {fileID: 2050466494}
   - {fileID: 910576702}

@@ -56,6 +56,7 @@ namespace YueDestructibles
 
             isSetup = true;
         }
+
         private void OnCollisionEnter(Collision collision)
         {
             if (!isSetup)
@@ -126,13 +127,19 @@ namespace YueDestructibles
             // invoke event
             onObjectDestruct.Invoke();
 
-            // destroy intact object
-            Destroy(this.gameObject);
+            // ── ONLY CHANGE FROM ORIGINAL ─────────────
+            // Hide object instead of destroying it
+            // NetworkedYueBreakable handles despawn
+            GetComponent<Renderer>().enabled  = false;
+            GetComponent<Collider>().enabled  = false;
+            // ─────────────────────────────────────────
         }
+
         public void DestructSimple()
         {
             DestructWithImpulse(Vector3.zero, transform.position);
         }
+
         public void AddDamage(float damageInPercent)
         {
             health -= damageInPercent;

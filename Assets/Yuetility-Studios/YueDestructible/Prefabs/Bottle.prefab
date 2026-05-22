@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 596483068795847945}
   - component: {fileID: 596483068795847944}
   - component: {fileID: 596483068795847942}
+  - component: {fileID: 4145608820775625084}
+  - component: {fileID: -5714840441375336561}
   m_Layer: 0
   m_Name: Bottle
   m_TagString: Untagged
@@ -159,7 +161,7 @@ MonoBehaviour:
   shatterBounceMultiplier: 1
   maximumImpulse: 1.5
   impulseDamageMultiplier: 30
-  accumulateDamage: 0
+  accumulateDamage: 1
   health: 100
   isDisappearing: 1
   disappearingTime: 5
@@ -174,6 +176,42 @@ MonoBehaviour:
   onObjectDestruct:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4145608820775625084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 326031453610686555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkTransform
+  _stateAuthorityChangeErrorCorrectionDelta: 0
+  SyncScale: 0
+  SyncParent: 0
+  _autoAOIOverride: 1
+  DisableSharedModeInterpolation: 0
+--- !u!114 &-5714840441375336561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 326031453610686555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
+  SortKey: 4045726447
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 4145608820775625084}
+  ForceRemoteRenderTimeframe: 0
 --- !u!1 &596483067361256641
 GameObject:
   m_ObjectHideFlags: 0
