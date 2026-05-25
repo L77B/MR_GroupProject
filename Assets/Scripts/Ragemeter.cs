@@ -149,7 +149,11 @@ public class RageMeter : MonoBehaviour
     ///   if (!HasStateAuthority) return;
     /// at the top of this method so only the owner's input writes rage.
     /// </summary>
-    public void RegisterHit(float force, float swingSpeed, bool objectBroke)
+    /// <summary>
+    /// Registers a hit, updates local combo/UI/haptics, and returns the rage
+    /// gain so the caller can forward it to NetworkedRageState.
+    /// </summary>
+    public float RegisterHit(float force, float swingSpeed, bool objectBroke)
     {
         // Combo update
         if (timeSinceLastHit <= comboWindow)
@@ -168,6 +172,8 @@ public class RageMeter : MonoBehaviour
         Debug.Log($"[RageMeter P{playerIndex + 1}] Hit — " +
                   $"Force:{force:F1} Speed:{swingSpeed:F1} Broke:{objectBroke} " +
                   $"Combo:×{comboMultiplier:F2} Gain:+{gain:F1} Total:{currentRage:F1}");
+
+        return gain;
     }
 
     /// <summary>Inject the RageMeter reference used by SetRageMeter on DestructibleObject.</summary>

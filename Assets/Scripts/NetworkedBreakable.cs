@@ -1,38 +1,48 @@
 using UnityEngine;
 using Fusion;
 
-public class NetworkedBreakable : MonoBehaviour
+/// <summary>
+/// NetworkBehaviour wrapper around DestructibleObject.
+/// When any peer's bat breaks this object, an RPC notifies StateAuthority
+/// which calls Runner.Despawn — removing the object from ALL peers.
+/// </summary>
+public class NetworkedBreakable : NetworkBehaviour
 {
-    private DestructibleObject destructible;
-    private NetworkObject networkObject;
+    public System.Action<GameObject> OnBroken;
 
-    void Start()
+    private DestructibleObject _destructible;
+
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
+
+    public override void Spawned()
     {
-        destructible  = GetComponent<DestructibleObject>();
-        networkObject = GetComponent<NetworkObject>();
-
-        if (destructible != null)
-            destructible.OnBroken += OnLocalBroken;
+        _destructible = GetComponent<DestructibleObject>();
+        if (_destructible != null)
+            _destructible.OnBroken += OnLocalBroken;
     }
 
-    void OnLocalBroken(GameObject obj)
+    public override void Despawned(NetworkRunner runner, bool hasState)
     {
-        if (networkObject == null) return;
-        if (!networkObject.HasStateAuthority) return;
-
-        // Find all clients and notify break
-        Debug.Log($"{gameObject.name} broken — " +
-                  $"notifying all clients");
-
-        NetworkRunner runner =
-            FindFirstObjectByType<NetworkRunner>();
-        if (runner != null)
-            runner.Despawn(networkObject);
+        if (_destructible != null)
+            _destructible.OnBroken -= OnLocalBroken;
     }
 
-    void OnDestroy()
+    // ── Break Handling ────────────────────────────────────────────────────────
+
+    private void OnLocalBroken(GameObject obj)
     {
-        if (destructible != null)
-            destructible.OnBroken -= OnLocalBroken;
+        OnBroken?.Invoke(gameObject);
+
+        // Any peer that detects a break asks StateAuthority to despawn.
+        // Despawn is authoritative — it removes the NetworkObject on all peers.
+        RPC_RequestDespawn();
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    private void RPC_RequestDespawn()
+    {
+        if (Object == null || !Object.IsValid) return;
+        Debug.Log($"[NetworkedBreakable] Despawning {gameObject.name}");
+        Runner.Despawn(Object);
     }
 }

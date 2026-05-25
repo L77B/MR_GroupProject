@@ -30,11 +30,14 @@ public class MeshExploderBreakable : NetworkBehaviour
     }
 
     // Called when bat hits this object
-    public void TakeHit()
+    public void TakeHit(int playerIndex = 0, float force = 0f, float swingSpeed = 0f)
     {
         if (IsBroken) return;
 
-        // Tell all clients to explode
+        // Compute rage gain the same way DestructibleObject does for a break
+        float gain = force * 0.25f + swingSpeed * 0.8f + 8f;
+        NetworkedRageState.Instance?.RPC_AddRage(playerIndex, gain);
+
         RPC_Explode();
     }
 

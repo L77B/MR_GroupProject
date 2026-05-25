@@ -1,6 +1,7 @@
 using UnityEngine;
 using Fusion;
 using Fusion.Sockets;
+using System.Collections;
 using System.Collections.Generic;
 using System;
 
@@ -16,17 +17,18 @@ public class PlayerSpawner : MonoBehaviour,
 
     void Start()
     {
-        _runner = FindFirstObjectByType<NetworkRunner>();
-        if (_runner != null)
-        {
-            _runner.AddCallbacks(this);
-            Debug.Log("PlayerSpawner registered " +
-                      "with NetworkRunner");
-        }
-        else
-        {
-            Debug.LogError("NetworkRunner not found!");
-        }
+        StartCoroutine(RegisterWithRunner());
+    }
+
+    IEnumerator RegisterWithRunner()
+    {
+        yield return new WaitUntil(() => {
+            _runner = FindFirstObjectByType<NetworkRunner>();
+            return _runner != null && _runner.IsRunning;
+        });
+
+        _runner.AddCallbacks(this);
+        Debug.Log("PlayerSpawner registered with NetworkRunner");
     }
 
     public void OnPlayerJoined(
@@ -69,7 +71,12 @@ public class PlayerSpawner : MonoBehaviour,
         if (bat != null)
         {
             _spawnedBats[player] = bat;
-            Debug.Log($"Bat spawned for: {player}");
+
+            // Equip immediately — BatImpactHandler ignores all collisions while unequipped
+            var handler = bat.GetComponent<BatImpactHandler>();
+            if (handler != null) handler.SetEquipped(true);
+
+            Debug.Log($"Bat spawned and equipped for: {player}");
         }
     }
 

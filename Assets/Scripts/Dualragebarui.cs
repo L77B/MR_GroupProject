@@ -95,6 +95,9 @@ public class DualRageBarUI : MonoBehaviour
     [Tooltip("Level name label for P2.")]
     [SerializeField] private TextMeshProUGUI levelLabelP2;
 
+    [Tooltip("Optional combined score text (e.g. 'P1: 45 | P2: 23'). Leave null to hide.")]
+    [SerializeField] private TextMeshProUGUI rageScoreText;
+
     [Header("Rage Meters")]
     [SerializeField] private RageMeter rageMeterP1;
     [SerializeField] private RageMeter rageMeterP2;
@@ -136,12 +139,33 @@ public class DualRageBarUI : MonoBehaviour
 
     private void Start()
     {
+        // Auto-find meters — needed when canvas is spawned as a NetworkObject prefab
+        // (prefabs can't hold references to scene objects).
+        if (rageMeterP1 == null || rageMeterP2 == null)
+        {
+            var meters = FindObjectsByType<RageMeter>(FindObjectsSortMode.None);
+            foreach (var m in meters)
+            {
+                if (m.playerIndex == 0 && rageMeterP1 == null) rageMeterP1 = m;
+                if (m.playerIndex == 1 && rageMeterP2 == null) rageMeterP2 = m;
+            }
+        }
+
+        // Subscribe to local meter events as fallback (single-player / Happy scene)
         if (rageMeterP1 != null)
             rageMeterP1.OnRageChanged += OnAnyRageChanged;
         if (rageMeterP2 != null)
             rageMeterP2.OnRageChanged += OnAnyRageChanged;
 
         RefreshBar();
+    }
+
+    private void Update()
+    {
+        // In networked mode, NetworkedRageState is the source of truth.
+        // Poll it every frame so both headsets always show the same values.
+        if (NetworkedRageState.Instance != null)
+            RefreshBar();
     }
 
     private void OnDestroy()
@@ -152,6 +176,7 @@ public class DualRageBarUI : MonoBehaviour
 
     // ── Event Handler ─────────────────────────────────────────────────────────
 
+    // Only fires in local (non-networked) mode — Update() takes over when networked.
     private void OnAnyRageChanged(float rage, float delta) => RefreshBar();
 
     // ── Core Render ───────────────────────────────────────────────────────────
@@ -182,10 +207,20 @@ public class DualRageBarUI : MonoBehaviour
         float barW = barTrack.rect.width;
         if (barW < 1f) return; // canvas not yet laid out
 
-        float r1 = rageMeterP1 != null ? rageMeterP1.CurrentRage : 0f;
-        float r2 = rageMeterP2 != null ? rageMeterP2.CurrentRage : 0f;
-        float max1 = rageMeterP1 != null ? rageMeterP1.MaxRage : 100f;
-        float max2 = rageMeterP2 != null ? rageMeterP2.MaxRage : 100f;
+        float r1, r2, max1, max2;
+        if (NetworkedRageState.Instance != null)
+        {
+            r1   = NetworkedRageState.Instance.RageP1;
+            r2   = NetworkedRageState.Instance.RageP2;
+            max1 = max2 = NetworkedRageState.Instance.MaxRage;
+        }
+        else
+        {
+            r1   = rageMeterP1 != null ? rageMeterP1.CurrentRage : 0f;
+            r2   = rageMeterP2 != null ? rageMeterP2.CurrentRage : 0f;
+            max1 = rageMeterP1 != null ? rageMeterP1.MaxRage    : 100f;
+            max2 = rageMeterP2 != null ? rageMeterP2.MaxRage    : 100f;
+        }
 
         float p1px = barW * Mathf.Clamp01(r1 / max1);
         float p2px = barW * Mathf.Clamp01(r2 / max2);
@@ -347,6 +382,13 @@ public class DualRageBarUI : MonoBehaviour
 
         if (levelLabelP1) levelLabelP1.text = GetLevelName(r1);
         if (levelLabelP2) levelLabelP2.text = GetLevelName(r2);
+
+        if (rageScoreText != null)
+        {
+            int p1Pct = Mathf.RoundToInt(r1 / max1 * 100f);
+            int p2Pct = Mathf.RoundToInt(r2 / max2 * 100f);
+            rageScoreText.text = $"P1: {p1Pct}%  |  P2: {p2Pct}%";
+        }
     }
 
     private string GetLevelName(float rage)

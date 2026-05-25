@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using System.Collections;
+using Fusion;
 
 [RequireComponent(typeof(Rigidbody))]
 public class BatImpactHandler : MonoBehaviour
@@ -35,6 +37,10 @@ public class BatImpactHandler : MonoBehaviour
     private Vector3      prevPosition;
     private float        lastHitTime;
 
+    // 0 = host/P1, 1 = client/P2 — set once the Fusion session is running
+    private int           _playerIndex = 0;
+    private NetworkRunner _runner;
+
     // ── Unity Lifecycle ───────────────────────────────────────────────────
 
     private void Awake()
@@ -50,6 +56,40 @@ public class BatImpactHandler : MonoBehaviour
             Debug.LogWarning(
                 "[BatImpactHandler] OVRCameraRig " +
                 "not found!");
+    }
+
+    private void Start()
+    {
+        StartCoroutine(DetectPlayerIndex());
+    }
+
+    private IEnumerator DetectPlayerIndex()
+    {
+        // Wait for a live session
+        yield return new WaitUntil(() => {
+            _runner = FindFirstObjectByType<NetworkRunner>();
+            return _runner != null && _runner.IsRunning;
+        });
+
+        // Wait for NetworkedRageState scene object (should be near-instant)
+        float waited = 0f;
+        while (NetworkedRageState.Instance == null && waited < 10f)
+        {
+            waited += Time.deltaTime;
+            yield return null;
+        }
+
+        // Brief pause so RPC_RegisterPlayer calls can propagate
+        yield return new WaitForSeconds(1.5f);
+
+        if (NetworkedRageState.Instance != null)
+            _playerIndex = NetworkedRageState.Instance
+                               .GetPlayerIndex(_runner.LocalPlayer);
+        else
+            _playerIndex = _runner.IsSharedModeMasterClient ? 0 : 1;
+
+        Debug.Log($"[BatImpactHandler] PlayerIndex = {_playerIndex} " +
+                  $"for {_runner.LocalPlayer}");
     }
 
     // Called by WeaponSpawner when X is pressed
@@ -117,6 +157,12 @@ public class BatImpactHandler : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        // Only the peer with input authority over this bat processes its hits.
+        // This prevents the remote copy of the bat (synced position) from
+        // triggering phantom collisions on the wrong headset.
+        var netObj = GetComponent<NetworkObject>();
+        if (netObj != null && !netObj.HasInputAuthority) return;
+
         // Only process hits when equipped and swinging
         if (!isEquipped) return;
         if (!IsSwinging) return;
@@ -145,9 +191,10 @@ public class BatImpactHandler : MonoBehaviour
             Debug.Log(
                 $"[BatImpactHandler] Hit breakable: " +
                 $"{collision.gameObject.name} " +
+                $"P{_playerIndex + 1} " +
                 $"force:{clampedForce:F1} " +
                 $"speed:{CurrentSwingSpeed:F1}");
-            breakable.TakeHit();
+            breakable.TakeHit(_playerIndex, clampedForce, CurrentSwingSpeed);
             return;
         }
 
@@ -163,11 +210,13 @@ public class BatImpactHandler : MonoBehaviour
                 clampedForce,
                 CurrentSwingSpeed,
                 hitPoint,
-                hitDir);
+                hitDir,
+                _playerIndex);
 
             Debug.Log(
                 $"[BatImpactHandler] Hit destructible: " +
                 $"{destructible.name} " +
+                $"P{_playerIndex + 1} " +
                 $"force:{clampedForce:F1} " +
                 $"speed:{CurrentSwingSpeed:F1}");
         }
