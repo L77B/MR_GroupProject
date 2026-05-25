@@ -10695,6 +10695,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8821762834127311646, guid: 945b62c9bdfdbd7459e6bc27f2f23094, type: 3}
       insertIndex: -1
       addedObject: {fileID: 551594429}
+    - targetCorrespondingSourceObject: {fileID: 8821762834127311646, guid: 945b62c9bdfdbd7459e6bc27f2f23094, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 551594438}
   m_SourcePrefab: {fileID: 100100000, guid: 945b62c9bdfdbd7459e6bc27f2f23094, type: 3}
 --- !u!1 &551594427 stripped
 GameObject:
@@ -10849,6 +10852,21 @@ MonoBehaviour:
   hit: {fileID: 1314069710}
   bulletPrefab: {fileID: 1070989441992172156, guid: 1d8b39e23960bc84386e9ec0a6667fa4, type: 3}
   bulletSpawnPoint: {fileID: 1009813950}
+--- !u!114 &551594438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 551594427}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c7342ea16a4e4c79b7939518bb73c52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CollisionForceTransfer
+  forceMultiplier: 1.5
+  minimumForceThreshold: 2
+  enableHaptics: 1
 --- !u!1 &559233231
 GameObject:
   m_ObjectHideFlags: 0
@@ -30464,6 +30482,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -8882656747801673479, guid: 6c704c1f32595e54ca7ec6dc6f661245, type: 3}
+      propertyPath: SortKey
+      value: 773115999
+      objectReference: {fileID: 0}
     - target: {fileID: 2951724353884839816, guid: 6c704c1f32595e54ca7ec6dc6f661245, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.8438579
@@ -38740,7 +38762,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6093233050071521008, guid: e460f286921570a42a4fcfef3e50b67f, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6179996000273873521, guid: e460f286921570a42a4fcfef3e50b67f, type: 3}
       propertyPath: m_IsActive
@@ -38871,6 +38893,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -8882656747801673479, guid: 6c704c1f32595e54ca7ec6dc6f661245, type: 3}
+      propertyPath: SortKey
+      value: 1741409711
+      objectReference: {fileID: 0}
     - target: {fileID: 2951724353884839816, guid: 6c704c1f32595e54ca7ec6dc6f661245, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -38989,6 +39015,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5138408535118307874, guid: 43e301bbf8c2aa54dbf1f789415bca7b, type: 3}
+      propertyPath: SortKey
+      value: 932406039
+      objectReference: {fileID: 0}
     - target: {fileID: 8553033459362907923, guid: 43e301bbf8c2aa54dbf1f789415bca7b, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.9375243
@@ -39107,6 +39137,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -849236017368866655, guid: 213a4a7f245dc1f48b3fa4ba47abbc4a, type: 3}
+      propertyPath: SortKey
+      value: 3345782623
+      objectReference: {fileID: 0}
     - target: {fileID: 2241864863656924871, guid: 213a4a7f245dc1f48b3fa4ba47abbc4a, type: 3}
       propertyPath: m_Name
       value: ScreenBreakable

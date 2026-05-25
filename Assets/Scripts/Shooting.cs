@@ -7,6 +7,8 @@ public class Shooting : MonoBehaviour
     public GameObject bulletPrefab;
     public Transform bulletSpawnPoint;
 
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -39,7 +41,6 @@ public class Shooting : MonoBehaviour
         bulletRigidbody.AddForce(bulletSpawnPoint.right * 20f, ForceMode.Impulse);
 
         Destroy(bullet, 5f);
-
     }
 
 
