@@ -37,6 +37,9 @@ public class Shooting : MonoBehaviour
         GameObject bullet = Instantiate(bulletPrefab, bulletSpawnPoint.position, Quaternion.identity);
         Rigidbody bulletRigidbody = bullet.GetComponent<Rigidbody>();
         bulletRigidbody.AddForce(bulletSpawnPoint.right * 20f, ForceMode.Impulse);
+
+        Destroy(bullet, 5f);
+
     }
 
 
