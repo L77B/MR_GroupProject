@@ -18,6 +18,7 @@ private bool hasExploded = false;
 public FindSpawnPositions spawnFinder;
 public GameObject[] spawnPrefabsA;
 public GameObject[] spawnPrefabsB;
+public GameObject explosionObject;
 
 
 
@@ -80,6 +81,7 @@ public GameObject[] spawnPrefabsB;
                 Debug.Log("Button pressed → Reloading scene");
                 FindFirstObjectByType<SceneLoaderTwo>().RestartGame();
 
+
                 //sceneLoader.RestartGame();
             }
             else if (value == "0")
@@ -117,7 +119,7 @@ if (msg.Contains("spawnB"))
     }
     private void TriggerExplosion()
 {
-    Instantiate(explosionPrefab, explosionSpawnPoint.position, explosionSpawnPoint.rotation);
+    explosionObject.SetActive(true);
     Debug.Log("Explosion triggered!");
 }
 
