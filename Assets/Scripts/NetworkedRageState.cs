@@ -112,6 +112,11 @@ public class NetworkedRageState : NetworkBehaviour
 
     // ── Spawn / Explosion RPCs ───────────────────────────────────────────────
 
+    // Both headsets receive ESP32 WebSocket messages and both send this RPC.
+    // The cooldown deduplicates the two near-simultaneous calls so only one spawn fires.
+    private readonly float[] _lastSpawnTime = { -10f, -10f };
+    private const float SpawnDedup = 1f;
+
     /// <summary>
     /// Any peer calls this (the one with the ESP32 connection).
     /// Only fires on StateAuthority (master client) which then spawns the objects.
@@ -120,6 +125,9 @@ public class NetworkedRageState : NetworkBehaviour
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_RequestSpawn(int buttonIndex)
     {
+        if ((uint)buttonIndex > 1) return;
+        if (Time.time - _lastSpawnTime[buttonIndex] < SpawnDedup) return;
+        _lastSpawnTime[buttonIndex] = Time.time;
         Debug.Log($"[NetworkedRageState] RPC_RequestSpawn({buttonIndex}) on authority");
         OnSpawnRequested?.Invoke(buttonIndex);
     }

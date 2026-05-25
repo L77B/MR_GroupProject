@@ -1046,6 +1046,7 @@ GameObject:
   - component: {fileID: 6017760817573043943}
   - component: {fileID: 8788056686931105581}
   - component: {fileID: 7576303083029703839}
+  - component: {fileID: -3045821497492308688}
   m_Layer: 0
   m_Name: Plate
   m_TagString: Untagged
@@ -1240,7 +1241,20 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 8788056686931105581}
+  - {fileID: -3045821497492308688}
   ForceRemoteRenderTimeframe: 0
+--- !u!114 &-3045821497492308688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5955032572976847648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08fc2e038dfc54b4c865783f060e4e01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkedYueDespawn
 --- !u!1 &6417911509858747311
 GameObject:
   m_ObjectHideFlags: 0

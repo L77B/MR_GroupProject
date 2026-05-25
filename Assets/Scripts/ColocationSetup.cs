@@ -75,18 +75,40 @@ public class ColocationSetup : MonoBehaviour
         OriginPosition = trackable.transform.position;
         OriginRotation = trackable.transform.rotation;
 
-        // Shift the shared world origin to the QR code location.
-        // All scene children of WorldOrigin (dynamite, etc.) will appear
-        // at their correct physical positions on both headsets.
+        // Align the OVRCameraRig so the QR code becomes world origin with zero yaw.
+        // Both position and yaw correction are needed: without yaw, objects placed
+        // at a horizontal distance from the QR code drift left/right between headsets.
+        //
+        // Formula: worldPos = rig.rotation * trackingPos + rig.position
+        // We want worldPos(QR) = 0, so: rig.position = -(invYaw * OriginPosition)
+        // Pitch/roll are left at zero to keep the world level.
+        OVRCameraRig ovrRig = FindFirstObjectByType<OVRCameraRig>();
+        if (ovrRig != null)
+        {
+            float      qrYaw  = OriginRotation.eulerAngles.y;
+            Quaternion invYaw = Quaternion.Euler(0f, -qrYaw, 0f);
+            ovrRig.transform.rotation = invYaw;
+            ovrRig.transform.position = invYaw * (-OriginPosition);
+            Debug.Log($"[ColocationSetup] OVRCameraRig aligned — " +
+                      $"yaw:{qrYaw:F1}° posOffset:{ovrRig.transform.position:F3}");
+        }
+        else
+        {
+            Debug.LogWarning("[ColocationSetup] OVRCameraRig not found — " +
+                             "colocation alignment skipped.");
+        }
+
+        // With the camera rig now offset, QR code is at world origin (0,0,0).
+        // Pass (0,0,0) so WorldOrigin children appear at their correct physical positions.
         if (WorldOrigin.Instance != null)
-            WorldOrigin.Instance.SetOrigin(OriginPosition, OriginRotation);
+            WorldOrigin.Instance.SetOrigin(Vector3.zero, OriginRotation);
         else
             Debug.LogWarning("[ColocationSetup] WorldOrigin.Instance is null — " +
                              "add a WorldOrigin component to the scene.");
 
-        Log($"Colocated!\nOrigin: {OriginPosition:F2}");
-        Debug.Log($"[ColocationSetup] Origin set pos={OriginPosition} " +
-                  $"rot={OriginRotation.eulerAngles}");
+        Log($"Colocated!\nQR tracking pos: {OriginPosition:F2}");
+        Debug.Log($"[ColocationSetup] Colocated — QR tracking pos={OriginPosition:F3} " +
+                  $"rot={OriginRotation.eulerAngles} → OVRRig offset applied");
 
         // QR code can now leave the camera view — we're done with it.
         OnColocated?.Invoke();

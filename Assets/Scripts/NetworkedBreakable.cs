@@ -11,6 +11,7 @@ public class NetworkedBreakable : NetworkBehaviour
     public System.Action<GameObject> OnBroken;
 
     private DestructibleObject _destructible;
+    private BreakableObject    _breakable;
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -19,12 +20,18 @@ public class NetworkedBreakable : NetworkBehaviour
         _destructible = GetComponent<DestructibleObject>();
         if (_destructible != null)
             _destructible.OnBroken += OnLocalBroken;
+
+        _breakable = GetComponent<BreakableObject>();
+        if (_breakable != null)
+            _breakable.OnBroken += OnLegacyBroken;
     }
 
     public override void Despawned(NetworkRunner runner, bool hasState)
     {
         if (_destructible != null)
             _destructible.OnBroken -= OnLocalBroken;
+        if (_breakable != null)
+            _breakable.OnBroken -= OnLegacyBroken;
     }
 
     // ── Break Handling ────────────────────────────────────────────────────────
@@ -32,9 +39,12 @@ public class NetworkedBreakable : NetworkBehaviour
     private void OnLocalBroken(GameObject obj)
     {
         OnBroken?.Invoke(gameObject);
+        RPC_RequestDespawn();
+    }
 
-        // Any peer that detects a break asks StateAuthority to despawn.
-        // Despawn is authoritative — it removes the NetworkObject on all peers.
+    private void OnLegacyBroken()
+    {
+        OnBroken?.Invoke(gameObject);
         RPC_RequestDespawn();
     }
 

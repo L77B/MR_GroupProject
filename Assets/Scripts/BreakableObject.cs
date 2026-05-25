@@ -28,6 +28,8 @@ public class BreakableObject : MonoBehaviour
     [Header("Physics Response")]
     [SerializeField] private float knockbackMultiplier = 1f;
 
+    public event System.Action OnBroken;
+
     private Rigidbody rb;
     private bool isBroken = false;
 
@@ -133,6 +135,9 @@ public class BreakableObject : MonoBehaviour
                 Destroy(piece, pieceFadeTime);
             }
         }
+
+        // Notify any networked wrapper so it can despawn via Fusion
+        OnBroken?.Invoke();
 
         // Destroy the parent after a short delay
         Destroy(gameObject, pieceFadeTime + 0.1f);

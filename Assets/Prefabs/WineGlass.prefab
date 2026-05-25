@@ -298,6 +298,7 @@ GameObject:
   - component: {fileID: 8980641347372878277}
   - component: {fileID: -8423191405070961498}
   - component: {fileID: 1073731228951560592}
+  - component: {fileID: -6214380306559780940}
   m_Layer: 0
   m_Name: WineGlass
   m_TagString: Untagged
@@ -492,7 +493,20 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: -8423191405070961498}
+  - {fileID: -6214380306559780940}
   ForceRemoteRenderTimeframe: 0
+--- !u!114 &-6214380306559780940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891699360071768823}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08fc2e038dfc54b4c865783f060e4e01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkedYueDespawn
 --- !u!1 &2136272237024727454
 GameObject:
   m_ObjectHideFlags: 0

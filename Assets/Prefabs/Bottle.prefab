@@ -765,6 +765,7 @@ GameObject:
   - component: {fileID: 1426951308286401205}
   - component: {fileID: -3899307882880871792}
   - component: {fileID: -7489108902930647611}
+  - component: {fileID: 1289679053431518929}
   m_Layer: 0
   m_Name: Bottle
   m_TagString: Untagged
@@ -960,7 +961,20 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: -3899307882880871792}
+  - {fileID: 1289679053431518929}
   ForceRemoteRenderTimeframe: 0
+--- !u!114 &1289679053431518929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3521386555018725736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08fc2e038dfc54b4c865783f060e4e01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkedYueDespawn
 --- !u!1 &4472165395910550042
 GameObject:
   m_ObjectHideFlags: 0

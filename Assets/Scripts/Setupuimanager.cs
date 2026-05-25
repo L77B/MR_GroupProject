@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using TMPro;
 using Oculus.Interaction;
+using Fusion;
 using Image = UnityEngine.UI.Image;
 using Button = UnityEngine.UI.Button;
 
@@ -116,6 +117,17 @@ public class SetupUIManager : MonoBehaviour
     {
         currentDistance = rayModeDistance;
         SetWaitingState();
+
+        // In a networked session the canvas is a NetworkObject spawned by the host
+        // at a fixed wall position. Don't snap/follow — call Hide() to stop
+        // LateUpdate so the NetworkTransform keeps the canvas on the wall on all peers.
+        var runner = FindAnyObjectByType<NetworkRunner>();
+        if (runner != null && runner.IsRunning)
+        {
+            Hide();
+            return;
+        }
+
         SnapInFrontOfPlayer();
     }
 

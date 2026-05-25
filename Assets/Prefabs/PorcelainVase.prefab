@@ -2241,6 +2241,7 @@ GameObject:
   - component: {fileID: 7448121191725008969}
   - component: {fileID: 3165594754290279991}
   - component: {fileID: -448704378289117689}
+  - component: {fileID: 8177591582596394278}
   m_Layer: 0
   m_Name: PorcelainVase
   m_TagString: Untagged
@@ -2425,6 +2426,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: -448704378289117689}
+  - {fileID: 8177591582596394278}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &-448704378289117689
 MonoBehaviour:
@@ -2443,6 +2445,18 @@ MonoBehaviour:
   SyncParent: 0
   _autoAOIOverride: 1
   DisableSharedModeInterpolation: 0
+--- !u!114 &8177591582596394278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3527309188772009321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1c73de3ae40940a5858c6cd308440d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkedBreakable
 --- !u!1 &3577376333106786860
 GameObject:
   m_ObjectHideFlags: 0

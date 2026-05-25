@@ -336,6 +336,7 @@ GameObject:
   - component: {fileID: -7155473569348754666}
   - component: {fileID: -2273490578601340526}
   - component: {fileID: -8882656747801673479}
+  - component: {fileID: -5574131818724138994}
   m_Layer: 0
   m_Name: LaptopBreakable
   m_TagString: Untagged
@@ -565,7 +566,20 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: -2273490578601340526}
+  - {fileID: -5574131818724138994}
   ForceRemoteRenderTimeframe: 0
+--- !u!114 &-5574131818724138994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6680040189557159697}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08fc2e038dfc54b4c865783f060e4e01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkedYueDespawn
 --- !u!1 &7159575341063283727
 GameObject:
   m_ObjectHideFlags: 0

@@ -12,9 +12,10 @@ public class CollisionForceTransfer : MonoBehaviour
     [SerializeField] private bool enableHaptics = true;
 
     private BatSwingTracker swingTracker;
-    private int   _playerIndex  = 0;
-    private float _lastHitTime  = -10f;
+    private int _playerIndex = 0;
+    private float _lastHitTime = -10f;
     private const float HitCooldown = 0.15f;
+    private Coroutine hapticRoutine;
 
     void Awake()
     {
@@ -29,7 +30,8 @@ public class CollisionForceTransfer : MonoBehaviour
     IEnumerator ResolvePlayerIndex()
     {
         NetworkRunner runner = null;
-        yield return new WaitUntil(() => {
+        yield return new WaitUntil(() =>
+        {
             runner = FindFirstObjectByType<NetworkRunner>();
             return runner != null && runner.IsRunning;
         });
@@ -59,12 +61,12 @@ public class CollisionForceTransfer : MonoBehaviour
         float impactForce = collision.impulse.magnitude * forceMultiplier;
         if (impactForce < minimumForceThreshold) return;
 
-        Vector3 hitPoint  = collision.GetContact(0).point;
-        bool hasSwing     = swingTracker != null && swingTracker.SwingVelocity.sqrMagnitude > 0.01f;
-        Vector3 hitDir    = hasSwing
+        Vector3 hitPoint = collision.GetContact(0).point;
+        bool hasSwing = swingTracker != null && swingTracker.SwingVelocity.sqrMagnitude > 0.01f;
+        Vector3 hitDir = hasSwing
             ? swingTracker.SwingVelocity.normalized
             : collision.relativeVelocity.normalized;
-        float swingSpeed  = hasSwing
+        float swingSpeed = hasSwing
             ? swingTracker.SwingSpeed
             : collision.relativeVelocity.magnitude;
 
@@ -127,6 +129,27 @@ public class CollisionForceTransfer : MonoBehaviour
     void TriggerHaptics(float force)
     {
         float intensity = Mathf.Clamp01(force / 20f);
-        OVRInput.SetControllerVibration(intensity, intensity, OVRInput.Controller.RTouch);
+
+        StopHaptics();
+        hapticRoutine = StartCoroutine(TriggerHapticsForSeconds(intensity, 0.3f));
     }
+
+    System.Collections.IEnumerator TriggerHapticsForSeconds(float intensity, float duration)
+    {
+        OVRInput.SetControllerVibration(intensity, intensity, OVRInput.Controller.LTouch);
+        yield return new WaitForSeconds(duration);
+        StopHaptics();
+    }
+
+    void StopHaptics()
+    {
+        if (hapticRoutine != null)
+        {
+            StopCoroutine(hapticRoutine);
+            hapticRoutine = null;
+        }
+
+        OVRInput.SetControllerVibration(0f, 0f, OVRInput.Controller.LTouch);
+    }
+    
 }
