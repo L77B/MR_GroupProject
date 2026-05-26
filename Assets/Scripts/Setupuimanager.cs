@@ -118,13 +118,22 @@ public class SetupUIManager : MonoBehaviour
         currentDistance = rayModeDistance;
         SetWaitingState();
 
-        // In a networked session the canvas is a NetworkObject spawned by the host
-        // at a fixed wall position. Don't snap/follow — call Hide() to stop
-        // LateUpdate so the NetworkTransform keeps the canvas on the wall on all peers.
-        var runner = FindAnyObjectByType<NetworkRunner>();
-        if (runner != null && runner.IsRunning)
+        // If this component sits under a NetworkObject, the canvas was spawned at
+        // runtime by the host at a fixed wall position.
+        if (GetComponentInParent<NetworkObject>() != null)
         {
-            Hide();
+            var runner = FindAnyObjectByType<NetworkRunner>();
+            bool isHost = runner != null && runner.IsSharedModeMasterClient;
+
+            if (!isHost)
+            {
+                // Client: snap canvas in front of player first so it is visible.
+                // The host placed the canvas at a QR-relative wall position that
+                // may not be in the client's field of view.
+                SnapInFrontOfPlayer();
+            }
+
+            Hide(); // stop following and hide setup panel on all peers
             return;
         }
 
