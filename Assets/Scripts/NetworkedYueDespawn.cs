@@ -11,13 +11,31 @@ public class NetworkedYueDespawn : NetworkBehaviour
 {
     private YueDestructibles.YueDestructible _yue;
 
+    [SerializeField] private float spawnProtectionDuration = 0.5f;
+
     public override void Spawned()
     {
         _yue = GetComponent<YueDestructibles.YueDestructible>();
         if (_yue != null)
-            _yue.onObjectDestruct.AddListener(OnDestructed);
+        {
+            // Disable YueDestructible during the settle window so the physics
+            // depenetration impulse on spawn doesn't immediately trigger destruction.
+            // Disabled MonoBehaviours don't receive OnCollisionEnter.
+            _yue.enabled = false;
+            StartCoroutine(ActivateAfterSettle());
+        }
         else
             Debug.LogWarning($"[NetworkedYueDespawn] {gameObject.name}: no YueDestructible found.");
+    }
+
+    private IEnumerator ActivateAfterSettle()
+    {
+        yield return new WaitForSeconds(spawnProtectionDuration);
+        if (_yue != null)
+        {
+            _yue.enabled = true;
+            _yue.onObjectDestruct.AddListener(OnDestructed);
+        }
     }
 
     public override void Despawned(NetworkRunner runner, bool hasState)
