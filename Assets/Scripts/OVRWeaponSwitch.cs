@@ -11,7 +11,9 @@ public class OVRWeaponSwitch : MonoBehaviour
     public GameObject lightSaber;
     public GameObject lightSaberParticles;
 
-
+    public AudioClip audioClipLightSaber;
+    public AudioClip audioClipBaseballBat;
+    public AudioSource audioSource;
 
     public float triggerThreshold = 0.5f;
 
@@ -46,6 +48,8 @@ public class OVRWeaponSwitch : MonoBehaviour
         baseballbat.GetComponent<Collider>().enabled = true;
         baseballbat.GetComponent<MeshRenderer>().enabled = true;
 
+        audioSource.PlayOneShot(audioClipBaseballBat);
+
         lightSaber.GetComponent<Collider>().enabled = false;
         if (lightSaberParticles != null)
         {
@@ -61,6 +65,8 @@ public class OVRWeaponSwitch : MonoBehaviour
         {
             lightSaberParticles.SetActive(true);
         }
+
+        audioSource.PlayOneShot(audioClipLightSaber);
 
         baseballbat.GetComponent<Collider>().enabled = false;
         baseballbat.GetComponent<MeshRenderer>().enabled = false;

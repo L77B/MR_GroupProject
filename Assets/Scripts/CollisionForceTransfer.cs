@@ -17,6 +17,10 @@ public class CollisionForceTransfer : MonoBehaviour
     private const float HitCooldown = 0.15f;
     private Coroutine hapticRoutine;
 
+
+    public AudioSource audioSource;
+    public AudioClip audioClip;
+
     void Awake()
     {
         swingTracker = GetComponent<BatSwingTracker>();
@@ -128,6 +132,8 @@ public class CollisionForceTransfer : MonoBehaviour
 
     void TriggerHaptics(float force)
     {
+        audioSource.PlayOneShot(audioClip);
+
         float intensity = Mathf.Clamp01(force / 20f);
 
         StopHaptics();
@@ -151,5 +157,5 @@ public class CollisionForceTransfer : MonoBehaviour
 
         OVRInput.SetControllerVibration(0f, 0f, OVRInput.Controller.LTouch);
     }
-    
+
 }

@@ -9,13 +9,13 @@ using TMPro;
 public class WebSocketSceneClient : MonoBehaviour
 {
     [Header("WebSocket")]
-    public string serverIP   = "10.204.0.206";
-    public int    serverPort = 8081;
+    public string serverIP = "10.204.0.206";
+    public int serverPort = 8081;
 
     [Header("Explosion")]
     public DestructibleObject dynamite;
-    public GameObject         explosionObject;
-    private bool              hasExploded = false;
+    public GameObject explosionObject;
+    private bool hasExploded = false;
 
     [Header("Spawn Prefabs")]
     public GameObject[] spawnPrefabsA;
@@ -101,16 +101,16 @@ public class WebSocketSceneClient : MonoBehaviour
     {
         // OnSpawnRequested only fires on StateAuthority (master client) —
         // no guard needed here, the RPC source already ensures it.
-        NetworkedRageState.OnSpawnRequested    += OnSpawnRequested;
+        NetworkedRageState.OnSpawnRequested += OnSpawnRequested;
         NetworkedRageState.OnExplosionTriggered += OnNetworkedExplosion;
-        NetworkedRageState.OnRestartRequested  += OnNetworkedRestart;
+        NetworkedRageState.OnRestartRequested += OnNetworkedRestart;
     }
 
     private void OnDisable()
     {
-        NetworkedRageState.OnSpawnRequested    -= OnSpawnRequested;
+        NetworkedRageState.OnSpawnRequested -= OnSpawnRequested;
         NetworkedRageState.OnExplosionTriggered -= OnNetworkedExplosion;
-        NetworkedRageState.OnRestartRequested  -= OnNetworkedRestart;
+        NetworkedRageState.OnRestartRequested -= OnNetworkedRestart;
     }
 
     // Fires ONLY on StateAuthority peer (master client) via RPC_RequestSpawn.
@@ -128,7 +128,7 @@ public class WebSocketSceneClient : MonoBehaviour
         hasExploded = true;
         UpdateDebug("EXPLOSION!");
         if (explosionObject != null) explosionObject.SetActive(true);
-        if (dynamite != null)        dynamite.gameObject.SetActive(false);
+        if (dynamite != null) dynamite.gameObject.SetActive(false);
         SendToESP32("led:explosion");
     }
 

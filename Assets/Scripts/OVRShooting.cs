@@ -10,6 +10,9 @@ public class OVRShooting : MonoBehaviour
     public float triggerThreshold = 0.5f;
     private Coroutine hapticRoutine;
 
+    public AudioClip audioClipShoot;
+    public AudioSource audioSource;
+
     void OnEnable()
     {
         triggerShot.action.Enable();
@@ -32,6 +35,7 @@ public class OVRShooting : MonoBehaviour
         {
             shootingScript.TriggerShot();
             TriggerHaptics(10f);
+            audioSource.PlayOneShot(audioClipShoot);
         }
 
         wasPressedLastFrame = isPressed;
