@@ -85,7 +85,7 @@ public class WebSocketSceneClient : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E))
             StartCoroutine(ExplosionViaRpc());
         if (Input.GetKeyDown(KeyCode.R))
-            RestartGame();
+            StartCoroutine(RestartViaRpc());
 #endif
     }
 
@@ -103,12 +103,14 @@ public class WebSocketSceneClient : MonoBehaviour
         // no guard needed here, the RPC source already ensures it.
         NetworkedRageState.OnSpawnRequested    += OnSpawnRequested;
         NetworkedRageState.OnExplosionTriggered += OnNetworkedExplosion;
+        NetworkedRageState.OnRestartRequested  += OnNetworkedRestart;
     }
 
     private void OnDisable()
     {
         NetworkedRageState.OnSpawnRequested    -= OnSpawnRequested;
         NetworkedRageState.OnExplosionTriggered -= OnNetworkedExplosion;
+        NetworkedRageState.OnRestartRequested  -= OnNetworkedRestart;
     }
 
     // Fires ONLY on StateAuthority peer (master client) via RPC_RequestSpawn.
@@ -130,6 +132,13 @@ public class WebSocketSceneClient : MonoBehaviour
         SendToESP32("led:explosion");
     }
 
+    // Fires on ALL peers via RPC_BroadcastRestart.
+    private void OnNetworkedRestart()
+    {
+        UpdateDebug("Restarting...");
+        RestartGame();
+    }
+
     // ── Message Handling ──────────────────────────────────────────────────────
 
     private void HandleMessage(string msg)
@@ -142,7 +151,7 @@ public class WebSocketSceneClient : MonoBehaviour
         if (msg.Contains("button") && value == "1")
         {
             UpdateDebug("Restarting game...");
-            RestartGame();
+            StartCoroutine(RestartViaRpc());
         }
 
         if (msg.Contains("spawnA") && value == "1")
@@ -202,6 +211,22 @@ public class WebSocketSceneClient : MonoBehaviour
             NetworkedRageState.Instance.RPC_BroadcastExplosion();
         else
             OnNetworkedExplosion(); // last-resort local fallback
+    }
+
+    IEnumerator RestartViaRpc()
+    {
+        float waited = 0f;
+        while ((NetworkedRageState.Instance == null || !NetworkedRageState.Instance.IsSpawned)
+               && waited < 15f)
+        {
+            waited += Time.deltaTime;
+            yield return null;
+        }
+
+        if (NetworkedRageState.Instance != null && NetworkedRageState.Instance.IsSpawned)
+            NetworkedRageState.Instance.RPC_BroadcastRestart();
+        else
+            RestartGame(); // last-resort local fallback
     }
 
     // ── Networked Spawning (runs only on StateAuthority / master client) ──────

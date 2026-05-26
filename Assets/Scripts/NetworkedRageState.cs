@@ -25,6 +25,8 @@ public class NetworkedRageState : NetworkBehaviour
     public static event System.Action<int> OnSpawnRequested;
     /// <summary>Fires on ALL peers. WebSocketSceneClient plays explosion effect here.</summary>
     public static event System.Action      OnExplosionTriggered;
+    /// <summary>Fires on ALL peers. WebSocketSceneClient reloads the scene here.</summary>
+    public static event System.Action      OnRestartRequested;
 
     [Header("Rage Settings")]
     [SerializeField] private float maxRage        = 100f;
@@ -138,6 +140,14 @@ public class NetworkedRageState : NetworkBehaviour
     {
         Debug.Log("[NetworkedRageState] Explosion → all peers");
         OnExplosionTriggered?.Invoke();
+    }
+
+    /// <summary>Broadcast a scene restart to all peers simultaneously.</summary>
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void RPC_BroadcastRestart()
+    {
+        Debug.Log("[NetworkedRageState] Restart → all peers");
+        OnRestartRequested?.Invoke();
     }
 
     // ── Rage RPCs ────────────────────────────────────────────────────────────
