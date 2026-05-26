@@ -157,12 +157,6 @@ public class BatImpactHandler : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        // Only the peer with input authority over this bat processes its hits.
-        // This prevents the remote copy of the bat (synced position) from
-        // triggering phantom collisions on the wrong headset.
-        var netObj = GetComponent<NetworkObject>();
-        if (netObj != null && !netObj.HasInputAuthority) return;
-
         // Only process hits when equipped and swinging
         if (!isEquipped) return;
         if (!IsSwinging) return;

@@ -36,16 +36,14 @@ public class WebSocketSceneClient : MonoBehaviour
 
     async void Start()
     {
-        UpdateDebug("Starting...");
-
-        UpdateDebug($"Connecting to ESP32:\n{serverIP}:{serverPort}");
+        ShowDebug($"Connecting to ESP32...");
 
         _websocket = new WebSocket($"ws://{serverIP}:{serverPort}");
 
         _websocket.OnOpen += async () =>
         {
-            Debug.Log("WebSocket connected!");
-            UpdateDebug("ESP32 Connected!\nScan QR to start...");
+            Debug.Log("[WS] WebSocket connected!");
+            ShowDebug("ESP32 Connected!\nScan QR to start...");
             await _websocket.SendText("Unity connected");
         };
 
@@ -58,14 +56,13 @@ public class WebSocketSceneClient : MonoBehaviour
 
         _websocket.OnError += (error) =>
         {
-            Debug.LogError($"WebSocket error: {error}");
-            UpdateDebug($"ESP32 Error:\n{error}");
+            Debug.LogError($"[WS] WebSocket error: {error}");
+            ShowDebug($"ESP32 Error:\n{error}");
         };
 
         _websocket.OnClose += (code) =>
         {
-            Debug.Log($"WebSocket closed: {code}");
-            UpdateDebug("ESP32 Disconnected!");
+            Debug.Log($"[WS] WebSocket closed: {code}");
         };
 
         await _websocket.Connect();
@@ -99,25 +96,25 @@ public class WebSocketSceneClient : MonoBehaviour
 
     private void OnEnable()
     {
-        // OnSpawnRequested only fires on StateAuthority (master client) —
-        // no guard needed here, the RPC source already ensures it.
-        NetworkedRageState.OnSpawnRequested += OnSpawnRequested;
+        NetworkedRageState.OnSpawnRequested    += OnSpawnRequested;
         NetworkedRageState.OnExplosionTriggered += OnNetworkedExplosion;
-        NetworkedRageState.OnRestartRequested += OnNetworkedRestart;
+        NetworkedRageState.OnRestartRequested  += OnNetworkedRestart;
+        ColocationSetup.OnColocated            += HideDebug;
     }
 
     private void OnDisable()
     {
-        NetworkedRageState.OnSpawnRequested -= OnSpawnRequested;
+        NetworkedRageState.OnSpawnRequested    -= OnSpawnRequested;
         NetworkedRageState.OnExplosionTriggered -= OnNetworkedExplosion;
-        NetworkedRageState.OnRestartRequested -= OnNetworkedRestart;
+        NetworkedRageState.OnRestartRequested  -= OnNetworkedRestart;
+        ColocationSetup.OnColocated            -= HideDebug;
     }
 
     // Fires ONLY on StateAuthority peer (master client) via RPC_RequestSpawn.
     private void OnSpawnRequested(int buttonIndex)
     {
         GameObject[] prefabs = buttonIndex == 0 ? spawnPrefabsA : spawnPrefabsB;
-        UpdateDebug($"Spawning set {buttonIndex + 1}...");
+        Debug.Log($"[WS] Spawning set {buttonIndex + 1}");
         SpawnNetworked(prefabs);
     }
 
@@ -126,7 +123,7 @@ public class WebSocketSceneClient : MonoBehaviour
     {
         if (hasExploded) return;
         hasExploded = true;
-        UpdateDebug("EXPLOSION!");
+        ShowDebug("GAME OVER");
         if (explosionObject != null) explosionObject.SetActive(true);
         if (dynamite != null) dynamite.gameObject.SetActive(false);
         SendToESP32("led:explosion");
@@ -135,7 +132,7 @@ public class WebSocketSceneClient : MonoBehaviour
     // Fires on ALL peers via RPC_BroadcastRestart.
     private void OnNetworkedRestart()
     {
-        UpdateDebug("Restarting...");
+        Debug.Log("[WS] Restarting...");
         RestartGame();
     }
 
@@ -149,22 +146,13 @@ public class WebSocketSceneClient : MonoBehaviour
         string value = msg[(colon + 1)..];
 
         if (msg.Contains("button") && value == "1")
-        {
-            UpdateDebug("Restarting game...");
             StartCoroutine(RestartViaRpc());
-        }
 
         if (msg.Contains("spawnA") && value == "1")
-        {
-            UpdateDebug("Btn 1 pressed...");
             StartCoroutine(SpawnViaRpc(0));
-        }
 
         if (msg.Contains("spawnB") && value == "1")
-        {
-            UpdateDebug("Btn 2 pressed...");
             StartCoroutine(SpawnViaRpc(1));
-        }
 
         if (msg.Contains("main") && value == "1" && !hasExploded)
         {
@@ -189,11 +177,11 @@ public class WebSocketSceneClient : MonoBehaviour
 
         if (NetworkedRageState.Instance == null || !NetworkedRageState.Instance.IsSpawned)
         {
-            UpdateDebug("ERROR: Session not ready.\nScan QR code first.");
+            Debug.LogWarning("[WS] Session not ready — scan QR code first.");
             yield break;
         }
 
-        UpdateDebug($"Btn {buttonIndex + 1} → requesting spawn\n(waited {waited:F1}s)");
+        Debug.Log($"[WS] Btn {buttonIndex + 1} → requesting spawn (waited {waited:F1}s)");
         NetworkedRageState.Instance.RPC_RequestSpawn(buttonIndex);
     }
 
@@ -235,22 +223,22 @@ public class WebSocketSceneClient : MonoBehaviour
     {
         if (prefabs == null || prefabs.Length == 0)
         {
-            UpdateDebug("ERROR: No prefabs assigned!\nCheck Inspector.");
+            Debug.LogError("[WS] No prefabs assigned — check Inspector.");
             return;
         }
 
-        if (NetworkedRageState.Instance == null) { UpdateDebug("ERROR: No session!"); return; }
+        if (NetworkedRageState.Instance == null) { Debug.LogError("[WS] No session!"); return; }
         NetworkRunner runner = NetworkedRageState.Instance.Runner;
         if (runner == null || !runner.IsRunning)
         {
-            UpdateDebug("ERROR: No running session!");
+            Debug.LogError("[WS] No running session!");
             return;
         }
 
         Vector3 pos = GetRandomMRPosition();
         if (pos == Vector3.zero)
         {
-            UpdateDebug("ERROR: No floor position!\nRoom not scanned.");
+            Debug.LogError("[WS] No floor position — room not scanned.");
             return;
         }
 
@@ -259,11 +247,11 @@ public class WebSocketSceneClient : MonoBehaviour
 
         if (netObj == null)
         {
-            UpdateDebug($"ERROR: {prefab.name}\nmissing NetworkObject!");
+            Debug.LogError($"[WS] {prefab.name} is missing NetworkObject!");
             return;
         }
 
-        UpdateDebug($"Spawning:\n{prefab.name}");
+        Debug.Log($"[WS] Spawning {prefab.name} at {pos:F2}");
 
         NetworkObject spawned = runner.Spawn(
             netObj, pos,
@@ -271,14 +259,14 @@ public class WebSocketSceneClient : MonoBehaviour
 
         if (spawned != null)
         {
-            UpdateDebug($"Spawned!\n{prefab.name}\npos={pos:F2}");
+            Debug.Log($"[WS] Spawned {prefab.name}");
             NetworkedBreakable breakable = spawned.GetComponent<NetworkedBreakable>();
             if (breakable != null)
-                breakable.OnBroken += (go) => UpdateDebug($"Broken:\n{go.name}");
+                breakable.OnBroken += (go) => Debug.Log($"[WS] Broken: {go.name}");
         }
         else
         {
-            UpdateDebug($"Spawn Failed!\n{prefab.name}\nCheck prefab table.");
+            Debug.LogError($"[WS] Spawn failed for {prefab.name} — check prefab table.");
         }
     }
 
@@ -288,14 +276,14 @@ public class WebSocketSceneClient : MonoBehaviour
     {
         if (MRUK.Instance == null)
         {
-            UpdateDebug("ERROR: MRUK not found!");
+            Debug.LogError("[WS] MRUK not found!");
             return Vector3.zero;
         }
 
         MRUKRoom room = MRUK.Instance.GetCurrentRoom();
         if (room == null)
         {
-            UpdateDebug("ERROR: No MR room!\nScan room first.");
+            Debug.LogError("[WS] No MR room — scan room first.");
             return Vector3.zero;
         }
 
@@ -311,7 +299,7 @@ public class WebSocketSceneClient : MonoBehaviour
 
         if (!success)
         {
-            UpdateDebug("ERROR: No surface!\nFloor not detected.");
+            Debug.LogError("[WS] No surface found — floor not detected.");
             return Vector3.zero;
         }
 
@@ -338,9 +326,19 @@ public class WebSocketSceneClient : MonoBehaviour
 
     // ── Debug ─────────────────────────────────────────────────────────────────
 
-    private void UpdateDebug(string msg)
+    private void ShowDebug(string msg)
     {
         Debug.Log($"[WS] {msg}");
-        if (debugText != null) debugText.text = msg;
+        if (debugText != null)
+        {
+            debugText.text = msg;
+            debugText.gameObject.SetActive(true);
+        }
+    }
+
+    private void HideDebug()
+    {
+        if (debugText != null)
+            debugText.gameObject.SetActive(false);
     }
 }

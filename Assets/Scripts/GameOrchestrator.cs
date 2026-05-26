@@ -23,6 +23,8 @@ public class GameOrchestrator : MonoBehaviour
     private bool _colocated    = false;
     private bool _initialized  = false;
 
+    public GameObject dynamite;
+
     // ── Event Wiring ──────────────────────────────────────────────────────────
 
     void OnEnable()
@@ -150,14 +152,17 @@ public class GameOrchestrator : MonoBehaviour
 
         if (room != null && room.WallAnchors != null && room.WallAnchors.Count > 0)
         {
-            // Pick the wall with the largest surface area
+            // Pick the wall whose plane contains the QR code (world origin).
+            // The QR wall is the one with the smallest perpendicular distance from (0,0,0)
+            // to its plane — that distance is ~0 because the QR sits on that surface.
             MRUKAnchor best     = room.WallAnchors[0];
-            float      bestArea = -1f;
+            float      bestDist = float.MaxValue;
             foreach (var wall in room.WallAnchors)
             {
-                if (!wall.PlaneRect.HasValue) continue;
-                float area = wall.PlaneRect.Value.width * wall.PlaneRect.Value.height;
-                if (area > bestArea) { bestArea = area; best = wall; }
+                float dist = Mathf.Abs(Vector3.Dot(
+                    Vector3.zero - wall.transform.position,
+                    wall.transform.forward));
+                if (dist < bestDist) { bestDist = dist; best = wall; }
             }
 
             // wall.transform.forward points into the room;
@@ -167,7 +172,7 @@ public class GameOrchestrator : MonoBehaviour
             pos.y = canvasWallHeight;
             rot   = Quaternion.LookRotation(-inward, Vector3.up);
 
-            Debug.Log($"[GameOrchestrator] Wall '{best.name}' area={bestArea:F2} → canvas pos={pos}");
+            Debug.Log($"[GameOrchestrator] QR wall '{best.name}' dist={bestDist:F2} → canvas pos={pos}");
         }
         else
         {
