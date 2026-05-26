@@ -970,7 +970,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnOnStart: 1
-  MeshMaterial: {fileID: 0}
+  MeshMaterial: {fileID: 2100000, guid: 8f7108bc25459544f8c369e0c5c74f50, type: 2}
   BarycentricCoordinatesEnabled: 1
   Colliders: 1
   CutHoles: 0
