@@ -14,11 +14,13 @@ public class NetworkSessionManager : MonoBehaviour
     [Header("Debug")]
     [SerializeField] private TMP_Text debugText;
 
-    public NetworkRunner Runner  { get; private set; }
-    public bool          IsReady { get; private set; }
+    public NetworkRunner Runner { get; private set; }
+    public bool IsReady { get; private set; }
 
     public static event System.Action OnSessionReady;
     public static event System.Action OnSessionFailed;
+
+    public GameObject theDebugText;
 
     void Awake() => Instance = this;
 
@@ -43,10 +45,10 @@ public class NetworkSessionManager : MonoBehaviour
         // (e.g. NetworkedRageState) without attempting a scene reload.
         var task = Runner.StartGame(new StartGameArgs
         {
-            GameMode     = GameMode.Shared,
-            SessionName  = sessionName,
+            GameMode = GameMode.Shared,
+            SessionName = sessionName,
             SceneManager = sm,
-            Scene        = SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex),
+            Scene = SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex),
         });
 
         yield return new WaitUntil(() => task.IsCompleted);
@@ -74,6 +76,7 @@ public class NetworkSessionManager : MonoBehaviour
         Log($"Session ready!\nRole: {(isHost ? "HOST" : "CLIENT")}\nScan QR to colocate...");
         Debug.Log($"[SessionManager] Ready — IsHost:{isHost} Session:{Runner.SessionInfo.Name}");
         OnSessionReady?.Invoke();
+        debugText.gameObject.SetActive(false);
     }
 
     void Log(string msg)

@@ -636,6 +636,7 @@ GameObject:
   m_Component:
   - component: {fileID: 34395507}
   - component: {fileID: 34395506}
+  - component: {fileID: 34395508}
   m_Layer: 0
   m_Name: GameOrchestrator
   m_TagString: Untagged
@@ -674,6 +675,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &34395508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 34395505}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ada6fd30dd189964d83c207c11160ebe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DynamiteScript
 --- !u!1 &38319014
 GameObject:
   m_ObjectHideFlags: 0
@@ -3840,7 +3853,7 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 0
+  m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
@@ -4566,6 +4579,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkSessionManager
   sessionName: GameRoom
   debugText: {fileID: 1037288147}
+  theDebugText: {fileID: 1037288145}
 --- !u!1 &285819578
 GameObject:
   m_ObjectHideFlags: 0

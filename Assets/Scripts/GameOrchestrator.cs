@@ -13,30 +13,30 @@ public class GameOrchestrator : MonoBehaviour
 {
     [Header("Canvas")]
     [SerializeField] private NetworkObject canvasPrefab;
-    [SerializeField] private float         canvasWallHeight = 1.6f;
-    [SerializeField] private float         canvasWallOffset = 0.05f;
+    [SerializeField] private float canvasWallHeight = 1.6f;
+    [SerializeField] private float canvasWallOffset = 0.05f;
 
     [Header("Debug")]
     [SerializeField] private TMP_Text debugText;
 
     private bool _sessionReady = false;
-    private bool _colocated    = false;
-    private bool _initialized  = false;
+    private bool _colocated = false;
+    private bool _initialized = false;
 
     // ── Event Wiring ──────────────────────────────────────────────────────────
 
     void OnEnable()
     {
-        NetworkSessionManager.OnSessionReady  += OnSessionReady;
+        NetworkSessionManager.OnSessionReady += OnSessionReady;
         NetworkSessionManager.OnSessionFailed += OnSessionFailed;
-        ColocationSetup.OnColocated           += OnColocated;
+        ColocationSetup.OnColocated += OnColocated;
     }
 
     void OnDisable()
     {
-        NetworkSessionManager.OnSessionReady  -= OnSessionReady;
+        NetworkSessionManager.OnSessionReady -= OnSessionReady;
         NetworkSessionManager.OnSessionFailed -= OnSessionFailed;
-        ColocationSetup.OnColocated           -= OnColocated;
+        ColocationSetup.OnColocated -= OnColocated;
     }
 
     // ── Readiness Callbacks ───────────────────────────────────────────────────
@@ -135,8 +135,8 @@ public class GameOrchestrator : MonoBehaviour
         }
 
         // Wait up to 5 s for MRUK room + at least one wall anchor
-        MRUKRoom room    = null;
-        float    elapsed = 0f;
+        MRUKRoom room = null;
+        float elapsed = 0f;
         while (elapsed < 5f)
         {
             room = MRUK.Instance != null ? MRUK.Instance.GetCurrentRoom() : null;
@@ -145,14 +145,14 @@ public class GameOrchestrator : MonoBehaviour
             elapsed += Time.deltaTime;
         }
 
-        Vector3    pos;
+        Vector3 pos;
         Quaternion rot;
 
         if (room != null && room.WallAnchors != null && room.WallAnchors.Count > 0)
         {
             // Pick the wall with the largest surface area
-            MRUKAnchor best     = room.WallAnchors[0];
-            float      bestArea = -1f;
+            MRUKAnchor best = room.WallAnchors[0];
+            float bestArea = -1f;
             foreach (var wall in room.WallAnchors)
             {
                 if (!wall.PlaneRect.HasValue) continue;
@@ -163,9 +163,9 @@ public class GameOrchestrator : MonoBehaviour
             // wall.transform.forward points into the room;
             // LookRotation(-inward) makes canvas face inward (readable from inside).
             Vector3 inward = best.transform.forward;
-            pos   = best.transform.position + inward * canvasWallOffset;
+            pos = best.transform.position + inward * canvasWallOffset;
             pos.y = canvasWallHeight;
-            rot   = Quaternion.LookRotation(-inward, Vector3.up);
+            rot = Quaternion.LookRotation(-inward, Vector3.up);
 
             Debug.Log($"[GameOrchestrator] Wall '{best.name}' area={bestArea:F2} → canvas pos={pos}");
         }
@@ -177,9 +177,9 @@ public class GameOrchestrator : MonoBehaviour
             fwd.y = 0f;
             if (fwd.sqrMagnitude < 0.01f) fwd = Vector3.forward;
             fwd.Normalize();
-            pos   = (cam != null ? cam.transform.position : Vector3.zero) + fwd * 1.5f;
+            pos = (cam != null ? cam.transform.position : Vector3.zero) + fwd * 1.5f;
             pos.y = canvasWallHeight;
-            rot   = Quaternion.LookRotation(-fwd, Vector3.up);
+            rot = Quaternion.LookRotation(-fwd, Vector3.up);
             Debug.LogWarning($"[GameOrchestrator] No MRUK walls — canvas fallback at {pos}");
         }
 
