@@ -12,6 +12,7 @@ public class CollisionForceTransfer : MonoBehaviour
     [SerializeField] private bool enableHaptics = true;
 
     private BatSwingTracker swingTracker;
+    private NetworkObject _netObj;
     private int _playerIndex = 0;
     private float _lastHitTime = -10f;
     private const float HitCooldown = 0.15f;
@@ -24,6 +25,7 @@ public class CollisionForceTransfer : MonoBehaviour
     void Awake()
     {
         swingTracker = GetComponent<BatSwingTracker>();
+        _netObj = GetComponent<NetworkObject>();
     }
 
     void Start()
@@ -60,6 +62,8 @@ public class CollisionForceTransfer : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
+        if (_netObj != null && !_netObj.HasInputAuthority) return;
+
         if (Time.time - _lastHitTime < HitCooldown) return;
 
         float impactForce = collision.impulse.magnitude * forceMultiplier;

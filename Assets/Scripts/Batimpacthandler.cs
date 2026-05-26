@@ -90,6 +90,12 @@ public class BatImpactHandler : MonoBehaviour
 
         Debug.Log($"[BatImpactHandler] PlayerIndex = {_playerIndex} " +
                   $"for {_runner.LocalPlayer}");
+
+        // Auto-equip on the peer that owns this bat. PlayerSpawner only runs on
+        // the host, so the client's bat would never get equipped without this.
+        var netObj = GetComponent<NetworkObject>();
+        if (netObj != null && netObj.HasInputAuthority)
+            isEquipped = true;
     }
 
     // Called by WeaponSpawner when X is pressed

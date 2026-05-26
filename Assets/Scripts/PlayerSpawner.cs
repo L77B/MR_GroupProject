@@ -72,9 +72,11 @@ public class PlayerSpawner : MonoBehaviour,
         {
             _spawnedBats[player] = bat;
 
-            // Equip immediately — BatImpactHandler ignores all collisions while unequipped
+            // Only equip on the peer that owns this bat. The client's bat is equipped
+            // by BatImpactHandler.DetectPlayerIndex() after the session is ready.
             var handler = bat.GetComponent<BatImpactHandler>();
-            if (handler != null) handler.SetEquipped(true);
+            if (handler != null && bat.HasInputAuthority)
+                handler.SetEquipped(true);
 
             Debug.Log($"Bat spawned and equipped for: {player}");
         }
