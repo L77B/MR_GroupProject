@@ -636,6 +636,7 @@ GameObject:
   m_Component:
   - component: {fileID: 34395507}
   - component: {fileID: 34395506}
+  - component: {fileID: 34395508}
   m_Layer: 0
   m_Name: GameOrchestrator
   m_TagString: Untagged
@@ -674,6 +675,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &34395508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 34395505}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ada6fd30dd189964d83c207c11160ebe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DynamiteScript
 --- !u!1 &38319014
 GameObject:
   m_ObjectHideFlags: 0
@@ -3813,6 +3826,120 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2140797049}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &259596750 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
+  m_PrefabInstance: {fileID: 1363087181}
+  m_PrefabAsset: {fileID: 0}
+--- !u!54 &259596753
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 259596750}
+  serializedVersion: 5
+  m_Mass: 5
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &259596758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 259596750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: deafabaae3339564792357bcdde76889, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DestructibleObject
+  maxHealth: 100
+  lightHitThreshold: 5
+  heavyHitThreshold: 15
+  breakThreshold: 25
+  fracturedPieces: []
+  explosionForce: 300
+  explosionRadius: 1
+  cleanupDelay: 4
+  hitParticles: {fileID: 0}
+  breakParticles: {fileID: 0}
+  audioSource: {fileID: 0}
+  lightHitSound: {fileID: 0}
+  heavyHitSound: {fileID: 0}
+  breakSound: {fileID: 0}
+  rageMeter: {fileID: 0}
+  healthLabel: {fileID: 0}
+  knockbackMultiplier: 1
+  explosionPrefab: {fileID: 0}
+  explosionSpawnPoint: {fileID: 0}
+--- !u!114 &259596759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 259596750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 755401b726c444bba86a954f81656d4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SceneLoaderTwo
+  explosionPrefab: {fileID: 5185209267480678150, guid: 1a413233db2a3403c9ba04329d689d74, type: 3}
+  spawnPoint: {fileID: 780056329}
+  explosionObject: {fileID: 259596750}
+--- !u!114 &259596760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 259596750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
+  SortKey: 3611070118
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 259596761}
+  ForceRemoteRenderTimeframe: 0
+--- !u!114 &259596761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 259596750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkTransform
+  _stateAuthorityChangeErrorCorrectionDelta: 0
+  SyncScale: 0
+  SyncParent: 0
+  _autoAOIOverride: 1
+  DisableSharedModeInterpolation: 0
 --- !u!1 &259874196
 GameObject:
   m_ObjectHideFlags: 0
@@ -4452,6 +4579,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkSessionManager
   sessionName: GameRoom
   debugText: {fileID: 1037288147}
+  theDebugText: {fileID: 1037288145}
 --- !u!1 &285819578
 GameObject:
   m_ObjectHideFlags: 0
@@ -17885,7 +18013,7 @@ MonoBehaviour:
   SpawnAmount: 0
   MaxIterations: 1000
   SpawnLocations: 3
-  Labels: 1
+  Labels: 9
   CheckOverlaps: 1
   OverrideBounds: -1
   LayerMask:
@@ -22203,6 +22331,78 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1358792212}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1001 &1363087181
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.572
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.812
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.00000003774895
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
+      propertyPath: m_Name
+      value: Dynamite_Multi
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 259596753}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 259596759}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 259596758}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 259596761}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 259596760}
+  m_SourcePrefab: {fileID: 100100000, guid: 19167af14a724ee419dc46fde74afd84, type: 3}
 --- !u!1 &1363607059
 GameObject:
   m_ObjectHideFlags: 0
@@ -26608,7 +26808,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WebSocketSceneClient
   serverIP: 10.204.0.206
   serverPort: 8081
-  dynamite: {fileID: 0}
+  dynamite: {fileID: 259596758}
   explosionObject: {fileID: 4277186}
   spawnPrefabsA:
   - {fileID: 3521386555018725736, guid: 0738b65d547d144ec9f4aa2999ed7894, type: 3}
@@ -34260,7 +34460,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 755401b726c444bba86a954f81656d4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneLoaderTwo
-  explosionPrefab: {fileID: 3587466775786390268, guid: 121c78ee42262cc4692d483b944cb325, type: 3}
+  explosionPrefab: {fileID: 259596750}
   spawnPoint: {fileID: 780056329}
   explosionObject: {fileID: 4277186}
 --- !u!4 &1978975428
@@ -36626,6 +36826,7 @@ SceneRoots:
   - {fileID: 1616977678}
   - {fileID: 1978975428}
   - {fileID: 780056329}
+  - {fileID: 1363087181}
   - {fileID: 4277185}
   - {fileID: 149096462}
   - {fileID: 98512305}

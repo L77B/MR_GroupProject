@@ -52,6 +52,9 @@ using TMPro;
 /// FillVictory: Anchor Min=(0,0) Max=(1,1)  Stretch full    alpha driven by blink coroutine
 /// BarTrack:    Anchor stretch full width — used to read barWidth at runtime
 /// </summary>
+/// 
+/// 
+/// 
 public class DualRageBarUI : MonoBehaviour
 {
     // ── Inspector ─────────────────────────────────────────────────────────────
@@ -125,6 +128,9 @@ public class DualRageBarUI : MonoBehaviour
     private Coroutine victoryBlinkCoroutine;
 
     // ── Unity Lifecycle ───────────────────────────────────────────────────────
+
+    public AudioClip audioClipShoot;
+    public AudioSource audioSource;
 
     private void Awake()
     {
@@ -210,16 +216,16 @@ public class DualRageBarUI : MonoBehaviour
         float r1, r2, max1, max2;
         if (NetworkedRageState.Instance != null)
         {
-            r1   = NetworkedRageState.Instance.RageP1;
-            r2   = NetworkedRageState.Instance.RageP2;
+            r1 = NetworkedRageState.Instance.RageP1;
+            r2 = NetworkedRageState.Instance.RageP2;
             max1 = max2 = NetworkedRageState.Instance.MaxRage;
         }
         else
         {
-            r1   = rageMeterP1 != null ? rageMeterP1.CurrentRage : 0f;
-            r2   = rageMeterP2 != null ? rageMeterP2.CurrentRage : 0f;
-            max1 = rageMeterP1 != null ? rageMeterP1.MaxRage    : 100f;
-            max2 = rageMeterP2 != null ? rageMeterP2.MaxRage    : 100f;
+            r1 = rageMeterP1 != null ? rageMeterP1.CurrentRage : 0f;
+            r2 = rageMeterP2 != null ? rageMeterP2.CurrentRage : 0f;
+            max1 = rageMeterP1 != null ? rageMeterP1.MaxRage : 100f;
+            max2 = rageMeterP2 != null ? rageMeterP2.MaxRage : 100f;
         }
 
         float p1px = barW * Mathf.Clamp01(r1 / max1);
@@ -316,6 +322,8 @@ public class DualRageBarUI : MonoBehaviour
         if (levelLabelP2) levelLabelP2.text = "MAX";
 
         Debug.Log("[DualRageBarUI] VICTORY — full bar rage achieved by both players!");
+
+        audioSource.PlayOneShot(audioClipShoot);
     }
 
     private void CancelVictory()
@@ -333,6 +341,8 @@ public class DualRageBarUI : MonoBehaviour
         if (fillBlue) fillBlue.gameObject.SetActive(true);
         if (fillGreen) fillGreen.gameObject.SetActive(true);
         if (labelCenter) labelCenter.gameObject.SetActive(false);
+
+        audioSource.Stop();
     }
 
     // ── Blink Coroutines ──────────────────────────────────────────────────────

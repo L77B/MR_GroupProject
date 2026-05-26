@@ -24,22 +24,22 @@ public class NetworkedRageState : NetworkBehaviour
     /// <summary>Fires only on StateAuthority (master client). WebSocketSceneClient spawns objects here.</summary>
     public static event System.Action<int> OnSpawnRequested;
     /// <summary>Fires on ALL peers. WebSocketSceneClient plays explosion effect here.</summary>
-    public static event System.Action      OnExplosionTriggered;
+    public static event System.Action OnExplosionTriggered;
     /// <summary>Fires on ALL peers. WebSocketSceneClient reloads the scene here.</summary>
-    public static event System.Action      OnRestartRequested;
+    public static event System.Action OnRestartRequested;
 
     [Header("Rage Settings")]
-    [SerializeField] private float maxRage        = 100f;
+    [SerializeField] private float maxRage = 100f;
     [SerializeField] private float decayPerSecond = 1f;
 
     // ── Networked State ──────────────────────────────────────────────────────
-    [Networked] public float     RageP1   { get; set; }
-    [Networked] public float     RageP2   { get; set; }
+    [Networked] public float RageP1 { get; set; }
+    [Networked] public float RageP2 { get; set; }
     [Networked] public PlayerRef P1Player { get; set; }
     [Networked] public PlayerRef P2Player { get; set; }
 
-    public float MaxRage  => maxRage;
-    public bool  IsSpawned { get; private set; }
+    public float MaxRage => maxRage;
+    public bool IsSpawned { get; private set; }
 
     // ── Lifecycle ────────────────────────────────────────────────────────────
 
@@ -52,13 +52,13 @@ public class NetworkedRageState : NetworkBehaviour
 
     public override void Spawned()
     {
-        Instance   = this;
-        IsSpawned  = true;
+        Instance = this;
+        IsSpawned = true;
 
         if (HasStateAuthority)
         {
-            RageP1   = 0f;
-            RageP2   = 0f;
+            RageP1 = 0f;
+            RageP2 = 0f;
             P1Player = PlayerRef.None;
             P2Player = PlayerRef.None;
         }
