@@ -7,21 +7,16 @@ public class SceneLoaderTwo : MonoBehaviour
     public GameObject explosionPrefab;
     public Transform spawnPoint;
     public GameObject explosionObject;
- 
+
     public void RestartGame()
     {
-       SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
-
-    
 
     public void TriggerExplosion()
     {
-    
-    explosionObject.SetActive(true);
-    Debug.Log("Explosion triggered!");
 
-
-
+        explosionObject.SetActive(true);
+        Debug.Log("Explosion triggered!");
     }
 }
