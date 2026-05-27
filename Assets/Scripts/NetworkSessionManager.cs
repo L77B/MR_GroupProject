@@ -76,7 +76,7 @@ public class NetworkSessionManager : MonoBehaviour
         Log($"Session ready!\nRole: {(isHost ? "HOST" : "CLIENT")}\nScan QR to colocate...");
         Debug.Log($"[SessionManager] Ready — IsHost:{isHost} Session:{Runner.SessionInfo.Name}");
         OnSessionReady?.Invoke();
-        debugText.gameObject.SetActive(false);
+        if (debugText != null) debugText.gameObject.SetActive(false);
     }
 
     void Log(string msg)

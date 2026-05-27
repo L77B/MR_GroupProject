@@ -72,13 +72,12 @@ public class PlayerSpawner : MonoBehaviour,
         {
             _spawnedBats[player] = bat;
 
-            // Only equip on the peer that owns this bat. The client's bat is equipped
-            // by BatImpactHandler.DetectPlayerIndex() after the session is ready.
-            var handler = bat.GetComponent<BatImpactHandler>();
-            if (handler != null && bat.HasInputAuthority)
-                handler.SetEquipped(true);
+            // BatImpactHandler.DetectPlayerIndex() equips each bat on the correct peer
+            // after the session is ready, using HasInputAuthority which is reliable by then.
+            // Calling SetEquipped here (right after Spawn) has a timing problem: HasInputAuthority
+            // is not guaranteed to be set until after Spawned() fires on the NetworkBehaviour.
 
-            Debug.Log($"Bat spawned and equipped for: {player}");
+            Debug.Log($"Bat spawned for: {player}");
         }
     }
 

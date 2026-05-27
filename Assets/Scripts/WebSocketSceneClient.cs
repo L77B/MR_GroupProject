@@ -31,6 +31,7 @@ public class WebSocketSceneClient : MonoBehaviour
     public TMP_Text debugText;
 
     private WebSocket _websocket;
+    private bool _colocated = false;
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -96,19 +97,23 @@ public class WebSocketSceneClient : MonoBehaviour
 
     private void OnEnable()
     {
-        NetworkedRageState.OnSpawnRequested    += OnSpawnRequested;
+        NetworkedRageState.OnSpawnRequested     += OnSpawnRequested;
         NetworkedRageState.OnExplosionTriggered += OnNetworkedExplosion;
-        NetworkedRageState.OnRestartRequested  += OnNetworkedRestart;
-        ColocationSetup.OnColocated            += HideDebug;
+        NetworkedRageState.OnRestartRequested   += OnNetworkedRestart;
+        ColocationSetup.OnColocated             += OnColocated;
+        ColocationSetup.OnColocated             += HideDebug;
     }
 
     private void OnDisable()
     {
-        NetworkedRageState.OnSpawnRequested    -= OnSpawnRequested;
+        NetworkedRageState.OnSpawnRequested     -= OnSpawnRequested;
         NetworkedRageState.OnExplosionTriggered -= OnNetworkedExplosion;
-        NetworkedRageState.OnRestartRequested  -= OnNetworkedRestart;
-        ColocationSetup.OnColocated            -= HideDebug;
+        NetworkedRageState.OnRestartRequested   -= OnNetworkedRestart;
+        ColocationSetup.OnColocated             -= OnColocated;
+        ColocationSetup.OnColocated             -= HideDebug;
     }
+
+    private void OnColocated() => _colocated = true;
 
     // Fires ONLY on StateAuthority peer (master client) via RPC_RequestSpawn.
     private void OnSpawnRequested(int buttonIndex)
@@ -154,10 +159,8 @@ public class WebSocketSceneClient : MonoBehaviour
         if (msg.Contains("spawnB") && value == "1")
             StartCoroutine(SpawnViaRpc(1));
 
-        if (msg.Contains("main") && value == "1" && !hasExploded)
-        {
+        if (msg.Contains("main") && value == "1" && !hasExploded && _colocated)
             StartCoroutine(ExplosionViaRpc());
-        }
     }
 
     // ── RPC Relay Coroutines ──────────────────────────────────────────────────

@@ -323,7 +323,8 @@ public class DualRageBarUI : MonoBehaviour
 
         Debug.Log("[DualRageBarUI] VICTORY — full bar rage achieved by both players!");
 
-        audioSource.PlayOneShot(audioClipShoot);
+        if (audioSource != null && audioClipShoot != null)
+            audioSource.PlayOneShot(audioClipShoot);
     }
 
     private void CancelVictory()
