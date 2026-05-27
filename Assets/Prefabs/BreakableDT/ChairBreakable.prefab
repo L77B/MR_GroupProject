@@ -1000,6 +1000,7 @@ GameObject:
   - component: {fileID: 2035747528598264991}
   - component: {fileID: 5138408535118307874}
   - component: {fileID: -2303901810994861416}
+  - component: {fileID: 7745384845987363270}
   m_Layer: 0
   m_Name: ChairBreakable
   m_TagString: Untagged
@@ -1230,6 +1231,7 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 2035747528598264991}
   - {fileID: -2303901810994861416}
+  - {fileID: 7745384845987363270}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &-2303901810994861416
 MonoBehaviour:
@@ -1244,3 +1246,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkedYueDespawn
   spawnProtectionDuration: 0.5
+--- !u!114 &7745384845987363270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8896873760725292759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1c73de3ae40940a5858c6cd308440d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkedBreakable

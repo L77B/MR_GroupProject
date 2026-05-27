@@ -434,6 +434,7 @@ GameObject:
   - component: {fileID: -8001584029930358314}
   - component: {fileID: -849236017368866655}
   - component: {fileID: -2694558615699908808}
+  - component: {fileID: 738617734168470738}
   m_Layer: 0
   m_Name: ScreenBreakable
   m_TagString: Untagged
@@ -650,6 +651,7 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: -8001584029930358314}
   - {fileID: -2694558615699908808}
+  - {fileID: 738617734168470738}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &-2694558615699908808
 MonoBehaviour:
@@ -664,6 +666,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkedYueDespawn
   spawnProtectionDuration: 0.5
+--- !u!114 &738617734168470738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2241864863656924871}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1c73de3ae40940a5858c6cd308440d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkedBreakable
 --- !u!1 &2643840285310589621
 GameObject:
   m_ObjectHideFlags: 0
