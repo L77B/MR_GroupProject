@@ -17,8 +17,8 @@ public class BulletRageImpact : MonoBehaviour
         _hasHit = true;
 
         float impactForce = collision.impulse.magnitude;
-        Vector3 hitPoint  = collision.GetContact(0).point;
-        Vector3 hitDir    = -collision.relativeVelocity.normalized;
+        Vector3 hitPoint = collision.GetContact(0).point;
+        Vector3 hitDir = -collision.relativeVelocity.normalized;
 
         var meshBreakable = collision.gameObject.GetComponent<MeshExploderBreakable>();
         if (meshBreakable != null)

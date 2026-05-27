@@ -2502,7 +2502,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkedRageState
   maxRage: 100
-  decayPerSecond: 1
+  decayPerSecond: 4
   _RageP1: 0
   _RageP2: 0
 --- !u!1 &151557372
@@ -34048,7 +34048,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c7342ea16a4e4c79b7939518bb73c52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CollisionForceTransfer
-  forceMultiplier: 1.5
+  forceMultiplier: 0.5
   minimumForceThreshold: 2
   enableHaptics: 1
   audioSource: {fileID: 0}
@@ -36752,6 +36752,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1722411850}
     m_Modifications:
+    - target: {fileID: 1673351854163199002, guid: a209e4498c3084649bb3573d795811ca, type: 3}
+      propertyPath: forceMultiplier
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 1941144186527195738, guid: a209e4498c3084649bb3573d795811ca, type: 3}
       propertyPath: m_Name
       value: BaseBall_Bat_LOD_0

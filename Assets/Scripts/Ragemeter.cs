@@ -42,10 +42,10 @@ public class RageMeter : MonoBehaviour
 
     [Header("Scoring Multipliers")]
     [Tooltip("Scales collision impulse → rage. Recommended: 0.25.")]
-    [SerializeField] private float forceMultiplier = 0.25f;
+    [SerializeField] private float forceMultiplier = 0.15f; //Chnaged from 0.25f to 0.15f after playtesting — impulse felt too strong compared to swing speed.
 
     [Tooltip("Scales swing speed → rage. Recommended: 0.8.")]
-    [SerializeField] private float speedMultiplier = 0.8f;
+    [SerializeField] private float speedMultiplier = 0.6f; //Chnaged from 0.8f to 0.6f after playtesting — impulse felt too strong compared to swing speed.
 
     [Tooltip("Flat rage bonus on full object destruction. Recommended: 8.")]
     [SerializeField] private float breakBonus = 8f;

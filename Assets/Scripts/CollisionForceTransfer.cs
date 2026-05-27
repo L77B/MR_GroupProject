@@ -5,13 +5,14 @@ using Fusion;
 public class CollisionForceTransfer : MonoBehaviour
 {
     [Header("Force Settings")]
-    [SerializeField] private float forceMultiplier = 1.5f;
+    [SerializeField] private float forceMultiplier = 0.5f;
     [SerializeField] private float minimumForceThreshold = 2f;
 
     [Header("Haptics")]
     [SerializeField] private bool enableHaptics = true;
 
     private BatSwingTracker swingTracker;
+    private NetworkObject _netObj;
     private int _playerIndex = 0;
     private float _lastHitTime = -10f;
     private const float HitCooldown = 0.15f;
@@ -60,6 +61,8 @@ public class CollisionForceTransfer : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
+        if (_netObj != null && !_netObj.HasInputAuthority) return;
+
         if (Time.time - _lastHitTime < HitCooldown) return;
 
         float impactForce = collision.impulse.magnitude * forceMultiplier;
@@ -102,19 +105,6 @@ public class CollisionForceTransfer : MonoBehaviour
             float gain = impactForce * 0.25f + swingSpeed * 0.8f + 5f;
             NetworkedRageState.Instance?.RPC_AddRage(_playerIndex, gain);
             if (enableHaptics) TriggerHaptics(impactForce);
-            return;
-        }
-
-        // YueDestructible — breaks itself; we only need to add rage
-        var yue = collision.gameObject
-            .GetComponent<YueDestructibles.YueDestructible>();
-        if (yue != null)
-        {
-            float gain = impactForce * 0.25f + swingSpeed * 0.8f + 8f;
-            NetworkedRageState.Instance?.RPC_AddRage(_playerIndex, gain);
-            if (enableHaptics) TriggerHaptics(impactForce);
-            Debug.Log($"[CollisionForceTransfer] YueDestructible hit: {collision.gameObject.name} " +
-                      $"gain:{gain:F1} P{_playerIndex + 1}");
             return;
         }
 

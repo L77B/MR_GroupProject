@@ -30,7 +30,7 @@ public class NetworkedRageState : NetworkBehaviour
 
     [Header("Rage Settings")]
     [SerializeField] private float maxRage = 100f;
-    [SerializeField] private float decayPerSecond = 1f;
+    [SerializeField] private float decayPerSecond = 4f;
 
     // ── Networked State ──────────────────────────────────────────────────────
     [Networked] public float RageP1 { get; set; }

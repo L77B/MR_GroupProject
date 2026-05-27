@@ -12,10 +12,10 @@ public class BatImpactHandler : MonoBehaviour
         OVRInput.Controller.LTouch;
 
     [Header("Swing Thresholds")]
-    [SerializeField] private float minSwingSpeed  = 1.0f;
+    [SerializeField] private float minSwingSpeed = 1.0f;
     [SerializeField] private float forceMultiplier = 1.2f;
-    [SerializeField] private float maxForce        = 50f;
-    [SerializeField] private float hitCooldown     = 0.15f;
+    [SerializeField] private float maxForce = 50f;
+    [SerializeField] private float hitCooldown = 0.15f;
 
     [Header("Hand Offset")]
     [SerializeField] private Vector3 handPositionOffset = Vector3.zero;
@@ -27,18 +27,18 @@ public class BatImpactHandler : MonoBehaviour
     // ── Read-only Properties ──────────────────────────────────────────────
 
     public float CurrentSwingSpeed { get; private set; }
-    public bool  IsSwinging =>
+    public bool IsSwinging =>
         CurrentSwingSpeed >= minSwingSpeed;
 
     // ── Runtime State ─────────────────────────────────────────────────────
 
-    private Rigidbody    rb;
+    private Rigidbody rb;
     private OVRCameraRig cameraRig;
-    private Vector3      prevPosition;
-    private float        lastHitTime;
+    private Vector3 prevPosition;
+    private float lastHitTime;
 
     // 0 = host/P1, 1 = client/P2 — set once the Fusion session is running
-    private int           _playerIndex = 0;
+    private int _playerIndex = 0;
     private NetworkRunner _runner;
 
     // ── Unity Lifecycle ───────────────────────────────────────────────────
@@ -46,7 +46,7 @@ public class BatImpactHandler : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        rb.isKinematic  = true;
+        rb.isKinematic = true;
         rb.interpolation =
             RigidbodyInterpolation.Interpolate;
 
@@ -66,7 +66,8 @@ public class BatImpactHandler : MonoBehaviour
     private IEnumerator DetectPlayerIndex()
     {
         // Wait for a live session
-        yield return new WaitUntil(() => {
+        yield return new WaitUntil(() =>
+        {
             _runner = FindFirstObjectByType<NetworkRunner>();
             return _runner != null && _runner.IsRunning;
         });
@@ -90,6 +91,12 @@ public class BatImpactHandler : MonoBehaviour
 
         Debug.Log($"[BatImpactHandler] PlayerIndex = {_playerIndex} " +
                   $"for {_runner.LocalPlayer}");
+
+        // Auto-equip on the peer that owns this bat. PlayerSpawner only runs on
+        // the host, so the client's bat would never get equipped without this.
+        var netObj = GetComponent<NetworkObject>();
+        if (netObj != null && netObj.HasInputAuthority)
+            isEquipped = true;
     }
 
     // Called by WeaponSpawner when X is pressed
@@ -109,7 +116,7 @@ public class BatImpactHandler : MonoBehaviour
 
         if (trackingSpace != null)
         {
-            Vector3    localPos =
+            Vector3 localPos =
                 OVRInput.GetLocalControllerPosition(
                     controllerHand);
             Quaternion localRot =
@@ -150,19 +157,13 @@ public class BatImpactHandler : MonoBehaviour
             (transform.position - prevPosition) /
             Time.fixedDeltaTime;
         CurrentSwingSpeed = velocity.magnitude;
-        prevPosition      = transform.position;
+        prevPosition = transform.position;
     }
 
     // ── Collision ─────────────────────────────────────────────────────────
 
     private void OnCollisionEnter(Collision collision)
     {
-        // Only the peer with input authority over this bat processes its hits.
-        // This prevents the remote copy of the bat (synced position) from
-        // triggering phantom collisions on the wrong headset.
-        var netObj = GetComponent<NetworkObject>();
-        if (netObj != null && !netObj.HasInputAuthority) return;
-
         // Only process hits when equipped and swinging
         if (!isEquipped) return;
         if (!IsSwinging) return;

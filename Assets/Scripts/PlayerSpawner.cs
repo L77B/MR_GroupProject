@@ -22,7 +22,8 @@ public class PlayerSpawner : MonoBehaviour,
 
     IEnumerator RegisterWithRunner()
     {
-        yield return new WaitUntil(() => {
+        yield return new WaitUntil(() =>
+        {
             _runner = FindFirstObjectByType<NetworkRunner>();
             return _runner != null && _runner.IsRunning;
         });
@@ -72,9 +73,11 @@ public class PlayerSpawner : MonoBehaviour,
         {
             _spawnedBats[player] = bat;
 
-            // Equip immediately — BatImpactHandler ignores all collisions while unequipped
+            // Only equip on the peer that owns this bat. The client's bat is equipped
+            // by BatImpactHandler.DetectPlayerIndex() after the session is ready.
             var handler = bat.GetComponent<BatImpactHandler>();
-            if (handler != null) handler.SetEquipped(true);
+            if (handler != null && bat.HasInputAuthority)
+                handler.SetEquipped(true);
 
             Debug.Log($"Bat spawned and equipped for: {player}");
         }
@@ -95,11 +98,14 @@ public class PlayerSpawner : MonoBehaviour,
 
     // ── Required interface methods ────────────────────
     public void OnInput(NetworkRunner runner,
-        NetworkInput input) { }
+        NetworkInput input)
+    { }
     public void OnInputMissing(NetworkRunner runner,
-        PlayerRef player, NetworkInput input) { }
+        PlayerRef player, NetworkInput input)
+    { }
     public void OnShutdown(NetworkRunner runner,
-        ShutdownReason reason) { }
+        ShutdownReason reason)
+    { }
     public void OnConnectedToServer(
     NetworkRunner runner)
     {
@@ -115,43 +121,55 @@ public class PlayerSpawner : MonoBehaviour,
     public void OnConnectRequest(
         NetworkRunner runner,
         NetworkRunnerCallbackArgs.ConnectRequest request,
-        byte[] token) { }
+        byte[] token)
+    { }
     public void OnConnectFailed(
         NetworkRunner runner,
         NetAddress remoteAddress,
-        NetConnectFailedReason reason) { }
+        NetConnectFailedReason reason)
+    { }
     public void OnUserSimulationMessage(
         NetworkRunner runner,
-        SimulationMessagePtr message) { }
+        SimulationMessagePtr message)
+    { }
     public void OnSessionListUpdated(
         NetworkRunner runner,
-        List<SessionInfo> sessionList) { }
+        List<SessionInfo> sessionList)
+    { }
     public void OnCustomAuthenticationResponse(
         NetworkRunner runner,
-        Dictionary<string, object> data) { }
+        Dictionary<string, object> data)
+    { }
     public void OnHostMigration(
         NetworkRunner runner,
-        HostMigrationToken hostMigrationToken) { }
+        HostMigrationToken hostMigrationToken)
+    { }
     public void OnReliableDataReceived(
         NetworkRunner runner,
         PlayerRef player,
         ReliableKey key,
-        ArraySegment<byte> data) { }
+        ArraySegment<byte> data)
+    { }
     public void OnReliableDataProgress(
         NetworkRunner runner,
         PlayerRef player,
         ReliableKey key,
-        float progress) { }
+        float progress)
+    { }
     public void OnSceneLoadDone(
-        NetworkRunner runner) { }
+        NetworkRunner runner)
+    { }
     public void OnSceneLoadStart(
-        NetworkRunner runner) { }
+        NetworkRunner runner)
+    { }
     public void OnObjectExitAOI(
         NetworkRunner runner,
         NetworkObject obj,
-        PlayerRef player) { }
+        PlayerRef player)
+    { }
     public void OnObjectEnterAOI(
         NetworkRunner runner,
         NetworkObject obj,
-        PlayerRef player) { }
+        PlayerRef player)
+    { }
 }
