@@ -37,8 +37,10 @@ public class BulletRageImpact : MonoBehaviour
         var breakable = collision.gameObject.GetComponent<BreakableObject>();
         if (breakable != null)
         {
+            bool wasBroken = breakable.IsBroken;
             breakable.TakeHit(impactForce, hitPoint, hitDir);
-            NetworkedRageState.Instance?.RPC_AddRage(playerIndex, 8f);
+            if (!wasBroken && breakable.IsBroken && NetworkedRageState.Instance != null)
+                NetworkedRageState.Instance.AddRage(playerIndex, 10f);
         }
     }
 }

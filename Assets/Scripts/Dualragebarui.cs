@@ -216,8 +216,8 @@ public class DualRageBarUI : MonoBehaviour
         float r1, r2, max1, max2;
         if (NetworkedRageState.Instance != null)
         {
-            r1 = NetworkedRageState.Instance.RageP1;
-            r2 = NetworkedRageState.Instance.RageP2;
+            r1 = NetworkedRageState.Instance.DisplayRageP1;
+            r2 = NetworkedRageState.Instance.DisplayRageP2;
             max1 = max2 = NetworkedRageState.Instance.MaxRage;
         }
         else
@@ -342,7 +342,7 @@ public class DualRageBarUI : MonoBehaviour
         if (fillGreen) fillGreen.gameObject.SetActive(true);
         if (labelCenter) labelCenter.gameObject.SetActive(false);
 
-        audioSource.Stop();
+        if (audioSource != null) audioSource.Stop();
     }
 
     // ── Blink Coroutines ──────────────────────────────────────────────────────

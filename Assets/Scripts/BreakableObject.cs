@@ -30,6 +30,8 @@ public class BreakableObject : MonoBehaviour
 
     public event System.Action OnBroken;
 
+    public bool IsBroken => isBroken;
+
     private Rigidbody rb;
     private bool isBroken = false;
 

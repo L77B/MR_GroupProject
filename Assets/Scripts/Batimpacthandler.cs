@@ -220,6 +220,38 @@ public class BatImpactHandler : MonoBehaviour
                 $"P{_playerIndex + 1} " +
                 $"force:{clampedForce:F1} " +
                 $"speed:{CurrentSwingSpeed:F1}");
+            return;
+        }
+
+        // ── Check BreakableObject ─────────────────
+        BreakableObject legacyBreakable =
+            collision.gameObject
+                .GetComponent<BreakableObject>();
+
+        if (legacyBreakable != null)
+        {
+            lastHitTime = Time.time;
+            bool wasBroken = legacyBreakable.IsBroken;
+            legacyBreakable.TakeHit(clampedForce, hitPoint, hitDir);
+            if (!wasBroken && legacyBreakable.IsBroken && NetworkedRageState.Instance != null)
+                NetworkedRageState.Instance.AddRage(_playerIndex, 10f);
+            return;
+        }
+
+        // ── Check YueDestructible ─────────────────
+        var yue = collision.gameObject
+            .GetComponent<YueDestructibles.YueDestructible>();
+
+        if (yue != null)
+        {
+            lastHitTime = Time.time;
+            if (collision.impulse.magnitude > yue.maximumImpulse
+                && NetworkedRageState.Instance != null)
+            {
+                NetworkedRageState.Instance.AddRage(_playerIndex, 10f);
+                Debug.Log($"[BatImpactHandler] YueDestructible broken: " +
+                          $"{collision.gameObject.name} P{_playerIndex + 1}");
+            }
         }
     }
 }

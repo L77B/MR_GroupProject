@@ -31,6 +31,8 @@ public class NetworkedRageState : NetworkBehaviour
     [Header("Rage Settings")]
     [SerializeField] private float maxRage = 100f;
     [SerializeField] private float decayPerSecond = 4f;
+    [Tooltip("Global multiplier on all incoming rage gain. Lower = slower fill. Default 1.")]
+    [SerializeField] private float rageGainMultiplier = 1f;
 
     // ── Networked State ──────────────────────────────────────────────────────
     [Networked] public float RageP1 { get; set; }
@@ -40,6 +42,15 @@ public class NetworkedRageState : NetworkBehaviour
 
     public float MaxRage => maxRage;
     public bool IsSpawned { get; private set; }
+
+    // Local prediction — updated immediately on the calling peer so the UI
+    // doesn't wait for the StateAuthority round-trip before showing the change.
+    private float _predictedP1;
+    private float _predictedP2;
+
+    // UI should read these instead of RageP1 / RageP2.
+    public float DisplayRageP1 => Mathf.Max(RageP1, _predictedP1);
+    public float DisplayRageP2 => Mathf.Max(RageP2, _predictedP2);
 
     // ── Lifecycle ────────────────────────────────────────────────────────────
 
@@ -69,8 +80,16 @@ public class NetworkedRageState : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
-        if (!HasStateAuthority) return;
         float dt = Runner.DeltaTime;
+
+        // Decay local prediction at the same rate as the networked value.
+        if (_predictedP1 > 0f) _predictedP1 = Mathf.Max(0f, _predictedP1 - decayPerSecond * dt);
+        if (_predictedP2 > 0f) _predictedP2 = Mathf.Max(0f, _predictedP2 - decayPerSecond * dt);
+        // Once the authoritative value has caught up, clear prediction.
+        if (RageP1 >= _predictedP1) _predictedP1 = 0f;
+        if (RageP2 >= _predictedP2) _predictedP2 = 0f;
+
+        if (!HasStateAuthority) return;
         if (RageP1 > 0f) RageP1 = Mathf.Max(0f, RageP1 - decayPerSecond * dt);
         if (RageP2 > 0f) RageP2 = Mathf.Max(0f, RageP2 - decayPerSecond * dt);
     }
@@ -153,12 +172,29 @@ public class NetworkedRageState : NetworkBehaviour
     // ── Rage RPCs ────────────────────────────────────────────────────────────
 
     /// <summary>
+    /// Call this from all weapon scripts instead of RPC_AddRage directly.
+    /// Updates local prediction immediately (no UI delay) then sends the
+    /// authoritative RPC to StateAuthority.
+    /// </summary>
+    public void AddRage(int playerIndex, float gain)
+    {
+        float scaled = gain * rageGainMultiplier;
+        if (playerIndex == 0)
+            _predictedP1 = Mathf.Clamp(_predictedP1 + scaled, 0f, maxRage);
+        else
+            _predictedP2 = Mathf.Clamp(_predictedP2 + scaled, 0f, maxRage);
+
+        RPC_AddRage(playerIndex, gain);
+    }
+
+    /// <summary>
     /// Called on the hitting headset. Delivered to StateAuthority which writes
     /// the [Networked] value and Fusion propagates it to all clients.
     /// </summary>
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_AddRage(int playerIndex, float gain)
     {
+        gain *= rageGainMultiplier;
         if (playerIndex == 0)
             RageP1 = Mathf.Clamp(RageP1 + gain, 0f, maxRage);
         else

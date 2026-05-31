@@ -34,9 +34,7 @@ public class MeshExploderBreakable : NetworkBehaviour
     {
         if (IsBroken) return;
 
-        // Compute rage gain the same way DestructibleObject does for a break
-        float gain = force * 0.25f + swingSpeed * 0.8f + 8f;
-        NetworkedRageState.Instance?.RPC_AddRage(playerIndex, gain);
+        NetworkedRageState.Instance?.AddRage(playerIndex, 10f);
 
         RPC_Explode();
     }

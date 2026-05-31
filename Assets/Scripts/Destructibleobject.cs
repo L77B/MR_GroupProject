@@ -90,13 +90,9 @@ public Transform explosionSpawnPoint;
         bool willBreak = force >= breakThreshold ||
                          currentHealth <= 0f;
 
-        // Local feedback: combo tracking, haptics, level-up events
-        float gain = rageMeter != null
-            ? rageMeter.RegisterHit(force, swingSpeed, willBreak)
-            : (force * 0.25f + swingSpeed * 0.8f + (willBreak ? 8f : 0f));
-
-        // Networked rage update — syncs to both headsets via host authority
-        NetworkedRageState.Instance?.RPC_AddRage(playerIndex, gain);
+        // Only award rage when the object actually breaks (flat value per break).
+        if (willBreak)
+            NetworkedRageState.Instance?.AddRage(playerIndex, 10f);
 
         if (willBreak)
         {
@@ -114,7 +110,7 @@ public Transform explosionSpawnPoint;
         Debug.Log($"[DestructibleObject] {name} — " +
                   $"P{playerIndex + 1} damage:{damage:F1}  " +
                   $"HP:{currentHealth:F1}/{maxHealth}  " +
-                  $"willBreak:{willBreak} gain:{gain:F1}");
+                  $"willBreak:{willBreak}");
     }
 
     // ── Private Helpers ───────────────────────────────────────────────────────

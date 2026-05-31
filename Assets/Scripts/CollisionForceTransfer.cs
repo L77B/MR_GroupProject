@@ -25,6 +25,15 @@ public class CollisionForceTransfer : MonoBehaviour
     void Awake()
     {
         swingTracker = GetComponent<BatSwingTracker>();
+        _netObj = GetComponent<NetworkObject>();
+
+        // BatImpactHandler handles all breakable types on the bat/lightsaber object.
+        // Disable this script to prevent double rage contributions.
+        if (GetComponent<BatImpactHandler>() != null)
+        {
+            enabled = false;
+            return;
+        }
     }
 
     void Start()
@@ -97,26 +106,31 @@ public class CollisionForceTransfer : MonoBehaviour
             return;
         }
 
-        // BreakableObject (legacy local-only — fire RPC_AddRage manually)
+        // BreakableObject — rage only if the hit actually breaks it
         var breakable = collision.gameObject.GetComponent<BreakableObject>();
         if (breakable != null)
         {
+            bool wasBroken = breakable.IsBroken;
             breakable.TakeHit(impactForce, hitPoint, hitDir);
-            float gain = impactForce * 0.25f + swingSpeed * 0.8f + 5f;
-            NetworkedRageState.Instance?.RPC_AddRage(_playerIndex, gain);
+            if (!wasBroken && breakable.IsBroken && NetworkedRageState.Instance != null)
+                NetworkedRageState.Instance.AddRage(_playerIndex, 10f);
             if (enableHaptics) TriggerHaptics(impactForce);
             return;
         }
 
-        // Generic fallback: any dynamic (Rigidbody) object contributes rage.
-        // Skips static geometry — floors and walls have no Rigidbody.
-        if (collision.gameObject.GetComponent<Rigidbody>() != null)
+        // YueDestructible — mirror its own impulse threshold to gate rage on an actual break
+        var yue = collision.gameObject
+            .GetComponent<YueDestructibles.YueDestructible>();
+        if (yue != null)
         {
-            float gain = impactForce * 0.25f + swingSpeed * 0.8f + 5f;
-            NetworkedRageState.Instance?.RPC_AddRage(_playerIndex, gain);
+            if (collision.impulse.magnitude > yue.maximumImpulse && NetworkedRageState.Instance != null)
+            {
+                NetworkedRageState.Instance.AddRage(_playerIndex, 10f);
+                Debug.Log($"[CollisionForceTransfer] YueDestructible broken: " +
+                          $"{collision.gameObject.name} P{_playerIndex + 1}");
+            }
             if (enableHaptics) TriggerHaptics(impactForce);
-            Debug.Log($"[CollisionForceTransfer] Generic hit: {collision.gameObject.name} " +
-                      $"gain:{gain:F1} P{_playerIndex + 1}");
+            return;
         }
     }
 
