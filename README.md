@@ -83,51 +83,60 @@ You can use bullet points, screenshots, gifs, or videos to illustrate your point
 process to build and run your project. Use code blocks, tables, or lists to show the chosen platform's commands, steps, or requirements. Mention any dependencies or libraries that your project uses and how to install them.
 This is a Unity 6 Mixed Reality project targeting Meta Quest headsets. It uses photon for real-time multiplayer, Meta XR SDK for passthrough/MR, and optionally an ESP32 LED strip for physical feedback. There are two components to set up:
 
-The Unity app (deployed to Meta Quest via Android)
-The ESP32 LED strip firmware (optional physical peripheral)
+1. The Unity app (deployed to Meta Quest via Android)
+2. The ESP32 LED strip firmware (optional physical peripheral)
+
 Requirements
 Software
-Tool	Version / Notes
-Unity Editor	6000.3.10f1 (exact version required — use Unity Hub)
-Android Build Support	Installed via Unity Hub (includes Android SDK/NDK/JDK)
-Meta Quest Link / ADB	For sideloading to the headset
-Arduino IDE	v2.x — for the LED strip firmware only
-Git	To clone the repo
+| Tool                    | Version / Notes                                          |
+|-------------------------|----------------------------------------------------------|
+| Unity Editor            | 6000.3.10f1 (exact version required — use Unity Hub)     |
+| Android Build Support   | Installed via Unity Hub (includes Android SDK/NDK/JDK)   |
+| Meta Quest Link / ADB   | For sideloading to the headset                           |
+| Arduino IDE             | v2.x — for the LED strip firmware only                   |
+| Git                     | To clone the repo                                        |
+
 Hardware
-Device	Purpose
-Meta Quest 3 / 3S / Pro	Running the MR experience
-PC running Unity	Build machine
-ESP32 board (optional)	Physical WS2812B LED rage bar
-WS2812B LED strip, 60 LEDs (optional)	Connected to ESP32 GPIO 5
+
+| Device                              | Purpose                          |
+|-------------------------------------|----------------------------------|
+| Meta Quest 3 / 3S / Pro             | Running the MR experience        |
+| PC running Unity                    | Build machine                    |
+| ESP32 board (optional)              | Physical WS2812B LED rage bar    |
+| WS2812B LED strip, 60 LEDs (optional) | Connected to ESP32 GPIO 5      |
+
 1. Clone the Repository
 git clone <repo-url>
 cd MR_GroupProject
 Do not open in Unity yet — install the correct Unity version first.
 
 2. Install Unity 6000.3.10f1
-Open Unity Hub
-Go to Installs → Add → Archive
-Search for 6000.3.10f1 or download from Unity's archive
-During install, select these modules:
-Android Build Support
-Android SDK & NDK Tools
-OpenJDK
+    1. Open Unity Hub
+    2. Go to Installs → Add → Archive
+    3. Search for 6000.3.10f1 or download from Unity's archive
+    4. During install, select these modules:
+       Android Build Support
+          Android SDK & NDK Tools
+          OpenJDK
 3. Open the Project
-In Unity Hub → Projects → Add → select the MR_GroupProject folder
-Unity will import all assets and resolve packages automatically — this can take 5–10 minutes on first open
+ 1. In Unity Hub → Projects → Add → select the MR_GroupProject folder
+ 2. Unity will import all assets and resolve packages automatically — this can take 5–10 minutes on first open
+
 4. Unity Package Dependencies
 All packages are declared in Packages/manifest.json and auto-resolved by the Unity Package Manager. Key dependencies:
 
-Package	Version	Purpose
-com.meta.xr.sdk.all	201.0.0	Meta XR SDK — passthrough, controllers, hand tracking
-com.unity.xr.openxr	1.16.1	OpenXR runtime
-com.unity.xr.meta-openxr	2.5.0	Meta OpenXR extensions
-com.unity.netcode.gameobjects	2.11.0	Unity Netcode — multiplayer
-com.unity.services.multiplayer	2.2.1	Unity Relay/Lobby
-com.unity.render-pipelines.universal	17.3.0	URP rendering
-com.unity.inputsystem	1.18.0	New Input System
-com.unity.ai.navigation	2.0.10	NavMesh AI
-se.su.dsv.extralitylab.unity	git	Extralit Lab utilities (fetched from Gitea)
+| Package                             | Version | Purpose                                              |
+|-------------------------------------|---------|------------------------------------------------------|
+| com.meta.xr.sdk.all                 | 201.0.0 | Meta XR SDK — passthrough, controllers, hand tracking |
+| com.unity.xr.openxr                 | 1.16.1  | OpenXR runtime                                       |
+| com.unity.xr.meta-openxr            | 2.5.0   | Meta OpenXR extensions                               |
+| com.unity.netcode.gameobjects       | 2.11.0  | Unity Netcode — multiplayer                          |
+| com.unity.services.multiplayer      | 2.2.1   | Unity Relay/Lobby                                    |
+| com.unity.render-pipelines.universal| 17.3.0  | URP rendering                                        |
+| com.unity.inputsystem               | 1.18.0  | New Input System                                     |
+| com.unity.ai.navigation             | 2.0.10  | NavMesh AI                                           |
+| se.su.dsv.extralitylab.unity        | git     | Extralit Lab utilities (fetched from Gitea)          |
+
 No manual npm install or pip install needed — Unity Package Manager handles everything on first open.
 
 5. Configure Meta Quest Link (for Play Mode testing)
@@ -194,16 +203,16 @@ Click Upload
 The ESP32 listens on port 8082 via WebSocket. Unity's Assets/Scripts/RageLEDClient.cs connects to it automatically when running.
 
 Quick Reference Summary
-# 1. Clone
+1. Clone
 git clone <repo-url>
-# 2. Open in Unity 6000.3.10f1 (let packages resolve)
-# 3. Build Settings → Android → Switch Platform
-# 4. Build APK
-#    File → Build Settings → Build → Xage.apk
-# 5. Sideload
+2. Open in Unity 6000.3.10f1 (let packages resolve)
+3. Build Settings → Android → Switch Platform
+4. Build APK
+   File → Build Settings → Build → Xage.apk
+5. Sideload
 adb install -r Xage.apk
-# 6. (Optional) Flash ESP32
-#    Edit WiFi credentials in RageLEDStrip.ino → Upload via Arduino IDE
+6. (Optional) Flash ESP32
+   Edit WiFi credentials in RageLEDStrip.ino → Upload via Arduino IDE
 
 
 ## Usage section 
