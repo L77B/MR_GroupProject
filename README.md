@@ -98,7 +98,7 @@ When objects are destroyed by the players the rage meter changes and, but it goe
 
 The destructible objects are spawned when either the green or blue button is pressed (see picture below).
 
-<img width="528" height="708" alt="Skärmavbild 2026-06-06 kl  12 23 47" src="https://github.com/user-attachments/assets/78ac3723-60e1-470c-9872-7abfe31fb39e" />
+<img width="350" height="500" alt="Skärmavbild 2026-06-06 kl  12 23 47" src="https://github.com/user-attachments/assets/78ac3723-60e1-470c-9872-7abfe31fb39e" />
 
 
 
