@@ -6,8 +6,8 @@
 
 ## Introduction -Krish
 
-Explain what your project is about, what problem it solves, and what educational value it provides. You can also include a catchy slogan or a logo for your project.
-
+Xage is a multiplayer mixed reality rage room experience built for Meta Quest headsets. Players share a physical space and interact with digitally scanned real-world objects — bringing the boundary between the physical and virtual world closer than ever before.
+Using a baseball bat controller, players can swing, smash and destroy photorealistic 3D scanned objects placed throughout their real environment. A custom-built arcade controller triggers spectacular room-wide explosions, spawns new objects on demand, and keeps both players in sync — all in real time. 
 
 
 
@@ -77,6 +77,27 @@ In the end, the scope was cut down compared to our initial design requirements. 
 
 ## Features and functionalities of your project -Krish
 You can use bullet points, screenshots, gifs, or videos to illustrate your points. Also, include a link to your project's demo or live version.
+ - Digital Twins of real lab objects
+  
+ <img width="286" height="208" alt="Screenshot 2026-06-07 at 7 03 38 PM" src="https://github.com/user-attachments/assets/d00c6e47-7c52-48f6-8594-f9cb8853e330" />
+ 
+   <img width="286" height="208" alt="Screenshot 2026-06-07 at 6 52 41 PM" src="https://github.com/user-attachments/assets/99025d63-ee2d-4d9e-ad87-5fcaeb759c01" />
+
+ - Mixed Reality Multiplayer
+
+
+ - QR code colocation and matchmaking
+  
+   <img width="286" height="208" alt="Screenshot 2026-06-07 at 7 06 48 PM" src="https://github.com/user-attachments/assets/76445f1c-c720-41f7-a4fe-215cf7187d98" />
+   <img width="286" height="208" alt="Screenshot 2026-06-07 at 7 09 20 PM" src="https://github.com/user-attachments/assets/ff86069c-56e0-4f68-ade0-34653c5af677" />
+
+ - Tangibles
+  
+ - 3D printed parts
+  <img width="286" height="408" alt="image" src="https://github.com/user-attachments/assets/f3611206-e7e6-4ffb-8f97-46c7d0869a88" />
+<img width="286" height="408" alt="image" src="https://github.com/user-attachments/assets/96bc93e5-65d9-4439-9319-fd19be0460b5" />
+
+  
 
 ## Installation -Happy
 
