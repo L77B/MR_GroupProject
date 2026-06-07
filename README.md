@@ -337,10 +337,10 @@ The destructible objects are spawned when either the green or blue button is pre
 
 This project was built by a team of 4 contributors:
 
-| # | Name           |
-|---|----------------|
-| 1 | Krish Parikh   |
-| 2 | Linnea Bergh   |
-| 3 | Elin Paulsson  |
-| 4 | Happy Tony     |
+| # | Name           | Email                  |
+|---|----------------|------------------------|
+| 1 | Krish Parikh   | krpa4691@student.su.se |
+| 2 | Linnea Bergh   | libe0812@student.su.se |
+| 3 | Elin Paulsson  | elpa6278@student.su.se |
+| 4 | Happy Tony     | hato9425@student.su.se |
 
