@@ -4,7 +4,7 @@
 
 <img width="300" height="250" alt="LogoTransperent" src="https://github.com/user-attachments/assets/7da64607-0b2e-4b01-af38-5121cf900cb0" />
 
-## Introduction -Krish
+## Introduction
 
 Xage is a multiplayer mixed reality rage room experience built for Meta Quest headsets. Players share a physical space and interact with digitally scanned real-world objects — bringing the boundary between the physical and virtual world closer than ever before.
 Using a baseball bat controller, players can swing, smash and destroy photorealistic 3D scanned objects placed throughout their real environment. A custom-built arcade controller triggers spectacular room-wide explosions, spawns new objects on demand, and keeps both players in sync — all in real time. 
@@ -97,143 +97,219 @@ You can use bullet points, screenshots, gifs, or videos to illustrate your point
   <img width="286" height="408" alt="image" src="https://github.com/user-attachments/assets/f3611206-e7e6-4ffb-8f97-46c7d0869a88" />
 <img width="286" height="408" alt="image" src="https://github.com/user-attachments/assets/96bc93e5-65d9-4439-9319-fd19be0460b5" />
 
-  
 
-## Installation -Happy
+## Installation
 
-process to build and run your project. Use code blocks, tables, or lists to show the chosen platform's commands, steps, or requirements. Mention any dependencies or libraries that your project uses and how to install them.
-This is a Unity 6 Mixed Reality project targeting Meta Quest headsets. It uses photon for real-time multiplayer, Meta XR SDK for passthrough/MR, and optionally an ESP32 LED strip for physical feedback. There are two components to set up:
+This is a **Unity 6 Mixed Reality** project targeting **Meta Quest** headsets. It uses **Photon** for
+real-time multiplayer, **Meta XR SDK** for passthrough/MR, and optionally an **ESP32 LED strip** for
+physical feedback.
 
-1. The Unity app (deployed to Meta Quest via Android)
-2. The ESP32 LED strip firmware (optional physical peripheral)
+There are two components to set up:
 
-Requirements
-Software
-| Tool                    | Version / Notes                                          |
-|-------------------------|----------------------------------------------------------|
-| Unity Editor            | 6000.3.10f1 (exact version required — use Unity Hub)     |
-| Android Build Support   | Installed via Unity Hub (includes Android SDK/NDK/JDK)   |
-| Meta Quest Link / ADB   | For sideloading to the headset                           |
-| Arduino IDE             | v2.x — for the LED strip firmware only                   |
-| Git                     | To clone the repo                                        |
+1. The **Unity app** (deployed to Meta Quest via Android)
+2. The **ESP32 LED strip firmware** (optional physical peripheral)
 
-Hardware
+---
 
-| Device                              | Purpose                          |
-|-------------------------------------|----------------------------------|
-| Meta Quest 3 / 3S / Pro             | Running the MR experience        |
-| PC running Unity                    | Build machine                    |
-| ESP32 board (optional)              | Physical WS2812B LED rage bar    |
-| WS2812B LED strip, 60 LEDs (optional) | Connected to ESP32 GPIO 5      |
+## Requirements
 
-1. Clone the Repository
-git clone <repo-url>
+### Software
+
+| Tool                  | Version / Notes                                         |
+|-----------------------|---------------------------------------------------------|
+| Unity Editor          | 6000.3.10f1 (exact version required — use Unity Hub)   |
+| Android Build Support | Installed via Unity Hub (includes Android SDK/NDK/JDK) |
+| Meta Quest Link / ADB | For sideloading to the headset                         |
+| Arduino IDE           | v2.x — for the LED strip firmware only                 |
+| Git                   | To clone the repo                                      |
+
+### Hardware
+
+| Device                                | Purpose                       |
+|---------------------------------------|-------------------------------|
+| Meta Quest 3 / 3S / Pro               | Running the MR experience     |
+| PC running Unity                      | Build machine                 |
+| ESP32 board (optional)                | Physical WS2812B LED rage bar |
+| WS2812B LED strip, 60 LEDs (optional) | Connected to ESP32 GPIO 5     |
+
+---
+
+## 1. Clone the Repository
+
+```bash
+git clone https://github.com/L77B/MR_GroupProject
 cd MR_GroupProject
-Do not open in Unity yet — install the correct Unity version first.
+```
 
-2. Install Unity 6000.3.10f1
-    1. Open Unity Hub
-    2. Go to Installs → Add → Archive
-    3. Search for 6000.3.10f1 or download from Unity's archive
-    4. During install, select these modules:
-       Android Build Support
-          Android SDK & NDK Tools
-          OpenJDK
-3. Open the Project
- 1. In Unity Hub → Projects → Add → select the MR_GroupProject folder
- 2. Unity will import all assets and resolve packages automatically — this can take 5–10 minutes on first open
+> Do **not** open in Unity yet — install the correct Unity version first.
 
-4. Unity Package Dependencies
-All packages are declared in Packages/manifest.json and auto-resolved by the Unity Package Manager. Key dependencies:
+---
 
-| Package                             | Version | Purpose                                              |
-|-------------------------------------|---------|------------------------------------------------------|
-| com.meta.xr.sdk.all                 | 201.0.0 | Meta XR SDK — passthrough, controllers, hand tracking |
-| com.unity.xr.openxr                 | 1.16.1  | OpenXR runtime                                       |
-| com.unity.xr.meta-openxr            | 2.5.0   | Meta OpenXR extensions                               |
-| com.unity.netcode.gameobjects       | 2.11.0  | Unity Netcode — multiplayer                          |
-| com.unity.services.multiplayer      | 2.2.1   | Unity Relay/Lobby                                    |
-| com.unity.render-pipelines.universal| 17.3.0  | URP rendering                                        |
-| com.unity.inputsystem               | 1.18.0  | New Input System                                     |
-| com.unity.ai.navigation             | 2.0.10  | NavMesh AI                                           |
-| se.su.dsv.extralitylab.unity        | git     | Extralit Lab utilities (fetched from Gitea)          |
+## 2. Install Unity `6000.3.10f1`
 
-No manual npm install or pip install needed — Unity Package Manager handles everything on first open.
+1. Open **Unity Hub**
+2. Go to **Installs → Add → Archive**
+3. Search for `6000.3.10f1` or download from Unity's archive
+4. During install, select these modules:
+   - **Android Build Support**
+     - Android SDK & NDK Tools
+     - OpenJDK
 
-5. Configure Meta Quest Link (for Play Mode testing)
-To test in the editor via Oculus Link / Air Link:
+---
 
-Enable Developer Mode on your Quest headset (via the Meta mobile app)
-Connect via USB or Air Link
-In Unity: Edit → Project Settings → XR Plug-in Management → confirm Meta OpenXR is checked for Android
-6. Build & Deploy to Meta Quest
-Configure Build Settings
-File → Build Settings
-Set platform to Android (click Switch Platform if not already set)
-Add the main scene — Assets/Scenes/Xage 1.unity (or the scene your team uses)
-Set Player Settings
-Edit → Project Settings → Player → Android tab
-Package name: set to something like com.yourteam.xage
-Minimum API Level: API 29 (Quest minimum)
-Target API Level: API 34
-Scripting Backend: IL2CPP
-Target Architecture: ARM64 only
-Build APK
+## 3. Open the Project
+
+1. In Unity Hub → **Projects → Add** → select the `MR_GroupProject` folder
+2. Unity will import all assets and resolve packages automatically —
+   this can take **5–10 minutes** on first open
+
+---
+
+## 4. Unity Package Dependencies
+
+All packages are declared in `Packages/manifest.json` and auto-resolved by the Unity Package Manager.
+Key dependencies:
+
+| Package                              | Version | Purpose                                               |
+|--------------------------------------|---------|-------------------------------------------------------|
+| com.meta.xr.sdk.all                  | 201.0.0 | Meta XR SDK — passthrough, controllers, hand tracking |
+| com.unity.xr.openxr                  | 1.16.1  | OpenXR runtime                                        |
+| com.unity.xr.meta-openxr             | 2.5.0   | Meta OpenXR extensions                                |
+| com.unity.netcode.gameobjects        | 2.11.0  | Unity Netcode — multiplayer                           |
+| com.unity.services.multiplayer       | 2.2.1   | Unity Relay/Lobby                                     |
+| com.unity.render-pipelines.universal | 17.3.0  | URP rendering                                         |
+| com.unity.inputsystem                | 1.18.0  | New Input System                                      |
+| com.unity.ai.navigation              | 2.0.10  | NavMesh AI                                            |
+| se.su.dsv.extralitylab.unity         | git     | Extralit Lab utilities (fetched from Gitea)           |
+
+> No manual `npm install` or `pip install` needed — Unity Package Manager handles everything on first open.
+
+---
+
+## 5. Configure Meta Quest Link (for Play Mode Testing)
+
+To test in the editor via **Oculus Link / Air Link**:
+
+1. Enable **Developer Mode** on your Quest headset (via the Meta mobile app)
+2. Connect via USB or Air Link
+3. In Unity: **Edit → Project Settings → XR Plug-in Management** → confirm **Meta OpenXR** is checked for Android
+
+---
+
+## 6. Build & Deploy to Meta Quest
+
+### Configure Build Settings
+
+1. **File → Build Settings**
+2. Set platform to **Android** (click *Switch Platform* if not already set)
+3. Add the main scene — `Assets/Scenes/Xage 1.unity` (or the scene your team uses)
+
+### Set Player Settings
+
+**Edit → Project Settings → Player → Android tab**
+
+- Package name: set to something like `com.yourteam.xage`
+- Minimum API Level: **API 29** (Quest minimum)
+- Target API Level: **API 34**
+- Scripting Backend: **IL2CPP**
+- Target Architecture: **ARM64** only
+
+### Build APK
+
+```
 File → Build Settings → Build
-Save as e.g. Xage.apk
+```
 
-Sideload to Headset
-With Quest connected via USB and Developer Mode on:
+Save as e.g. `Xage.apk`
 
+### Sideload to Headset
+
+With Quest connected via USB and **Developer Mode on**:
+
+```bash
 adb install -r Xage.apk
-Or use Meta Quest Developer Hub (MQDH) for a GUI sideload.
+```
 
-7. Multiplayer Setup (Unity Netcode + Relay)
+> Or use **Meta Quest Developer Hub (MQDH)** for a GUI sideload.
+
+---
+
+## 7. Multiplayer Setup (Unity Netcode + Relay)
+
 The project uses Unity Gaming Services for Relay/Lobby. Both players need:
 
-A Unity project linked to a Unity Dashboard Organization (the project already has UnityConnectSettings.asset configured)
-Both headsets on the same Wi-Fi network (for colocation)
-One player hosts, one joins — handled by Assets/Scripts/NetworkSessionManager.cs and Assets/Scripts/ColocationSetup.cs
-8. ESP32 LED Strip (Optional Physical Peripheral)
-The file ESP32_LED/RageLEDStrip.ino drives a 60-LED WS2812B strip that mirrors the in-game rage bar.
+1. A Unity project linked to a **Unity Dashboard** Organization
+   *(the project already has `UnityConnectSettings.asset` configured)*
+2. Both headsets on the **same Wi-Fi network** (for colocation)
+3. One player hosts, one joins — handled by:
+   - `Assets/Scripts/NetworkSessionManager.cs`
+   - `Assets/Scripts/ColocationSetup.cs`
 
-Arduino Library Dependencies
-Install via Arduino IDE → Library Manager (Ctrl+Shift+I):
+---
 
-Library	Purpose
-FastLED	WS2812B LED control
-WebSocketsServer (arduinoWebSockets by Links2004)	WebSocket server so Unity can push rage values
-Also install ESP32 board support:
+## 8. ESP32 LED Strip (Optional Physical Peripheral)
 
-File → Preferences → Additional Board URLs:
+The file `ESP32_LED/RageLEDStrip.ino` drives a 60-LED WS2812B strip that mirrors the in-game rage bar.
+
+### Arduino Library Dependencies
+
+Install via **Arduino IDE → Library Manager** (`Ctrl+Shift+I`):
+
+| Library                                           | Purpose                                          |
+|---------------------------------------------------|--------------------------------------------------|
+| FastLED                                           | WS2812B LED control                              |
+| WebSocketsServer (arduinoWebSockets by Links2004) | WebSocket server so Unity can push rage values   |
+
+Also install **ESP32 board support**:
+
+1. **File → Preferences → Additional Board URLs:**
+```
 https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-Tools → Board Manager → search esp32 → install esp32 by Espressif
-Configure & Flash
-Edit the top of ESP32_LED/RageLEDStrip.ino:
+```
+2. **Tools → Board Manager** → search `esp32` → install **esp32 by Espressif**
 
+### Configure & Flash
+
+Edit the top of `ESP32_LED/RageLEDStrip.ino`:
+
+```cpp
 const char* SSID     = "YOUR_WIFI_SSID";      // your Wi-Fi name
 const char* PASSWORD = "YOUR_WIFI_PASSWORD";  // your Wi-Fi password
 
 #define LED_PIN   5    // GPIO pin to DATA line of LED strip
 #define NUM_LEDS  60   // number of LEDs on your strip
+```
+
 Then:
 
-Select your board: Tools → Board → ESP32 Dev Module (or your specific ESP32 variant)
-Select the correct COM port: Tools → Port
-Click Upload
-The ESP32 listens on port 8082 via WebSocket. Unity's Assets/Scripts/RageLEDClient.cs connects to it automatically when running.
+1. Select your board: **Tools → Board → ESP32 Dev Module** (or your specific ESP32 variant)
+2. Select the correct COM port: **Tools → Port**
+3. Click **Upload**
 
-Quick Reference Summary
-1. Clone
+> The ESP32 listens on **port 8082** via WebSocket.  
+> Unity's `Assets/Scripts/RageLEDClient.cs` connects to it automatically when running.
+
+---
+
+## Quick Reference Summary
+
+```bash
+# 1. Clone
 git clone <repo-url>
-2. Open in Unity 6000.3.10f1 (let packages resolve)
-3. Build Settings → Android → Switch Platform
-4. Build APK
-   File → Build Settings → Build → Xage.apk
-5. Sideload
+
+# 2. Open in Unity 6000.3.10f1 (let packages resolve)
+
+# 3. Build Settings → Android → Switch Platform
+
+# 4. Build APK
+#    File → Build Settings → Build → Xage.apk
+
+# 5. Sideload
 adb install -r Xage.apk
-6. (Optional) Flash ESP32
-   Edit WiFi credentials in RageLEDStrip.ino → Upload via Arduino IDE
+
+# 6. (Optional) Flash ESP32
+#    Edit WiFi credentials in RageLEDStrip.ino → Upload via Arduino IDE
+```
 
 
 ## Usage section 
@@ -257,6 +333,14 @@ The destructible objects are spawned when either the green or blue button is pre
 
 
 
-## Contributors -Happy
-or maintainers of your project and how to contact them.
+## Contributors
+
+This project was built by a team of 4 contributors:
+
+| # | Name           |
+|---|----------------|
+| 1 | Krish Parikh   |
+| 2 | Linnea Bergh   |
+| 3 | Elin Paulsson  |
+| 4 | Happy Tony     |
 
