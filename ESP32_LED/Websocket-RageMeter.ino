@@ -3,8 +3,8 @@
 #include <FastLED.h>
 
 // ── CONFIG — edit these for your setup ────────────────────────────────────────
-const char* SSID     = "dsv-extrality-lab";
-const char* PASSWORD = "expiring-unstuck-slider";
+const char* SSID     = "xxxxxx";
+const char* PASSWORD = "xxxx";
 
 #define LED_PIN     4        // GPIO pin connected to DATA line of the strip
 #define NUM_LEDS    144       // total LEDs on your strip
