@@ -129,8 +129,8 @@ There are two components to set up:
 |---------------------------------------|-------------------------------|
 | Meta Quest 3 / 3S / Pro               | Running the MR experience     |
 | PC running Unity                      | Build machine                 |
-| ESP32 board (optional)                | Physical WS2812B LED rage bar |
-| WS2812B LED strip, 60 LEDs (optional) | Connected to ESP32 GPIO 5     |
+| ESP32 board                           | Physical WS2812B LED rage bar |
+| WS2812B LED strip, 144 LEDs           | Connected to ESP32 GPIO 5     |
 
 ---
 
