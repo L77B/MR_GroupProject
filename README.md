@@ -39,8 +39,7 @@ These goals were all planned in a timeline (see picture below)
 
 
 #### There were many challenges and solutions in the process:
-- The deep-sensing
- camera didn't work
+- The deep-sensing camera didn't work
 
 Solved: an app was downloaded, which could scan the objects.
 
@@ -75,9 +74,8 @@ In the end, the scope was cut down compared to our initial design requirements. 
 
 
 
-## Features and functionalities of your project -Krish
-You can use bullet points, screenshots, gifs, or videos to illustrate your points. Also, include a link to your project's demo or live version.
- - Digital Twins of real lab objects
+## Features and functionalities of your project
+
   
  <img width="286" height="208" alt="Screenshot 2026-06-07 at 7 03 38 PM" src="https://github.com/user-attachments/assets/d00c6e47-7c52-48f6-8594-f9cb8853e330" />
  
